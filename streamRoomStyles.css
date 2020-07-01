@@ -1,0 +1,108 @@
+
+
+
+
+/*  
+    BODY DEFAULTS
+
+
+    Some Notes on Sizing:
+
+    Font-size of 62.5% is equal to 10px. This is convenient for rem sizing and is considered current best practice. 
+    Reason for % over px is that it doesn't ruin user experience for people using either browsers that have a higher default font-size (ie. Opera is 15px),
+    or users who have purposely increased their default font-size.
+*/
+
+
+body {
+    font-size: 62.5%;
+    height:100%;
+    margin:0;
+}
+
+
+/* VIDEO AREA */
+
+
+#video {
+    width: 50rem;
+    background-color: black;
+}
+
+#videoArea{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position:relative;
+}
+
+
+    /*Force Hidden Default HTML5 Controls in FullScreen*/
+    video::-webkit-media-controls-enclosure {
+        display:none;
+    }
+
+    /*PLAYER COMMANDS*/
+
+    #playerCommands{
+        align-items: flex-end;
+        bottom:0;
+        display: flex;
+        justify-content: center;
+        margin-bottom:1rem;
+        position:absolute;
+    }
+
+    #playBackControls{
+        margin: 0 1.5rem 0 1rem;
+    }
+
+    #urlField{
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    /*SEEK COMMANDS*/
+
+    #seekCommands{
+        align-items: center;
+        color:white;
+        display: flex;
+        font-size:1rem;
+        justify-content: center;
+        }
+
+        #seekCommands button{
+            margin:0 0 0 0.5rem;
+        }
+
+        #seekCommands input{
+            font-size:0.75rem;
+            width:3rem;  
+        }
+
+        #seekCommands.hidden{
+        display:none;
+        }
+
+
+            /*SEEK BY TIME*/
+            #hourColumn{
+                display:flex;
+                flex-direction: column;
+                margin:0 0.25rem 1rem 0.25rem;
+            }
+
+            #minColumn{
+                display:flex;
+                flex-direction: column;
+                margin:0 0.25rem 1rem 0.25rem;
+            }
+
+            #secColumn{
+                display:flex;
+                flex-direction: column;
+                margin:0 0.25rem 1rem 0.25rem;
+            }
+
