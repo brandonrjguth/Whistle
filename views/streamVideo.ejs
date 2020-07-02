@@ -7,69 +7,251 @@
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
         crossorigin="anonymous"></script>
         <script src="/socket.io/socket.io.js"></script>
+        <script>var socket = io();</script>
     </head>
-    <body>
+<body>
+    <!-- VIDEO AREA -->
+    <div id="videoArea">
+
+        <!-- VIDEO ELEMENT --> 
+        <video src="" id="video"></video>
         
+        <!-- PLAYER COMMANDS -->
+        <div id="playerCommands">
 
-        <!-- Video Area -->
-            <div id="videoArea">
+            <!-- URL and LOAD -->
+            <div id="urlField">
+                <input type="text" placeholder="Paste a URL" id="urlInputText"></input>
+                <button id="urlSubmit">Load URL</button>
+            </div>
 
-                <!-- Video Element --> 
-                <video src="" id="video"></video>
-                
-                <!-- Player Commands -->
-                <div id="playerCommands">
+            <!-- PLAYBACK CONTROLS -->
 
-                    <!-- Enter URL and Load -->
-                    <div id="urlField">
-                        <input type="text" placeholder="Paste a URL" id="urlInputText"></input>
-                        <button id="urlSubmit">Load URL</button>
-                    </div>
+            <div id="playBackControls">
 
-                    <!-- Playback Controls -->
-
-                    <div id="playBackControls">
-
-                        <!-- Seek to Specific Time -->
-                        <div id="seekCommands" class="hidden">
-                            
-                            <div id=hourColumn >
-                                Hour
-                                <input id="hour" placeholder="hour" type="text"></input>
-                            </div>
-                            :
-                            <div id=minColumn>
-                                Minutes
-                                <input id="minute" placeholder="min" type="text"></input>
-                            </div>
-                            :
-                            <div id=secColumn>
-                                Seconds
-                                <input id="second" placeholder="sec" type="text"></input>
-                            </div>
-                            <button id="seek">Seek</button>
-                        </div>
-
-                        <!-- Play/Pause, Skip, Rewind -->
-                        <div id=playBackCommands>
-                            <button id="playPause">PLAY/PAUSE</button>
-                            <button id="skipBack"><<</button>
-                            <button id="skipAhead">>></button>
-                            <button id="showSeekCommands">Show Timestamp Controls</button>
-                        </div>
-                    </div>
-
+                <!-- SEEK TO -->
+                <div id="seekCommands" class="hidden">
                     
-                    <button>Hide Chat</button>
+                    <div id=hourColumn >
+                        Hour
+                        <input id="hour" placeholder="hour" type="text"></input>
+                    </div>
+                    :
+                    <div id=minColumn>
+                        Minutes
+                        <input id="minute" placeholder="min" type="text"></input>
+                    </div>
+                    :
+                    <div id=secColumn>
+                        Seconds
+                        <input id="second" placeholder="sec" type="text"></input>
+                    </div>
+                    <button id="seek">Seek</button>
+                </div>
+
+                <!-- PLAY PAUSE SKIP REWIND -->
+                <div id=playBackCommands>
+                    <button id="playPause">PLAY/PAUSE</button>
+                    <button id="skipBack"><<</button>
+                    <button id="skipAhead">>></button>
+                    <button id="showSeekCommands">Show Timestamp Controls</button>
                 </div>
             </div>
 
-            <ul id="messages"></ul>
-                <form action="">
-                    <input id="m" autocomplete="off" /><button>Send</button>
-                </form>
+            <button>Hide Chat</button>
+        </div>
+    </div>
+
+    <ul id="messages"></ul>
+    <form action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+
+<!-- END OF BODY, BEGINNING OF SCRIPTS -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- VIDEO PLAYER FUNCTIONS -->
+
+<script>
+
+    
+
+//  PLAY AND PAUSE
+//- check state of video player, and then pauses or plays accordingly.
+$("#playPause").click(function(){
+    
+     if (document.getElementById("video").paused == true){
+        socket.emit('checkBufferedUsers');
+    }
+
+    else  {
+        socket.emit('Pause');
+    }
+
+});
+
+  
+
+       
+
+
+
+//SEEK TO. 
+//when the seek button is pressed, do the math to calculate the seconds value of the format hh:mm:ss, 
+//and make the current time for the video element equal to that.
+
+$("#seek").click(function(){
+
+    if ($("#hour").val() == ""){
+        $("#hour").val(0);
+    }
+
+    if ($("#minute").val() == ""){
+        $("#minute").val(0);
+    };
+
+    if ($("#second").val() == ""){
+        $("#second").val(0);
+    };
+
+    newTime = parseInt(($("#hour").val()) * 60 * 60) + (parseInt($("#minute").val()) * 60) + parseInt($("#second").val())
+    console.log(newTime);
+    document.getElementById("video").currentTime = newTime;    
+});
+
+//SKIP. 
+//Calculates current timestamp and sets the video's current time to the timestamp plus 10 seconds.
+
+$("#showSeekCommands").click(function(){
+    if ($("#seekCommands").hasClass("hidden") == true){
+        $("#seekCommands").removeClass("hidden");
+        $("#showSeekCommands").text("Hide Timestamp Controls");
+    }
+
+    else {
+        $("#seekCommands").addClass("hidden");
+        $("#showSeekCommands").text("Show Timestamp Controls");
+    }
+
+
+    ;
+   
+    
+});
+
+$("#skipAhead").click(function(){
+    let timeStamp = document.getElementById("video").currentTime;
+    document.getElementById("video").currentTime = timeStamp + 10});
+
+$("#skipBack").click(function(){
+let timeStamp = document.getElementById("video").currentTime;
+document.getElementById("video").currentTime = timeStamp - 10;
+
+let timeAndSource = {time:document.getElementById("video").currentTime, src: $('#video').attr("src")}
+socket.emit("foundTime", timeAndSource);
+
+
+});
+
+
+//NEW URL
+//change the source attribute for the video element to match the text in the URL field.
+
+$("#urlSubmit").click(function(){
+    let newURL = $("#urlInputText").val();
+    socket.emit('newURL', newURL);   
+});
+</script>
+
+
+
+
+
+
+<!-- SOCKET.IO FUNCTIONS -->
+<script>
+    $(function () {
+
+        
+        
+
+        $('form').submit(function(e){
+            e.preventDefault(); // prevents page reloading
+            socket.emit('chat message', $('#m').val());
+            $('#m').val('');
+            return false;
+        });
+
+
+        //SOCKET RECEIVES
+        
+        //CHECK BUFFERED USERS
+
+        let checkBufferedUsers = () =>  {if (document.getElementById("video").readyState == 4){
                 
-            <script src="socketFunctions.js"></script>
-            <script src="videoPlayerFunctions.js"></script>
+                socket.emit('isBuffered', document.getElementById("video").readyState)
+                break
+
+                }    else {
+                    
+                    setTimeout(function(){checkBufferedUsers(), 3000});
+                
+            };
+
+        socket.on("checkBufferedUsers", () =>{
+            checkBufferedUsers();
+        });
+
+            
+
+
+        //FIND TIME
+        socket.on("findTime", () => {
+        let timeAndSource = {time:document.getElementById("video").currentTime, src: $('#video').attr("src")}
+           socket.emit("foundTime", timeAndSource);
+        });
+
+        //CHAT MESSAGE
+        socket.on('chat message', (msg) => {
+            $('#messages').append($('<li>').text(msg));
+        });
+
+        //NEW URL
+        socket.on('newURL', (newURL) => {
+            $('#video').attr("src", newURL);
+            
+        });
+
+        //NEW TIME
+        socket.on('newTime', (newTime) => {
+            document.getElementById("video").currentTime = newTime;
+        });
+
+        //PLAY/PAUSE
+        socket.on('Pause', () => {
+            document.getElementById("video").pause();
+        });
+
+        socket.on('Play', () => { 
+            document.getElementById("video").play();
+        });
+        
+
+    });
+</script>
+
+
     </body>
 </html>

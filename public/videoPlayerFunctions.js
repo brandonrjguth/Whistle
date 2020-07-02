@@ -1,5 +1,6 @@
-//Play and Pause Button. Logic to check state of video player, paused or playing, and then pauses or plays accordingly.
+<script src="/socket.io/socket.io.js"></script>;
 
+//Play and Pause Button. Logic to check state of video player, paused or playing, and then pauses or plays accordingly.
 $("#playPause").click(function(){
 
     console.log(document.getElementById("video").paused);
@@ -68,5 +69,6 @@ document.getElementById("video").currentTime = timeStamp - 10});
 $("#urlSubmit").click(function(){
     let newURL = $("#urlInputText").val();
     $("#video").attr("src", newURL);
+    socket.emit('currentTime', document.getElementById("video").currentTime);
     document.getElementById("video").load();
 });

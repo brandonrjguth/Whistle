@@ -39,7 +39,7 @@ body {
 
     /*Force Hidden Default HTML5 Controls in FullScreen*/
     video::-webkit-media-controls-enclosure {
-        display:none;
+        /*display:none;*/
     }
 
     /*PLAYER COMMANDS*/

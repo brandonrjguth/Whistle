@@ -36,12 +36,92 @@ app.post('/testButton', function(req, res) {
 
 });
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
 
+//IO CONTROLS
+let users = [];
+
+
+
+//ON CONNECT
+io.on('connection', (socket) => {
+
+    //ADD NEW USER TO ARRAY
+   users.push({id:socket.id});
+   
+    //ON DISCONNECT
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+
+    //REMOVE NEW USER FROM ARRAY
+        for (i=0; i < users.length; i++) {
+            if (users[i].id == socket.id) {
+                users.splice(i, 1);
+                console.log('user disconnected');
+            }
+        };
+        
+        
     });
+
+
+
+   //FIND VIDEO TIME AND SOURCE
+   //USER LATER TO EMIT TO ONE USE
+   io.sockets.connected[users[0].id].emit("findTime");
+
+    //FOUND TIME NEW USER
+       socket.on('foundTime', (timeAndSource) =>{
+        console.log(timeAndSource.time);
+        console.log(timeAndSource.src);
+
+        io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
+        io.sockets.connected[users[users.length - 1].id].emit("newTime", timeAndSource.time);
+    });
+
+    //FOUND TIME ALL USERS
+    socket.on('allFoundTime', (timeAndSource) =>{
+        console.log(timeAndSource.time);
+        console.log(timeAndSource.src);
+        io.emit("newTime", timeAndSource.time);
+    });
+
+
+    //NEW URL
+    socket.on('newURL', (newURL) =>{
+        io.emit('newURL', newURL);
+    });
+
+    //CHECK BUFFER AND PLAY
+    socket.on('checkBufferedUsers', () => {
+        io.emit('checkBufferedUsers');
+    });
+
+    //IS BUFFERED
+    socket.on('isBuffered', (buffered) =>{
+        //Iterate through users and find the user, set isBuffered to true.
+
+        
+        let evaluateBuffer = () => {
+            let isBufferedFunction = (user) => {return (buffered === 4)};
+            if (users.every(isBufferedFunction) === true){
+                console.log("true");
+                io.emit('Play');
+                return;
+            } else {
+                    setTimeout(evaluateBuffer(), 3000);
+                } 
+        };
+        evaluateBuffer();
+    });
+       
+            
+
+    //PAUSE
+    socket.on('Pause', () =>{
+        io.emit('Pause');
+    });
+
+
+
 
     socket.on('chat message', (msg) => {
     io.emit('chat message', msg);
@@ -49,7 +129,5 @@ io.on('connection', (socket) => {
     });
 });
 
-http.listen(3000, () => {
-    console.log('listening on *:3000');
-    
-  });
+
+http.listen(3000, "0.0.0.0");
