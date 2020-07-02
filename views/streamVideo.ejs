@@ -184,9 +184,7 @@ $("#urlSubmit").click(function(){
 <script>
     $(function () {
 
-        
-        
-
+           
         $('form').submit(function(e){
             e.preventDefault(); // prevents page reloading
             socket.emit('chat message', $('#m').val());
@@ -201,20 +199,18 @@ $("#urlSubmit").click(function(){
 
         let checkBufferedUsers = () =>  {if (document.getElementById("video").readyState == 4){
                 
-                socket.emit('isBuffered', document.getElementById("video").readyState)
-                break
-
-                }    else {
-                    
+                socket.emit('isBuffered', document.getElementById("video").readyState);
+            } else { 
                     setTimeout(function(){checkBufferedUsers(), 3000});
-                
+                }
+            
             };
+               
 
         socket.on("checkBufferedUsers", () =>{
             checkBufferedUsers();
         });
-
-            
+ 
 
 
         //FIND TIME
@@ -249,7 +245,7 @@ $("#urlSubmit").click(function(){
         });
         
 
-    });
+});
 </script>
 
 
