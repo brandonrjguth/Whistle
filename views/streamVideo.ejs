@@ -269,6 +269,28 @@ $("#urlSubmit").click(function(){
 
         socket.on('Play', () => { 
             document.getElementById("video").play();
+
+            let player = document.getElementById("video");
+            let time = 1;
+
+            let checkForStall = () => {let timerId = setInterval(function(){
+                if (player.paused == true) {
+                    clearInterval(timerId);
+                    return
+                }
+                if ((time*100) <= (player.currentTime*100) - 20 &&
+                    player.paused != true){
+                    console.log(time);
+                    time = player.currentTime;
+
+                } else {
+                    console.log("here");
+                } 
+            }, 1000);}
+
+            setTimeout(checkForStall, 2000)
+
+            
         });
         
 
