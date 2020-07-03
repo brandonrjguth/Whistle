@@ -44,7 +44,7 @@ let users = [];
 
 //ON CONNECT
 io.on('connection', (socket) => {
-    users.push({id:socket.id});
+    users.push({id:socket.id, isBuffered:false});
     console.log([users[0].id]);
     console.log([users]);
     io.to(users[0].id).emit("findTime");
@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
             io.sockets.connected[users[users.length - 1].id].emit("Pause");
         } else {
             io.emit("Pause");
-            setTimeout(function() {socket.emit('checkBufferedUsers')}, 1000);
+            io.emit("checkBufferedUsers");
         };
     });
 
@@ -106,21 +106,22 @@ io.on('connection', (socket) => {
 
     //IS BUFFERED
     socket.on('isBuffered', (buffered) =>{
-        //Iterate through users and find the user, set isBuffered to true.
-
         
-        let evaluateBuffer = () => {
-            let isBufferedFunction = (user) => {return (buffered === 4)};
-
-            if (users.every(isBufferedFunction) === true){
-                console.log("true");
-                io.emit('Play');
-                return;
-            } else {
-                    setTimeout(evaluateBuffer, 3000);
-                } 
+        for (i=0; i < users.length; i++){
+            if (users[i].id === buffered.id){
+                users[i].isBuffered = true;
+            }
         };
-        evaluateBuffer();
+
+        let evaluateBuffer = (arrayvalue) => arrayvalue.isBuffered == true;
+        let evaluateBufferAll = () => {
+            if (users.every(evaluateBuffer) == true){
+                setTimeout(function() {io.emit("Play")}, 3000);
+            } else setTimeout(evaluateBufferAll, 1000);
+        };
+        
+       evaluateBufferAll();
+    
     });
        
             

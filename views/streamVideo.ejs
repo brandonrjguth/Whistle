@@ -93,7 +93,7 @@
 $("#playPause").click(function(){
     
      if (document.getElementById("video").paused == true){
-        setTimeout(function() {socket.emit('checkBufferedUsers')}, 5000);
+        socket.emit('checkBufferedUsers');
     }
 
     else  {
@@ -133,7 +133,7 @@ $("#seek").click(function(){
         socket.emit("Pause");
     } else if (timeAndSource.isPaused === false){
         socket.emit("Pause");
-        setTimeout(function(){socket.emit("checkBufferedUsers")}, 5000);
+        socket.emit("checkBufferedUsers");
     }
     
     
@@ -167,13 +167,13 @@ if(timeAndSource.isPaused === true){
         socket.emit("Pause");
     } else if (timeAndSource.isPaused === false){
         socket.emit("Pause");
-        setTimeout(function(){socket.emit("checkBufferedUsers")}, 5000);
+        socket.emit("checkBufferedUsers");
     }
     
     
 
 socket.emit("Pause");
-setTimeout(function() {socket.emit('checkBufferedUsers')}, 5000);
+socket.emit('checkBufferedUsers');
 });
 
 $("#skipBack").click(function(){
@@ -184,7 +184,7 @@ if(timeAndSource.isPaused === true){
         socket.emit("Pause");
     } else if (timeAndSource.isPaused === false){
         socket.emit("Pause");
-        setTimeout(function(){socket.emit("checkBufferedUsers")}, 5000);
+        socket.emit("checkBufferedUsers");
     }
 });
 
@@ -219,11 +219,11 @@ $("#urlSubmit").click(function(){
         let checkBufferedUsers = () =>  {
             setTimeout(function(){
                 if (document.getElementById("video").readyState == 4){
-                socket.emit('isBuffered', document.getElementById("video").readyState);
+                socket.emit('isBuffered', {readyState:document.getElementById("video").readyState, id:socket.id});
             } else { 
-                    setTimeout(function(){checkBufferedUsers, 5000});
+                    setTimeout(function(){checkBufferedUsers}, 500);
                 }
-            }, 3000);
+            }, 1000);
         }
             
             
