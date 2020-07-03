@@ -95,6 +95,7 @@
 $("#playPause").click(function(){
     
      if (document.getElementById("video").paused == true){
+        console.log("clickedplay");
         socket.emit('checkBufferedUsers');
     }
     else  {
@@ -122,8 +123,7 @@ $("#seek").click(function(){
     if(timeAndSource.isPaused === true){
         socket.emit("Pause");
     } else if (timeAndSource.isPaused === false){
-        socket.emit("Pause");
-        setTimeout(function(){socket.emit("checkBufferedUsers");}, 2000);
+        socket.emit("checkBufferedUsers");
     }
     
     
@@ -151,7 +151,7 @@ if(timeAndSource.isPaused === true){
         socket.emit("Pause");
     } else if (timeAndSource.isPaused === false){
         socket.emit("Pause");
-        setTimeout(function(){socket.emit("checkBufferedUsers");}, 2000);
+        socket.emit("checkBufferedUsers");
     }
 });
 
@@ -163,7 +163,7 @@ if(timeAndSource.isPaused === true){
         socket.emit("Pause");
     } else if (timeAndSource.isPaused === false){
         socket.emit("Pause");
-        setTimeout(function(){socket.emit("checkBufferedUsers");}, 2000);
+        socket.emit("checkBufferedUsers");
     }
 });
 //NEW URL
@@ -187,24 +187,23 @@ $("#urlSubmit").click(function(){
         });
         //SOCKET RECEIVES
         
-        //CHECK BUFFERED USERS
-        
-        let checkBufferedUsers = () =>  {
-            console.log("here");
-            setTimeout(function(){
-                if (document.getElementById("video").readyState == 4){
-                socket.emit('isBuffered', {readyState:document.getElementById("video").readyState, id:socket.id});
-            } else { 
-                    setTimeout(function(){checkBufferedUsers}, 500);
-                }
-            }, 1000);
-        }
-            
-            
+        //CHECK BUFFERED USERS 
            
         socket.on("checkBufferedUsers", () =>{
-            checkBufferedUsers();
+
+            console.log("received check buffered");
+            socket.emit("Pause");
+            let checkBufferedUsers = setInterval(function(){
+                console.log("checking buffer");
+            if (document.getElementById("video").readyState == 4){
+                console.log("buffered");
+                socket.emit('isBuffered', {readyState:document.getElementById("video").readyState, id:socket.id});
+                clearInterval(checkBufferedUsers);
+            }
+                
+            },500);
         });
+
  
         //FIND TIME
         socket.on("findTime", () => {

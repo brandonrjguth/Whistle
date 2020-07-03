@@ -11,6 +11,7 @@
     const app = express();
     const http = require('http').createServer(app);
     const io = require('socket.io')(http);
+    
 
 //SET EXPRESS AND MONGO CONNECTION PORT AND URL.
 
@@ -40,6 +41,8 @@ app.post('/testButton', function(req, res) {
 
 //IO CONTROLS
 let users = [];
+let counter = [];
+
 
 
 
@@ -49,6 +52,7 @@ io.on('connection', (socket) => {
     console.log([users[0].id]);
     console.log([users]);
     io.to(users[0].id).emit("findTime");
+    
     
 
     //TO-DO: ADD LOGIC THAT CHECKS IF OTHER PLAYERS ARE PAUSED, AND PAUSES.
@@ -80,7 +84,7 @@ io.on('connection', (socket) => {
             io.sockets.connected[users[users.length - 1].id].emit("Pause");
         } else {
             io.emit("Pause");
-            setTimeout(function(){io.emit("checkBufferedUsers");}, 4000);
+            io.emit("checkBufferedUsers");
         };
     });
 
@@ -102,27 +106,40 @@ io.on('connection', (socket) => {
 
     //CHECK BUFFER AND PLAY
     socket.on('checkBufferedUsers', () => {
+        console.log("clickedplayserver");
         io.emit('checkBufferedUsers');
     });
 
-    //IS BUFFERED
+    //IS BUFFERED (PROBLEM LIES IN THAT ISBUFFERED IS RECIEVED MULTIPLE TIMES)
+
+    
+
     socket.on('isBuffered', (buffered) =>{
         
         for (i=0; i < users.length; i++){
             if (users[i].id === buffered.id){
                 users[i].isBuffered = true;
+                counter.push(1);
+                
+                
             }
         };
-
-        let evaluateBuffer = (arrayvalue) => arrayvalue.isBuffered == true;
-        let evaluateBufferAll = () => {
-            if (users.every(evaluateBuffer) == true){
-                setTimeout(function() {io.emit("Play")}, 3000);
-            } else setTimeout(evaluateBufferAll, 1000);
-        };
         
-       evaluateBufferAll();
-    
+        
+        if (counter.length == users.length){
+            let evaluateBuffer = (arrayvalue) => arrayvalue.isBuffered == true;
+            
+            var myInterval = setInterval(function(){
+                io.emit("Play");
+                counter = [];
+                clearInterval(myInterval);
+           },500);
+            
+           
+        
+        }
+
+        
     });
        
             
