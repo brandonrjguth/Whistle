@@ -1,3 +1,4 @@
+
 //INITIAL SETUP
 
 
@@ -76,11 +77,10 @@ io.on('connection', (socket) => {
         io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
         io.emit("newTime", timeAndSource.time);
         if(timeAndSource.isPaused === true){
-            console.log("1");
             io.sockets.connected[users[users.length - 1].id].emit("Pause");
         } else {
             io.emit("Pause");
-            io.emit("checkBufferedUsers");
+            setTimeout(function(){io.emit("checkBufferedUsers");}, 4000);
         };
     });
 
