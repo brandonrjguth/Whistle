@@ -1,8 +1,7 @@
 
 //INITIAL SETUP
 
-
-    //Requires (Body Parser, EJS, Express, Mongo, Mongoose)
+//Requires (Body Parser, EJS, Express, Mongo, Mongoose)
     const bodyParser = require('body-parser');
     const ejs = require("ejs");
     const express = require("express");
@@ -11,23 +10,17 @@
     const app = express();
     const http = require('http').createServer(app);
     const io = require('socket.io')(http);
-    
-
 //SET EXPRESS AND MONGO CONNECTION PORT AND URL.
-
-    //Set port express will listen on.
+     //Set port express will listen on.
     const port = 3000;
-
 //OTHER
-
     //Configure Body Parser and EJS
     app.use(bodyParser.urlencoded({ extended: true }));
     app.set('view engine', 'ejs');
     app.use(express.static(__dirname + '/public'));
 
 
-
-//ROUTES
+/*---------------------------------------------ROUTES-------------------------------------------------------*/
 
 app.get('/', function(req, res) {
     res.render('streamVideo');
@@ -38,8 +31,7 @@ app.post('/testButton', function(req, res) {
 
 });
 
-
-//IO CONTROLS
+/*------------------------------------------IO CONTROLS------------------------------------------------------*/
 let users = [];
 let counter = [];
 
@@ -48,9 +40,10 @@ let counter = [];
 
 //ON CONNECT
 io.on('connection', (socket) => {
+
+    //push users to user array.
     users.push({id:socket.id, isBuffered:false});
-    console.log([users[0].id]);
-    console.log([users]);
+    //find the timestamp and sync to first user to join
     io.to(users[0].id).emit("findTime");
     
     
@@ -58,13 +51,10 @@ io.on('connection', (socket) => {
     //TO-DO: ADD LOGIC THAT CHECKS IF OTHER PLAYERS ARE PAUSED, AND PAUSES.
     
 
-    //ADD NEW USER TO ARRAY
-   
-   
     //ON DISCONNECT
     socket.on('disconnect', () => {
 
-    //REMOVE NEW USER FROM ARRAY
+        //REMOVE NEW USER FROM ARRAY
         for (i=0; i < users.length; i++) {
             if (users[i].id == socket.id) {
                 users.splice(i, 1);
@@ -76,7 +66,7 @@ io.on('connection', (socket) => {
     });
 
 
-    //FOUND TIME NEW USER
+    //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
        socket.on('foundTime', (timeAndSource) =>{
         io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
         io.emit("newTime", timeAndSource.time);
@@ -88,7 +78,7 @@ io.on('connection', (socket) => {
         };
     });
 
-    //FOUND TIME ALL USERS
+    //FOUND TIME ALL USERS, SYNC ALL USERS
     socket.on('allFoundTime', (timeAndSource) =>{
         if (timeAndSource.time < 0){
             timeAndSource.time = 0;
@@ -98,22 +88,18 @@ io.on('connection', (socket) => {
         
     });
 
-
     //NEW URL
     socket.on('newURL', (newURL) =>{
         io.emit('newURL', newURL);
     });
 
-    //CHECK BUFFER AND PLAY
+    //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED
     socket.on('checkBufferedUsers', () => {
         console.log("clickedplayserver");
         io.emit('checkBufferedUsers');
     });
 
-    //IS BUFFERED (PROBLEM LIES IN THAT ISBUFFERED IS RECIEVED MULTIPLE TIMES)
-
-    
-
+    //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
     socket.on('isBuffered', (buffered) =>{
         
         for (i=0; i < users.length; i++){
@@ -124,8 +110,6 @@ io.on('connection', (socket) => {
                 
             }
         };
-        
-        
         if (counter.length == users.length){
             let evaluateBuffer = (arrayvalue) => arrayvalue.isBuffered == true;
             
@@ -133,13 +117,8 @@ io.on('connection', (socket) => {
                 io.emit("Play");
                 counter = [];
                 clearInterval(myInterval);
-           },500);
-            
-           
-        
-        }
-
-        
+           },500);  
+        } 
     });
        
             
@@ -149,14 +128,12 @@ io.on('connection', (socket) => {
         io.emit('Pause');
     });
 
-
-
-
+    //RECEIVED CHAT MESSAGE
     socket.on('chat message', (msg) => {
     io.emit('chat message', msg);
     console.log('message: ' + msg);
     });
 });
 
-
+//LISTEN PORT
 http.listen(3000, "0.0.0.0");
