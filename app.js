@@ -45,14 +45,12 @@ let users = [];
 //ON CONNECT
 io.on('connection', (socket) => {
     users.push({id:socket.id});
-    
-   
     console.log([users[0].id]);
     console.log([users]);
     io.to(users[0].id).emit("findTime");
-    io.emit("Pause");
+    
 
-    //TO-DO: ADD LOGIC THAT CHECKS IF OTHER PLAYERS ARE PAUSED, AND PAUSES. PLAYS IF PLAYING.
+    //TO-DO: ADD LOGIC THAT CHECKS IF OTHER PLAYERS ARE PAUSED, AND PAUSES.
     
 
     //ADD NEW USER TO ARRAY
@@ -75,10 +73,14 @@ io.on('connection', (socket) => {
 
     //FOUND TIME NEW USER
        socket.on('foundTime', (timeAndSource) =>{
-        console.log(timeAndSource.time);
-        console.log(timeAndSource.src);
-        io.sockets.connected[users[users.length - 1].id].emit();
-        io.sockets.connected[users[users.length - 1].id].emit("newTime", timeAndSource.time);
+        io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
+        io.emit("newTime", timeAndSource.time);
+        if(timeAndSource.isPaused === true){
+            io.sockets.connected[users[users.length - 1].id].emit("Pause");
+        } else {
+            io.emit("Pause");
+            setTimeout(function() {socket.emit('checkBufferedUsers')}, 1000);
+        };
     });
 
     //FOUND TIME ALL USERS
@@ -86,7 +88,7 @@ io.on('connection', (socket) => {
         if (timeAndSource.time < 0){
             timeAndSource.time = 0;
         }
-        io.emit("newURL", timeAndSource.src);
+        //io.emit("newURL", timeAndSource.src);
         io.emit("newTime", timeAndSource.time);
         
     });

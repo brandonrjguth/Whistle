@@ -127,10 +127,16 @@ $("#seek").click(function(){
     };
 
     newTime = parseInt(($("#hour").val()) * 60 * 60) + (parseInt($("#minute").val()) * 60) + parseInt($("#second").val())
-    let timeAndSource = {time:newTime, src: $('#video').attr("src")};
+    let timeAndSource = {time:newTime, src: $('#video').attr("src"), isPaused:document.getElementById("video").paused};
     socket.emit("allFoundTime", timeAndSource);
-    socket.emit("Pause");
-    setTimeout(function() {socket.emit('checkBufferedUsers')}, 5000);
+    if(timeAndSource.isPaused === true){
+        socket.emit("Pause");
+    } else if (timeAndSource.isPaused === false){
+        socket.emit("Pause");
+        setTimeout(function(){socket.emit("checkBufferedUsers")}, 5000);
+    }
+    
+    
 });
 
 //SKIP. 
@@ -155,18 +161,31 @@ $("#showSeekCommands").click(function(){
 
 $("#skipAhead").click(function(){
 let timeStamp = document.getElementById("video").currentTime;
-let timeAndSource = {time:document.getElementById("video").currentTime = timeStamp + 10, src: $('#video').attr("src")};
+let timeAndSource = {time:document.getElementById("video").currentTime = timeStamp + 10, src: $('#video').attr("src"), isPaused:document.getElementById("video").paused};
 socket.emit("allFoundTime", timeAndSource);
+if(timeAndSource.isPaused === true){
+        socket.emit("Pause");
+    } else if (timeAndSource.isPaused === false){
+        socket.emit("Pause");
+        setTimeout(function(){socket.emit("checkBufferedUsers")}, 5000);
+    }
+    
+    
+
 socket.emit("Pause");
 setTimeout(function() {socket.emit('checkBufferedUsers')}, 5000);
 });
 
 $("#skipBack").click(function(){
 let timeStamp = document.getElementById("video").currentTime;
-let timeAndSource = {time:document.getElementById("video").currentTime = timeStamp - 10, src: $('#video').attr("src")};
+let timeAndSource = {time:document.getElementById("video").currentTime = timeStamp - 10, src: $('#video').attr("src"), isPaused:document.getElementById("video").paused};
 socket.emit("allFoundTime", timeAndSource);
-socket.emit("Pause");
-setTimeout(function() {socket.emit('checkBufferedUsers')}, 5000);
+if(timeAndSource.isPaused === true){
+        socket.emit("Pause");
+    } else if (timeAndSource.isPaused === false){
+        socket.emit("Pause");
+        setTimeout(function(){socket.emit("checkBufferedUsers")}, 5000);
+    }
 });
 
 
@@ -218,10 +237,8 @@ $("#urlSubmit").click(function(){
 
         //FIND TIME
         socket.on("findTime", () => {
-           let timeAndSource = {time:document.getElementById("video").currentTime, src: $('#video').attr("src")};
-           console.log(timeAndSource.time);
-           console.log(timeAndSource.src);
-           socket.emit("allFoundTime", timeAndSource);
+           let timeAndSource = {time:document.getElementById("video").currentTime, src: $('#video').attr("src"), isPaused:document.getElementById("video").paused};
+           socket.emit("foundTime", timeAndSource);
         });
         
         
