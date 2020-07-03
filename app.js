@@ -44,9 +44,19 @@ let users = [];
 
 //ON CONNECT
 io.on('connection', (socket) => {
+    users.push({id:socket.id});
+    
+   
+    console.log([users[0].id]);
+    console.log([users]);
+    io.to(users[0].id).emit("findTime");
+    io.emit("Pause");
+
+    //TO-DO: ADD LOGIC THAT CHECKS IF OTHER PLAYERS ARE PAUSED, AND PAUSES. PLAYS IF PLAYING.
+    
 
     //ADD NEW USER TO ARRAY
-   users.push({id:socket.id});
+   
    
     //ON DISCONNECT
     socket.on('disconnect', () => {
@@ -63,25 +73,22 @@ io.on('connection', (socket) => {
     });
 
 
-
-   //FIND VIDEO TIME AND SOURCE
-   //USER LATER TO EMIT TO ONE USE
-   io.sockets.connected[users[0].id].emit("findTime");
-
     //FOUND TIME NEW USER
        socket.on('foundTime', (timeAndSource) =>{
         console.log(timeAndSource.time);
         console.log(timeAndSource.src);
-
-        io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
+        io.sockets.connected[users[users.length - 1].id].emit();
         io.sockets.connected[users[users.length - 1].id].emit("newTime", timeAndSource.time);
     });
 
     //FOUND TIME ALL USERS
     socket.on('allFoundTime', (timeAndSource) =>{
-        console.log(timeAndSource.time);
-        console.log(timeAndSource.src);
+        if (timeAndSource.time < 0){
+            timeAndSource.time = 0;
+        }
+        io.emit("newURL", timeAndSource.src);
         io.emit("newTime", timeAndSource.time);
+        
     });
 
 
@@ -102,12 +109,13 @@ io.on('connection', (socket) => {
         
         let evaluateBuffer = () => {
             let isBufferedFunction = (user) => {return (buffered === 4)};
+
             if (users.every(isBufferedFunction) === true){
                 console.log("true");
                 io.emit('Play');
                 return;
             } else {
-                    setTimeout(evaluateBuffer(), 3000);
+                    setTimeout(evaluateBuffer, 3000);
                 } 
         };
         evaluateBuffer();
