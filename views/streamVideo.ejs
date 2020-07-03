@@ -173,14 +173,13 @@
         
         //CHECK BUFFERED USERS  
         socket.on("checkBufferedUsers", () =>{
-
             console.log("received check buffered");
             socket.emit("Pause");
             let checkBufferedUsers = setInterval(function(){
                 console.log("checking buffer");
             if (document.getElementById("video").readyState == 4){
                 console.log("buffered");
-                socket.emit('isBuffered', {readyState:document.getElementById("video").readyState, id:socket.id});
+                socket.emit('isBuffered');
                 clearInterval(checkBufferedUsers);
             }
                 

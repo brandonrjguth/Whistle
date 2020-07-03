@@ -42,7 +42,7 @@ let counter = [];
 io.on('connection', (socket) => {
 
     //push users to user array.
-    users.push({id:socket.id, isBuffered:false});
+    users.push({id:socket.id});
     //find the timestamp and sync to first user to join
     io.to(users[0].id).emit("findTime");
     
@@ -65,7 +65,6 @@ io.on('connection', (socket) => {
         
     });
 
-
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
        socket.on('foundTime', (timeAndSource) =>{
         io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
@@ -85,7 +84,6 @@ io.on('connection', (socket) => {
         }
         //io.emit("newURL", timeAndSource.src);
         io.emit("newTime", timeAndSource.time);
-        
     });
 
     //NEW URL
@@ -101,28 +99,18 @@ io.on('connection', (socket) => {
 
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
     socket.on('isBuffered', (buffered) =>{
-        
-        for (i=0; i < users.length; i++){
-            if (users[i].id === buffered.id){
-                users[i].isBuffered = true;
-                counter.push(1);
-                
-                
-            }
-        };
+        counter.push(1);    
         if (counter.length == users.length){
-            let evaluateBuffer = (arrayvalue) => arrayvalue.isBuffered == true;
-            
             var myInterval = setInterval(function(){
-                io.emit("Play");
+
+                //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
+                setTimeout(function(){io.emit("Play");}, 1800);
                 counter = [];
                 clearInterval(myInterval);
            },500);  
         } 
     });
        
-            
-
     //PAUSE
     socket.on('Pause', () =>{
         io.emit('Pause');
