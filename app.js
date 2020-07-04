@@ -44,7 +44,11 @@ io.on('connection', (socket) => {
     //push users to user array.
     users.push({id:socket.id});
     //find the timestamp and sync to first user to join
+    if (users[0].id === socket.id && users[1] != undefined){
+        io.to(users[1].id).emit("findTime");
+    } if (users[0].id !== socket.id){
     io.to(users[0].id).emit("findTime");
+    }
     
     
 
@@ -120,6 +124,27 @@ io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
     io.emit('chat message', msg);
     console.log('message: ' + msg);
+    });
+
+    //HANDLE CLIENTS WITH NETWORK ISSUES
+    socket.on("Unsynced", (unsynced) =>{
+
+        console.log("here");
+        if (users[1] === undefined){
+            io.emit("Pause");
+            io.emit("checkBufferedUsers");
+        }
+        
+        if
+        (users[0].id === unsynced.id && users[1] !== undefined){
+            io.to(users[1].id).emit("unsyncedFindTime", unsynced.playTime);
+        } else {
+            io.to(users[0].id).emit("unsyncedFindTime", unsynced);
+        }
+    });
+
+    socket.on("playUnsyncedUser", (unsyncedId) =>{
+        io.to(unsyncedId).emit("Play");
     });
 });
 

@@ -75,6 +75,8 @@
  <!-- VIDEO PLAYER FUNCTIONS -->
 
     <script>
+
+
     //  PLAY AND PAUSE
     //- check state of video player, and then pauses or plays accordingly.
     $("#playPause").click(function(){
@@ -208,8 +210,35 @@
         });
         socket.on('Play', () => { 
             document.getElementById("video").play();
+
         });
+
+        socket.on('justPlay', () => {
+            document.getElementById('video').play();
+        });
+
+        //GET TIME FOR UNSYNCED CLIENT
+        socket.on("unsyncedFindTime", (unsynced) =>{
+            console.log("getting unsynced time from");
+            let player = document.getElementById("video");
+            var unsyncedFindTimeInterval = setInterval(function(){
+            var currentPlayPos = player.currentTime;
+                
+                if (currentPlayPos >= unsynced.playTime  ){
+                    socket.emit("playUnsyncedUser", unsynced.id);
+                    console.log("done");
+                    clearInterval(unsyncedFindTimeInterval); 
+                }   console.log(unsynced.playTime);
+                    console.log(currentPlayPos);
+            }, 100);
+
+
+        });
+
         
+
+
+  
 });
 </script>
 
