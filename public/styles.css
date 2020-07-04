@@ -22,7 +22,9 @@ body {
 
 
 /* VIDEO AREA */
-
+#fullScreen{
+    margin:  0 0.5rem 0 ;
+}
 
 #video {
     width: 50rem;
@@ -51,6 +53,7 @@ body {
         justify-content: center;
         margin-bottom:1rem;
         position:absolute;
+        max-width: 48rem;
     }
 
     #playBackControls{

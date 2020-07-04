@@ -44,7 +44,8 @@ io.on('connection', (socket) => {
     //push users to user array.
     users.push({id:socket.id});
     //find the timestamp and sync to first user to join
-    io.to(users[0].id).emit("findTime");
+    let oldestUser = users[0].id;
+    io.to(oldestUser).emit("newUserSync");
     
     
 
@@ -66,24 +67,25 @@ io.on('connection', (socket) => {
     });
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
-       socket.on('foundTime', (timeAndSource) =>{
-        io.sockets.connected[users[users.length - 1].id].emit("newURL", timeAndSource.src);
-        io.emit("newTime", timeAndSource.time);
-        if(timeAndSource.isPaused === true){
-            io.sockets.connected[users[users.length - 1].id].emit("Pause");
+       socket.on('newUserSync', (playerInfo) =>{
+        let newestUser = users[users.length - 1].id;
+        io.sockets.connected[newestUser].emit("newURL", playerInfo.src);
+        io.emit("newTime", playerInfo.time);
+
+        if(playerInfo.paused === true){
+            io.sockets.connected[newestUser].emit("Pause");
         } else {
             io.emit("Pause");
-            io.emit("checkBufferedUsers");
+            io.emit("checkAllUsersBuffer");
         };
     });
 
     //FOUND TIME ALL USERS, SYNC ALL USERS
-    socket.on('allFoundTime', (timeAndSource) =>{
-        if (timeAndSource.time < 0){
-            timeAndSource.time = 0;
+    socket.on('newTime', (newTime) =>{
+        if (newTime < 0){
+            newTime = 0;
         }
-        //io.emit("newURL", timeAndSource.src);
-        io.emit("newTime", timeAndSource.time);
+        io.emit("newTime", newTime);
     });
 
     //NEW URL
@@ -92,23 +94,18 @@ io.on('connection', (socket) => {
     });
 
     //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED
-    socket.on('checkBufferedUsers', () => {
-        console.log("clickedplayserver");
-        io.emit('checkBufferedUsers');
+    socket.on('checkAllUsersBuffer', () => {
+        io.emit('checkAllUsersBuffer');
     });
 
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
-    socket.on('isBuffered', (buffered) =>{
+    socket.on('isBuffered', () =>{
         counter.push(1);    
         if (counter.length == users.length){
-            var myInterval = setInterval(function(){
-
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
                 setTimeout(function(){io.emit("Play");}, 1800);
                 counter = [];
-                clearInterval(myInterval);
-           },500);  
-        } 
+        }
     });
        
     //PAUSE
