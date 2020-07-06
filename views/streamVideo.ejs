@@ -12,53 +12,55 @@
     
     <!-- VIDEO AREA -->
     <div id="videoArea">
+        <div id ="embeddedArea">
+            <!-- VIDEO ELEMENT --> 
+            <video src="" id="video"></video>
+            <video src="" id="YTPlayer" style="display:none"></video>
+            
+            <!-- PLAYER COMMANDS -->
+            <div id="playerCommands">
 
-        <!-- VIDEO ELEMENT --> 
-        <video src="" id="video"></video>
-        
-        <!-- PLAYER COMMANDS -->
-        <div id="playerCommands">
-
-            <!-- URL and LOAD -->
-            <div id="urlField">
-                <input type="text" placeholder="Paste a URL" id="urlInputText"></input>
-                <button id="urlSubmit">Load URL</button>
-            </div>
-
-            <!-- PLAYBACK CONTROLS -->
-
-            <div id="playBackControls">
-
-                <!-- SEEK TO -->
-                <div id="seekCommands" class="hidden">
-                    
-                    <div id=hourColumn >
-                        Hour
-                        <input id="hour" placeholder="hour" type="text"></input>
-                    </div>
-                    :
-                    <div id=minColumn>
-                        Minutes
-                        <input id="minute" placeholder="min" type="text"></input>
-                    </div>
-                    :
-                    <div id=secColumn>
-                        Seconds
-                        <input id="second" placeholder="sec" type="text"></input>
-                    </div>
-                    <button id="seek">Seek</button>
+                <!-- URL and LOAD -->
+                <div id="urlField">
+                    <input type="text" placeholder="Paste a URL" id="urlInputText"></input>
+                    <button id="urlSubmit">Load URL</button>
                 </div>
 
-                <!-- PLAY PAUSE SKIP REWIND -->
-                <div id=playBackCommands>
-                    <button id="playPause">PLAY/PAUSE</button>
-                    <button id="skipBack"><<</button>
-                    <button id="skipAhead">>></button>
-                    <button id="showSeekCommands">Go To Time</button>
+                <!-- PLAYBACK CONTROLS -->
+
+                <div id="playBackControls">
+
+                    <!-- SEEK TO -->
+                    <div id="seekCommands" class="hidden">
+                        
+                        <div id=hourColumn >
+                            Hour
+                            <input id="hour" placeholder="hour" type="text"></input>
+                        </div>
+                        :
+                        <div id=minColumn>
+                            Minutes
+                            <input id="minute" placeholder="min" type="text"></input>
+                        </div>
+                        :
+                        <div id=secColumn>
+                            Seconds
+                            <input id="second" placeholder="sec" type="text"></input>
+                        </div>
+                        <button id="seek">Seek</button>
+                    </div>
+
+                    <!-- PLAY PAUSE SKIP REWIND -->
+                    <div id=playBackCommands>
+                        <button id="playPause">PLAY/PAUSE</button>
+                        <button id="skipBack"><<</button>
+                        <button id="skipAhead">>></button>
+                        <button id="showSeekCommands">Go To Time</button>
+                    </div>
                 </div>
+                <button id="fullScreen">Full-Screen</button>
+                <button>Hide Chat</button>
             </div>
-            <button id="fullScreen">Full-Screen</button>
-            <button>Hide Chat</button>
         </div>
     </div>
 

@@ -88,9 +88,34 @@ io.on('connection', (socket) => {
         io.emit("newTime", newTime);
     });
 
-    //NEW URL
+    //RECEIVED A NEW URL
     socket.on('newURL', (newURL) =>{
-        io.emit('newURL', newURL);
+                console.log("URL received by Server");
+                //DO A REGEX CHECK ON URL
+                if (newURL.url != undefined || newURL.url != '') {
+                    var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+                    var match = newURL.url.match(regExp);
+
+                    console.log("Done Reg Check");
+                    //IF YOUTUBE URL, SEND THE NEW URL WITH TYPE YOUTUBE
+                    if (match && match[2].length == 11) {
+                        console.log("is youtube video");
+                        newURL.type = "youtube";
+                        newURL.url = match[2];
+                        io.emit('newURL', newURL);
+                      
+    
+                    }
+                    //ELSE, SEND THE NEW URL WITH TYPE DIRECTLINK
+                    else {
+                        newURL.playerType = "directLink";
+                        io.emit('newURL', newURL);
+                    }
+                }
+  
+
+
+        
     });
 
     //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED

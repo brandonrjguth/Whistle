@@ -1,6 +1,7 @@
 
     //Declare variable "player" equal to the video player in the users dom.
     let player = $("#video").get(0);
+    let globalPlayerType = "directURL";
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
@@ -93,7 +94,8 @@
     //send signal to "newURL" socket with the newURL which will sync all users with the new url.
 
     $("#urlSubmit").click(function(){
-        let newURL = $("#urlInputText").val();
+        console.log("URL submitted");
+        let newURL = ({url:$("#urlInputText").val()});
         socket.emit('newURL', newURL);   
     });
 
@@ -120,6 +122,74 @@
 
 
         //--------------------------------------SOCKET RECEIVES--------------------------------------//
+
+
+        let YTPlayer;
+        //NEW URL (MUST BE FIRST BECAUSE THIS IS WHEN YOUTUBE API BECOMES SUBSTANTIATED)
+        //Change the URL to the received URL.
+        socket.on('newURL', (newURL) => {
+            console.log("received URL from server");
+            console.log(newURL.type);
+
+            //IF NEW TYPE IS A YOUTUBE LINK
+            if (newURL.type == "youtube"){
+        
+                    //AND THE PLAYER IS ALREADY A YOUTUBE PLAYER
+                    if (globalPlayerType === "youtube"){
+
+                        //CHANGE THE SOURCE
+                        $("#YTPlayer").attr("src", "https://www.youtube.com/embed/"+ newURL.url);
+                        $("#video").css("display", "none");
+                        $("#YTPlayer").css("display", "block");
+                        globalPlayerType = "youtube";
+                    
+                    } else {
+                            
+                        //STARTUP YOUTUBE API
+                        var tag = document.createElement('script');
+                        tag.src = "https://www.youtube.com/iframe_api";
+                        var firstScriptTag = document.getElementsByTagName('script')[0];
+                        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        
+                        
+                        //CREATE NEW YOUTUBE IFRAME
+                        setTimeout(function(){
+                             YTPlayer = new YT.Player('YTPlayer', {
+                                height: '390',
+                                width: '640',
+                                videoId: newURL.url,
+                            });
+                        $("#video").css("display", "none");
+                        $("#YTPlayer").css("display", "block");
+                        globalPlayerType = "youtube";
+                        },1000);
+                        
+                    }
+
+            //IF NEW TYPE IS NOT A YOUTUBE LINK
+            } else {
+
+                //IF CURRENT PLAYER IS YOUTUBE
+                if (globalPlayerType === "youtube"){
+                    //HIDE YOUTUBE PLAYER AND SHOW MP4 PLAYER, CHANGE URL, ADD DIV TO BE CHANGED BACK TO YOUTUBE IFRAME IF CALLED AGAIN
+                    $("#YTPlayer").remove();
+                    $("#video").after("<video id=\"YTPlayer\" style=\"display:none\"></video>");
+                    $("#video").css("display", "block");
+                    $("#video").attr("src", newURL.url);
+
+                    //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
+                    globalPlayerType = "directLink";
+                } else {
+                    //CHANGE URL
+                    $("#video").attr("src", newURL.url);
+                    //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
+                    globalPlayerType = "directLink";
+                }
+
+            }
+
+           
+        });
         
         //CHECK IF USER IS BUFFERED
         //Runs an interval that checks the readystate of the video player every half second.
@@ -143,8 +213,14 @@
         //FIND TIME
         //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
         socket.on("newUserSync", () => {
+
+            if (globalPlayerType = "youtube"){
+                setTimeout(function(){console.log(YTPlayer.getCurrentTime());}, 1200);
+
+            } else {
            let playerInfo = {time:player.currentTime, src: $('#video').attr("src"), paused:player.paused};
            socket.emit("newUserSync", playerInfo);
+        }
         });
 
         //CHAT MESSAGE
@@ -153,11 +229,7 @@
             $('#messages').append($('<li>').text(msg));
         });
 
-        //NEW URL
-        //Change the URL to the received URL.
-        socket.on('newURL', (newURL) => {
-            $('#video').attr("src", newURL);
-        });
+        
         //NEW TIME
         //Change the time to the received time.
         socket.on('newTime', (newTime) => {
