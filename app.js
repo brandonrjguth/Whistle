@@ -60,19 +60,22 @@ io.on('connection', (socket) => {
             if (users[i].id == socket.id) {
                 users.splice(i, 1);
                 console.log('user disconnected');
-            }
+            } 
         };
         
         
     });
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
-       socket.on('newUserSync', (playerInfo) =>{
+       socket.on('newUserSync', (newURL) =>{
+        console.log(newURL);
+        
+        
         let newestUser = users[users.length - 1].id;
-        io.sockets.connected[newestUser].emit("newURL", playerInfo.src);
-        io.emit("newTime", playerInfo.time);
+        io.sockets.connected[newestUser].emit("newURL", newURL);
+        io.emit("newTime", newURL.time);
 
-        if(playerInfo.paused === true){
+        if(newURL.paused === true){
             io.sockets.connected[newestUser].emit("Pause");
         } else {
             io.emit("Pause");
@@ -92,23 +95,25 @@ io.on('connection', (socket) => {
     socket.on('newURL', (newURL) =>{
                 console.log("URL received by Server");
                 //DO A REGEX CHECK ON URL
-                if (newURL.url != undefined || newURL.url != '') {
+                if (newURL.urlID != undefined || newURL.urlID != '') {
                     var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
-                    var match = newURL.url.match(regExp);
+                    var match = newURL.urlID.match(regExp);
 
                     console.log("Done Reg Check");
                     //IF YOUTUBE URL, SEND THE NEW URL WITH TYPE YOUTUBE
                     if (match && match[2].length == 11) {
                         console.log("is youtube video");
                         newURL.type = "youtube";
-                        newURL.url = match[2];
+                        newURL.urlID = match[2];
+                        newURL.url = match[0];
+                        console.log(newURL);
                         io.emit('newURL', newURL);
                       
     
                     }
                     //ELSE, SEND THE NEW URL WITH TYPE DIRECTLINK
                     else {
-                        newURL.playerType = "directLink";
+                        newURL.type = "directLink";
                         io.emit('newURL', newURL);
                     }
                 }
@@ -127,6 +132,7 @@ io.on('connection', (socket) => {
     socket.on('isBuffered', () =>{
         counter.push(1);    
         if (counter.length == users.length){
+            console.log("here");
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
                 setTimeout(function(){io.emit("Play");}, 1800);
                 counter = [];
