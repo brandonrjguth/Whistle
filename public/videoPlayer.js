@@ -170,6 +170,7 @@
                         
                         //CREATE NEW YOUTUBE IFRAME
                         //DO MATH ON FONT-PERCENTAGE TO MAINTAIN REM SIZING
+
                         setTimeout(function(){
                             player.pause();
                             player.removeAttribute('src'); // empty source
@@ -339,7 +340,9 @@
         socket.on('Play', (time) => { 
             console.log("hit play");
             if (globalPlayerType === "youtube"){
+                if (time !== undefined){
                 YTPlayer.seekTo(time);
+            }
                 YTPlayer.playVideo();
                 console.log("got here");
             } else {
