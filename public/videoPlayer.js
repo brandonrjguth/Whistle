@@ -15,17 +15,24 @@
     
     $("#playPause").click(function(){
         
-        console.log(YTPlayer.getPlayerState());
-        if (player.paused == true && YTPlayer == undefined){
-            socket.emit('checkAllUsersBuffer');
+        if (globalPlayerType === "youtube"){
+            if (YTPlayer.getPlayerState() == 2 || YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 0){
+                console.log("here");
+                socket.emit('checkAllUsersBuffer');
+            }
+            else  {
+                socket.emit('Pause');
+            }
         }
-        if (YTPlayer.getPlayerState() == 2 || YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 0){
-            console.log("here");
-            socket.emit('checkAllUsersBuffer');
-        }
-        else  {
-            socket.emit('Pause');
-        }
+
+        if (globalPlayerType === "directLink"){
+            if (player.paused == true){
+                socket.emit('checkAllUsersBuffer');
+            } else{
+                socket.emit('Pause');
+            }
+
+        }   
     });
   
        
@@ -197,7 +204,8 @@
                         tag.src = "https://www.youtube.com/iframe_api";
                         var firstScriptTag = document.getElementsByTagName('script')[0];
                         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        
+                        
+                        
                         
                         //CREATE NEW YOUTUBE IFRAME
                         //DO MATH ON FONT-PERCENTAGE TO MAINTAIN REM SIZING
@@ -218,7 +226,15 @@
                             });
                         $("#YTPlayer").css("display", "block");
                         globalPlayerType = "youtube";
-                        },1200);
+                        if (newURL.time === undefined){
+                            newURL.time = 0;
+                        }
+                        if (newURL.playerState === 2 || -1){
+                            setTimeout(function(){socket.emit("Pause")}, 2100);
+                        }
+                        setTimeout(function(){YTPlayer.seekTo(newURL.time)}, 2000)
+                        },1500);
+                        
                         console.log("here");
                         
                         function onPlayerStateChange(event){
@@ -325,22 +341,12 @@
                 
             
             if (globalPlayerType === "youtube"){
-                
-                let time = YTPlayer.getCurrentTime()
-                
-                let paused;
-
-                    if (YTPlayer.getPlayerState() != 1 || YTPlayer.getPlayerState() != 3){
-                        paused = true;
-                    }  else if  (YTPlayer.getPlayerState() == 1 || YTPlayer.getPlayerState() == 3){
-                    paused = false;
-                    }
-                    let newURL = {time:time, urlID:regexedYoutubeURL, paused:paused, type:"youtube"};
+                    let newURL = {time:YTPlayer.getCurrentTime(), urlID:regexedYoutubeURL, playerState:YTPlayer.getPlayerState(), type:"youtube"};
                     socket.emit("newUserSync", newURL);
 
             } else {
                 console.log(player.paused);
-                let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), paused:player.paused, type:"directLink"};
+                let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), playerState:player.paused, type:"directLink"};
                 socket.emit("newUserSync", newURL);
                 
         }
