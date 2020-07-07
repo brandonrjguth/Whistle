@@ -5,6 +5,7 @@
     let YTPlayer;
     let lastState;
     let lastStateArray = [];
+    let testVariable = true;
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
@@ -21,7 +22,6 @@
 
             if (YTPlayer.getPlayerState() == 2 || YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 0){
 
-                console.log("here");
                 socket.emit('checkAllUsersBuffer');
 
             }
@@ -31,7 +31,7 @@
                 socket.emit('Pause');
 
             }
-            
+
         }
 
         //IF DIRECTLINK
@@ -238,13 +238,12 @@
     socket.on('newURL', (newURL) => {
 
         console.log("received URL from server");
-        console.log(globalPlayerType);
+        console.log("URL Type : " + globalPlayerType);
         
         //IF YOUTUBE
         if (newURL.type == "youtube"){
 
                 regexedYoutubeURL = newURL.urlID;
-                console.log(newURL);
                 
                 //AND YOUTUBE PLAYER IS UP
                 if (globalPlayerType === "youtube"){
@@ -295,12 +294,8 @@
                         newURL.time = 0;
                     }
 
-                    console.log("playa state == " + newURL.playerState)
-                    
-
                     if (newURL.playerState == 2 || newURL.playerState == -1){
 
-                        console.log("playa state ==" + newURL.playerState)
                         setTimeout(function(){socket.emit("Pause")}, 2100);
                         
                     }
@@ -317,57 +312,58 @@
                     }, 2000)
                     },1500);
                     
-                    console.log("here");
+                    
                     
                     function onPlayerStateChange(event){
 
-                        
-                        console.log(event.data + " " + lastState +  " " + lastStateArray[0]);
-
                         if (event.data === YT.PlayerState.ENDED){
-
                             console.log("YT.PlayerState.ENDED");
                         }
-
-                        if (event.data === YT.PlayerState.BUFFERING && lastState !== YT.PlayerState.PLAYING){
-
+                        if (event.data === YT.PlayerState.PLAYING){
                             console.log("YT.PlayerState.PLAYING");
-                            socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                            lastStateArray.push(event.data);
+                        }
+                        if (event.data === YT.PlayerState.PAUSED){
+                            console.log("YT.PlayerState.PAUSED");
+                        }
+                        if (event.data === YT.PlayerState.BUFFERING){
+                            console.log("YT.PlayerState.BUFFERING");
+                        }
+                        if (event.data === YT.PlayerState.CUED){
+                            console.log("YT.PlayerState.CUED");
+                        }
+                        
 
-                        } else if (event.data === YT.PlayerState.PLAYING && (lastState === YT.PlayerState.PAUSED)){
+                        if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
 
-                            console.log("good luck");
                             socket.emit("YTPlay", YTPlayer.getCurrentTime());
                             lastStateArray = [];
 
                         }
 
-                        if (event.data === YT.PlayerState.PAUSED){
+                        if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
 
                             lastStateArray.push(event.data);
-                            console.log("Pause");
+                            //setTimeout(() => {socket.emit("Pause")}, 300)
                             socket.emit("Pause");
-                        }
-
-                        if (event.data === YT.PlayerState.BUFFERING){
-
-                            console.log("YT.PlayerState.BUFFERING");
 
                         }
 
-                        if (event.data === YT.PlayerState.CUED){
+                        if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && testVariable == true){ 
+                            console.log("here");
+                            socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                            newURL.isNewUser = false;
+                            testVariable = false;
+                            
+                            setTimeout(() => {testVariable = true;}, 2000)
+                        }
 
-                            console.log("YT.PlayerState.CUED");
-
+                        if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
+                
                         }
 
                         lastState = event.data;
-                    }
-                        
-                        
-                        
-                    
+
+                    }       
                 }
 
         //IF NEW TYPE IS NOT A YOUTUBE LINK
@@ -415,7 +411,7 @@
         //IF DIRECT LINK
         } else {
 
-            console.log(player.paused);
+            
             let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), playerState:player.paused, type:"directLink"};
             socket.emit("newUserSync", newURL);
             
@@ -453,15 +449,14 @@
     socket.on("checkAllUsersBuffer", () =>{
 
         console.log("received check buffered");
+
         socket.emit("Pause");
 
         //SET CHECKING INTERVAL
         let checkBufferedUser = setInterval(function(){
 
             console.log("checking buffer");
-            console.log(player.readyState);
-            console.log(globalPlayerType);
-
+           
             //IF YOUTUBE
             //Look for player state
             if (globalPlayerType === "youtube"){
@@ -518,8 +513,7 @@
 
         }
             YTPlayer.playVideo();
-            console.log("got here");
-
+        
         //IF DIRECT LINK
         } else {
 

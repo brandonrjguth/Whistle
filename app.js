@@ -68,11 +68,14 @@ io.on('connection', (socket) => {
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
         socket.on('newUserSync', (newURL) =>{
+
         console.log("THE PLAYER STATE IS : " + newURL.playerState);
-        
-        
         let newestUser = users[users.length - 1].id;
+
+        newURL.isNewUser = true;
+
         io.sockets.connected[newestUser].emit("newURL", newURL);
+        
         io.emit("newTime", newURL.time);
 
         if(newURL.type === "youtube"){
@@ -87,7 +90,7 @@ io.on('connection', (socket) => {
                 io.sockets.connected[newestUser].emit("Pause");
             } else {
                 io.emit("Pause");
-                //io.emit("checkAllUsersBuffer");
+                io.emit("checkAllUsersBuffer");
             }
         }
         
