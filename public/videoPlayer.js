@@ -1,11 +1,16 @@
 //TODO: 
+
+//const { NONAME } = require("dns");
+
     //Declare variable "player" equal to the video player in the users dom.
     let player = $("#video").get(0);
     let globalPlayerType = "directLink";
     let YTPlayer;
     let lastState;
     let lastStateArray = [];
-    let testVariable = true;
+    let gotNewUser = true;
+    let isNewURL = false;
+    
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
@@ -236,7 +241,7 @@
     let regexedYoutubeURL
 
     socket.on('newURL', (newURL) => {
-
+        isNewURL = true;
         console.log("received URL from server");
         console.log("URL Type : " + globalPlayerType);
         
@@ -249,122 +254,141 @@
                 if (globalPlayerType === "youtube"){
 
                     //CHANGE THE SOURCE
-                    $("#YTPlayer").attr("src", "https://www.youtube.com/embed/" + regexedYoutubeURL);
-                    $("#YTPlayer").css("display", "block");
+                    console.log("here");
+                    $("#YTPlayer").remove();
+                    $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
                     
+
                 //IF OTHER PLAYER IS UP
-                } else {
+                } 
                     
-                    //STARTUP YOUTUBE API
-                    var tag = document.createElement('script');
-                    tag.src = "https://www.youtube.com/iframe_api";
-                    var firstScriptTag = document.getElementsByTagName('script')[0];
-                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-                    
-                    //CREATE NEW YOUTUBE IFRAME
-                    //Do math here later to calculate rem sizing
-
-                    setTimeout(function(){
-
-                        player.pause();
-                        player.removeAttribute('src'); // empty source
-                        player.load();
-                        $("#video").remove();
-
-                        YTPlayer = new YT.Player('YTPlayer', {
-                        height: 500,
-                        width: 300,
-                        events: {
-                            //'onReady': onPlayerReady,
-                            'onStateChange': onPlayerStateChange
-                            },
-                        videoId: regexedYoutubeURL,
-
-                    });
-
-                    //Stop hiding and display div containing newly generated youtube iframe.
-                    $("#YTPlayer").css("display", "block");
-
-                    //Set the global variable for player type to youtube.
-                    globalPlayerType = "youtube";
-
-
-                    if (newURL.time === undefined){
-
-                        newURL.time = 0;
-                    }
-
-                    if (newURL.playerState == 2 || newURL.playerState == -1){
-
-                        setTimeout(function(){socket.emit("Pause")}, 2100);
-                        
-                    }
-                    setTimeout(function(){
-
-                        if (newURL.playerState == 2){
-                            YTPlayer.seekTo(newURL.time);
-                            YTPlayer.pauseVideo();
-
-                        }
-
-                        YTPlayer.seekTo(newURL.time);
-
-                    }, 2000)
-                    },1500);
-                    
-                    
-                    
-                    function onPlayerStateChange(event){
-
-                        if (event.data === YT.PlayerState.ENDED){
-                            console.log("YT.PlayerState.ENDED");
-                        }
-                        if (event.data === YT.PlayerState.PLAYING){
-                            console.log("YT.PlayerState.PLAYING");
-                        }
-                        if (event.data === YT.PlayerState.PAUSED){
-                            console.log("YT.PlayerState.PAUSED");
-                        }
-                        if (event.data === YT.PlayerState.BUFFERING){
-                            console.log("YT.PlayerState.BUFFERING");
-                        }
-                        if (event.data === YT.PlayerState.CUED){
-                            console.log("YT.PlayerState.CUED");
-                        }
-                        
-
-                        if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
-
-                            socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                            lastStateArray = [];
-
-                        }
-
-                        if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
-
-                            lastStateArray.push(event.data);
-                            //setTimeout(() => {socket.emit("Pause")}, 300)
-                            socket.emit("Pause");
-
-                        }
-
-                        if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && testVariable == true){ 
-                            console.log("here");
-                            socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                            newURL.isNewUser = false;
-                            testVariable = false;
-                            
-                            setTimeout(() => {testVariable = true;}, 2000)
-                        }
-
-                        if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
+                //STARTUP YOUTUBE API
+                var tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                var firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
                 
-                        }
+                //CREATE NEW YOUTUBE IFRAME
+                //Do math here later to calculate rem sizing
 
-                        lastState = event.data;
+                setTimeout(function(){
 
-                    }       
+                    player.pause();
+                    player.removeAttribute('src'); // empty source
+                    player.load();
+                    $("#video").remove();
+
+                    YTPlayer = new YT.Player('YTPlayer', {
+                    height: 500,
+                    width: 300,
+                    playerVars: {'autoplay': 0, 'controls': 0},
+                    events: {
+                        //'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                         
+                        },
+                    videoId: regexedYoutubeURL
+                   
+
+                    
+
+                });
+
+                setTimeout(function(){YTPlayer.pauseVideo();}, 1000)
+
+                //Stop hiding and display div containing newly generated youtube iframe.
+                $("#YTPlayer").css("display", "block");
+
+                //Set the global variable for player type to youtube.
+                globalPlayerType = "youtube";
+
+
+                if (newURL.time === undefined){
+
+                    newURL.time = 0;
                 }
+
+                if (newURL.playerState == 2 || newURL.playerState == -1){
+
+                    setTimeout(function(){socket.emit("Pause")}, 2100);
+                    
+                }
+                setTimeout(function(){
+
+                    if (newURL.playerState == 2){
+                        YTPlayer.seekTo(newURL.time);
+                        YTPlayer.pauseVideo();
+
+                    }
+
+                    YTPlayer.seekTo(newURL.time);
+
+                }, 2000)
+                },1500);
+                
+                
+                
+                function onPlayerStateChange(event){
+
+                    if (event.data === YT.PlayerState.CUED){
+                        console.log("YT.PlayerState.CUED");
+                    }
+
+                    if (event.data === YT.PlayerState.ENDED){
+                        console.log("YT.PlayerState.ENDED");
+                    }
+                    if (event.data === YT.PlayerState.PLAYING){
+                        console.log("YT.PlayerState.PLAYING");
+                    }
+                    if (event.data === YT.PlayerState.PAUSED){
+                        console.log("YT.PlayerState.PAUSED");
+                    }
+                    if (event.data === YT.PlayerState.BUFFERING){
+                        console.log("YT.PlayerState.BUFFERING");
+                    }
+                   
+                    
+
+                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
+
+                        socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                        lastStateArray = [];
+
+                    }
+
+                    if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
+
+                        lastStateArray.push(event.data);
+                        setTimeout(() => {socket.emit("Pause")}, 300)
+                        
+
+                    }
+
+                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
+                        socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                        gotNewUser = false;
+                        setTimeout(() => {gotNewUser = true;}, 2000)
+                    }
+
+                    if (isNewURL == true){ 
+                        socket.emit("YTPlay");
+                        window.onYouTubeIframeAPIReady() = function (){
+                            socket.emit("Pause");
+                        };
+                        
+                        console.log("here");
+                        isNewURL = false;
+                        
+                    }
+
+                    if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
+            
+                    }
+
+                    lastState = event.data;
+
+                }       
+            
 
         //IF NEW TYPE IS NOT A YOUTUBE LINK
         } else {
