@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
                 io.sockets.connected[newestUser].emit("Pause");
             } else {
                 io.emit("Pause");
-                io.emit("checkAllUsersBuffer");
+                //io.emit("checkAllUsersBuffer");
             }
         }
         
