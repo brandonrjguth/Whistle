@@ -48,11 +48,21 @@
         //Send signal to socket "newTime", syncing all users to the timestamp.
         //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
         socket.emit("newTime", newTime);
-        if(player.paused === true){
-            socket.emit("Pause");
-        } else if (player.paused === false){
-            socket.emit("checkAllUsersBuffer");
-        }  
+        if (globalPlayerType === "youtube"){
+            if(YTPlayer.getPlayerState() === 2){
+                socket.emit("Pause");
+            } else {
+                socket.emit("checkAllUsersBuffer");
+            }  
+        } else {
+            if(player.paused === true){
+                socket.emit("Pause");
+            } else if (player.paused === false){
+                socket.emit("checkAllUsersBuffer");
+            }  
+        }
+
+       
     });
 
 
@@ -76,29 +86,50 @@
 
     //SKIP AHEAD
     $("#skipAhead").click(function(){
-        let currentTime = player.currentTime;
-        newTime = currentTime + 10;
-        socket.emit("newTime", newTime);
-        if(player.paused === true){
+        if (globalPlayerType === "youtube"){
+            let currentTime = YTPlayer.getCurrentTime();
+            newTime = currentTime + 10;
+            socket.emit("newTime", newTime);
+            if(YTPlayer.getPlayerState() === 2){
+                socket.emit("Pause");
+            } else {
+                socket.emit("checkAllUsersBuffer");
+            }  
+        } else {
+            let currentTime = player.currentTime;
+            newTime = currentTime + 10;
+            socket.emit("newTime", newTime);
+            if(player.paused === true){
                 socket.emit("Pause");
             } else if (player.paused === false){
-                socket.emit("Pause");
                 socket.emit("checkAllUsersBuffer");
-            }
+            }  
+        }
     });
 
     //SKIP BACK
     $("#skipBack").click(function(){
-        let currentTime = player.currentTime;
-        newTime = currentTime - 10;
-        socket.emit("newTime", newTime);
-        if(player.paused === true){
+        if (globalPlayerType === "youtube"){
+            let currentTime = YTPlayer.getCurrentTime();
+            newTime = currentTime - 10;
+            socket.emit("newTime", newTime);
+            if(YTPlayer.getPlayerState() === 2){
+                socket.emit("Pause");
+            } else {
+                socket.emit("checkAllUsersBuffer");
+            }  
+        } else {
+            let currentTime = player.currentTime;
+            newTime = currentTime - 10;
+            socket.emit("newTime", newTime);
+            if(player.paused === true){
                 socket.emit("Pause");
             } else if (player.paused === false){
-                socket.emit("Pause");
                 socket.emit("checkAllUsersBuffer");
-            }
+            }  
+        }
     });
+
 
     //NEW URL BUTTON
     //When the submit url button is clicked, check the input text of the new url field and make it equal to a new variable newURL.
@@ -325,7 +356,13 @@
         //NEW TIME
         //Change the time to the received time.
         socket.on('newTime', (newTime) => {
-            player.currentTime = newTime;
+            if (globalPlayerType === "youtube"){
+                YTPlayer.seekTo(newTime);
+            } else {
+                player.currentTime = newTime;
+            }
+            
+            
         });
 
         //PLAY/PAUSE
