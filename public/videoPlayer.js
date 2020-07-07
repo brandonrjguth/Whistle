@@ -200,8 +200,9 @@
                             if (event.data === YT.PlayerState.BUFFERING && lastState !== YT.PlayerState.PLAYING){
                                 console.log("YT.PlayerState.PLAYING");
                                 socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                                
                                 lastStateArray.push(event.data);
-                            } else if (event.data === YT.PlayerState.PLAYING && (lastState === YT.PlayerState.PAUSED && lastStateArray[0] === 3)){
+                            } else if (event.data === YT.PlayerState.PLAYING && (lastState === YT.PlayerState.PAUSED)){
                                 console.log("good luck");
                                 socket.emit("YTPlay", YTPlayer.getCurrentTime());
                                 lastStateArray = [];
