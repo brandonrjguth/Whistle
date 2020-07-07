@@ -3,6 +3,8 @@
     let player = $("#video").get(0);
     let globalPlayerType = "directLink";
     let YTPlayer;
+    let lastState;
+    let lastStateArray = [];
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
@@ -176,11 +178,50 @@
                              YTPlayer = new YT.Player('YTPlayer', {
                                 height: 500,
                                 width: 300,
+                                events: {
+                                    //'onReady': onPlayerReady,
+                                    'onStateChange': onPlayerStateChange
+                                  },
                                 videoId: regexedYoutubeURL,
                             });
                         $("#YTPlayer").css("display", "block");
                         globalPlayerType = "youtube";
                         },1200);
+                        console.log("here");
+                        
+                        function onPlayerStateChange(event){
+
+                            
+                            console.log(event.data + " " + lastState +  " " + lastStateArray[0]);
+
+                            if (event.data === YT.PlayerState.ENDED){
+                                console.log("YT.PlayerState.ENDED");
+                            }
+                            if (event.data === YT.PlayerState.BUFFERING && lastState !== YT.PlayerState.PLAYING){
+                                console.log("YT.PlayerState.PLAYING");
+                                socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                                lastStateArray.push(event.data);
+                            } else if (event.data === YT.PlayerState.PLAYING && (lastState === YT.PlayerState.PAUSED && lastStateArray[0] === 3)){
+                                console.log("good luck");
+                                socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                                lastStateArray = [];
+                            }
+                            if (event.data === YT.PlayerState.PAUSED){
+                                lastStateArray.push(event.data);
+                                console.log("Pause");
+                                socket.emit("Pause");
+                            }
+                            if (event.data === YT.PlayerState.BUFFERING){
+                                console.log("YT.PlayerState.BUFFERING");
+                            }
+                            if (event.data === YT.PlayerState.CUED){
+                                console.log("YT.PlayerState.CUED");
+                            }
+                            lastState = event.data;
+                        }
+                            
+                            
+                            
                         
                     }
 
@@ -294,9 +335,12 @@
                 player.pause();
         }
         });
-        socket.on('Play', () => { 
+        socket.on('Play', (time) => { 
+            console.log("hit play");
             if (globalPlayerType === "youtube"){
+                YTPlayer.seekTo(time);
                 YTPlayer.playVideo();
+                console.log("got here");
             } else {
                 player.play();
             }

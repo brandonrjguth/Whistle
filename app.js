@@ -138,6 +138,10 @@ io.on('connection', (socket) => {
                 counter = [];
         }
     });
+
+    socket.on('YTPlay', (time) => {
+        io.emit('Play', time);
+    })
        
     //PAUSE
     socket.on('Pause', () =>{
