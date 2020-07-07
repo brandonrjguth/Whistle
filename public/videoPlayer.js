@@ -10,7 +10,7 @@
     let lastStateArray = [];
     let gotNewUser = true;
     let isNewURL = false;
-    
+    window.onYouTubeIframeAPIReady = function() {};
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
@@ -372,10 +372,7 @@
 
                     if (isNewURL == true){ 
                         socket.emit("YTPlay");
-                        window.onYouTubeIframeAPIReady() = function (){
-                            socket.emit("Pause");
-                        };
-                        
+                        socket.emit("Pause");
                         console.log("here");
                         isNewURL = false;
                         
