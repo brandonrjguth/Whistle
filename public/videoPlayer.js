@@ -250,16 +250,14 @@
 
                 regexedYoutubeURL = newURL.urlID;
                 
-                //AND YOUTUBE PLAYER IS UP
+                //IF YOUTUBE PLAYER IS UP
                 if (globalPlayerType === "youtube"){
 
-                    //CHANGE THE SOURCE
+                    //REMOVE YOUTUBE DIV AND PREPARE DIV FOR NEW INJECTION
                     console.log("here");
                     $("#YTPlayer").remove();
                     $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
                     
-
-                //IF OTHER PLAYER IS UP
                 } 
                     
                 //STARTUP YOUTUBE API
@@ -366,22 +364,31 @@
 
                     if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
                         socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                        //setTimeout(() => {socket.emit("Pause")}, 300)
                         gotNewUser = false;
                         setTimeout(() => {gotNewUser = true;}, 2000)
+                    }
+
+                    if (lastState === YT.PlayerState.BUFFERING){
+                        console.log("here");
+                        console.log(gotNewUser);
                     }
 
                     if (isNewURL == true && event.data === YT.PlayerState.PLAYING ){ 
                         socket.emit("YTPlay",  YTPlayer.getCurrentTime());
                         //socket.emit("Pause");
-                        console.log("here");
+                       
                         isNewURL = false;
                         
                     }
 
+                    //WHEN ITS A NEW USER, IS NEW URL GETS TRIGGERED
+
                     if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
             
                     }
-
+                    
+                    
                     lastState = event.data;
 
                 }       
