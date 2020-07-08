@@ -315,8 +315,8 @@
                     
                     if (newURL.playerState == 2){
 
-                        setTimeout(function(){socket.emit("YTPlay", newURL.time)}, 1000);
-                        setTimeout(function(){socket.emit("Pause")}, 1900);
+                        setTimeout(function(){socket.emit("YTPlay", newURL.time)}, 300);
+                        setTimeout(function(){socket.emit("Pause")}, 1300);
                         console.log("Here5");
                        
 
@@ -351,7 +351,7 @@
                     }
                    
                     if (isNewURL == true && gotNewUser == true){ 
-                        setTimeout(function(){socket.emit("Pause")}, 1400);
+                        setTimeout(function(){socket.emit("Pause")}, 1300);
                         gotNewUser = false;
                         isNewURL = false;
                         console.log("here3");
@@ -385,8 +385,9 @@
 
                     if (isNewURL == true && event.data === YT.PlayerState.PLAYING ){ 
                         console.log("Here4");
-                        socket.emit("YTPlay",  YTPlayer.getCurrentTime());
                         socket.emit("Pause");
+                        socket.emit("YTPlay",  YTPlayer.getCurrentTime());
+                        
                        
                         isNewURL = false;
                         
