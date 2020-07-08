@@ -294,7 +294,7 @@
 
                 });
 
-                setTimeout(function(){YTPlayer.pauseVideo();}, 1000)
+                setTimeout(function(){YTPlayer.pauseVideo();}, 1500)
 
                 //Stop hiding and display div containing newly generated youtube iframe.
                 $("#YTPlayer").css("display", "block");
@@ -309,8 +309,8 @@
                 }
 
                 if (newURL.playerState == 2 || newURL.playerState == -1){
-
-                    setTimeout(function(){socket.emit("Pause")}, 2100);
+                    console.log("here");
+                    //setTimeout(function(){socket.emit("Pause")}, 2100);
                     
                 }
                 setTimeout(function(){
@@ -363,7 +363,7 @@
                         
 
                     }
-
+                    /*
                     if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
                         socket.emit("YTPlay", YTPlayer.getCurrentTime());
                         gotNewUser = false;
@@ -375,8 +375,7 @@
                         //socket.emit("Pause");
                         console.log("here");
                         isNewURL = false;
-                        
-                    }
+                    }*/
 
                     if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
             
