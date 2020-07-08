@@ -10,7 +10,6 @@
     let lastStateArray = [];
     let gotNewUser = true;
     let isNewURL = false;
-    let firstTime = true;
     
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
@@ -255,7 +254,7 @@
                 if (globalPlayerType === "youtube"){
 
                     //REMOVE YOUTUBE DIV AND PREPARE DIV FOR NEW INJECTION
-                    
+                   
                     $("#YTPlayer").remove();
                     $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
                     
@@ -313,14 +312,19 @@
                     
                 }
                 setTimeout(function(){
-
+                    
                     if (newURL.playerState == 2){
-                        YTPlayer.seekTo(newURL.time);
-                        YTPlayer.pauseVideo();
 
+                        setTimeout(function(){socket.emit("YTPlay", newURL.time)}, 1000);
+                        setTimeout(function(){socket.emit("Pause")}, 1900);
+                        console.log("Here5");
+                       
+
+                    } else{
+                        YTPlayer.seekTo(newURL.time);
                     }
 
-                    YTPlayer.seekTo(newURL.time);
+                    
 
                 }, 2000)
                 },1500);
@@ -346,70 +350,47 @@
                         console.log("YT.PlayerState.BUFFERING");
                     }
                    
-
-                   
-
-                    if (isNewURL === true && gotNewUser !== true){
-                        console.log("here");
-                        console.log(gotNewUser);
-                        setTimeout(function(){YTPlayer.pauseVideo()}, 1000)
-                        gotNewURL = true;
-                        isNewURL = false;
-                        console.log("now here");
-                    }
-
-                    if (isNewURL === true && gotNewUser === true && firstTime == true){
-                        console.log("here");
-                        console.log(gotNewUser);
-                        setTimeout(function(){YTPlayer.pauseVideo()}, 1000)
-                        gotNewURL = true;
-                        isNewURL = false;
-                        firstTime = false;
-                        console.log("now here");
-                    }
-
-                    if (isNewURL === true && gotNewUser !== true){
-                        
-                    }
-                    
-
-                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
-                        socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                        //setTimeout(() => {socket.emit("Pause")}, 300)
+                    if (isNewURL == true && gotNewUser == true){ 
+                        setTimeout(function(){socket.emit("Pause")}, 1400);
                         gotNewUser = false;
-                        //setTimeout(() => {gotNewUser = true;}, 2000)
+                        isNewURL = false;
+                        console.log("here3");
                     }
 
                     
-                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
 
+                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
+                       
                         socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                        lastStateArray = [];
+                        
 
                     }
 
                     if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
-
-                        lastStateArray.push(event.data);
-                        setTimeout(() => {socket.emit("Pause")}, 300)
                         
+                        setTimeout(() => {socket.emit("Pause")}, 300);
 
                     }
 
+                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
+                        
+                        socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                        //setTimeout(() => {socket.emit("Pause")}, 300)
+                        gotNewUser = false;
+                        setTimeout(() => {gotNewUser = true;}, 2000)
+                    }
 
                     if (lastState === YT.PlayerState.BUFFERING){
-                        
-                        
                     }
 
                     if (isNewURL == true && event.data === YT.PlayerState.PLAYING ){ 
+                        console.log("Here4");
                         socket.emit("YTPlay",  YTPlayer.getCurrentTime());
-                        //socket.emit("Pause");
+                        socket.emit("Pause");
+                       
                         isNewURL = false;
                         
                     }
-
-  
 
                     //WHEN ITS A NEW USER, IS NEW URL GETS TRIGGERED
 
@@ -532,7 +513,7 @@
 
                 if (player.readyState == 4){
 
-                    console.log("buffered");
+                    console.log("buffered directLink");
                     socket.emit('isBuffered');
                     clearInterval(checkBufferedUser);
 

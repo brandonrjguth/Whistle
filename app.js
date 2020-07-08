@@ -145,8 +145,9 @@ io.on('connection', (socket) => {
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
     socket.on('isBuffered', () =>{
         counter.push(1);    
+        console.log("here1");
         if (counter.length == users.length){
-            console.log("here");
+            console.log("here2");
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
                 setTimeout(function(){io.emit("Play");}, 1800);
                 counter = [];
