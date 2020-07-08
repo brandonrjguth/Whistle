@@ -250,14 +250,16 @@
 
                 regexedYoutubeURL = newURL.urlID;
                 
-                //IF YOUTUBE PLAYER IS UP
+                //AND YOUTUBE PLAYER IS UP
                 if (globalPlayerType === "youtube"){
 
-                    //REMOVE YOUTUBE DIV AND PREPARE DIV FOR NEW INJECTION
-                   
+                    //CHANGE THE SOURCE
+                    console.log("here");
                     $("#YTPlayer").remove();
                     $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
                     
+
+                //IF OTHER PLAYER IS UP
                 } 
                     
                 //STARTUP YOUTUBE API
@@ -279,7 +281,7 @@
                     YTPlayer = new YT.Player('YTPlayer', {
                     height: 500,
                     width: 300,
-                    playerVars: {'autoplay': 0, 'controls': 0},
+                    playerVars: {'autoplay': 1, 'controls': 0},
                     events: {
                         //'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange
@@ -312,19 +314,14 @@
                     
                 }
                 setTimeout(function(){
-                    
+
                     if (newURL.playerState == 2){
-
-                        setTimeout(function(){socket.emit("YTPlay", newURL.time)}, 300);
-                        setTimeout(function(){socket.emit("Pause")}, 1300);
-                        console.log("Here5");
-                       
-
-                    } else{
                         YTPlayer.seekTo(newURL.time);
+                        YTPlayer.pauseVideo();
+
                     }
 
-                    
+                    YTPlayer.seekTo(newURL.time);
 
                 }, 2000)
                 },1500);
@@ -350,56 +347,41 @@
                         console.log("YT.PlayerState.BUFFERING");
                     }
                    
-                    if (isNewURL == true && gotNewUser == true){ 
-                        setTimeout(function(){socket.emit("Pause")}, 1300);
-                        gotNewUser = false;
-                        isNewURL = false;
-                        console.log("here3");
-                    }
-
                     
 
                     if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
-                       
+
                         socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                        
+                        lastStateArray = [];
 
                     }
 
                     if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
+
+                        lastStateArray.push(event.data);
+                        setTimeout(() => {socket.emit("Pause")}, 300)
                         
-                        setTimeout(() => {socket.emit("Pause")}, 300);
 
                     }
 
                     if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
-                        
                         socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                        //setTimeout(() => {socket.emit("Pause")}, 300)
                         gotNewUser = false;
                         setTimeout(() => {gotNewUser = true;}, 2000)
                     }
 
-                    if (lastState === YT.PlayerState.BUFFERING){
-                    }
-
                     if (isNewURL == true && event.data === YT.PlayerState.PLAYING ){ 
-                        console.log("Here4");
-                        socket.emit("Pause");
                         socket.emit("YTPlay",  YTPlayer.getCurrentTime());
-                        
-                       
+                        //socket.emit("Pause");
+                        console.log("here");
                         isNewURL = false;
                         
                     }
 
-                    //WHEN ITS A NEW USER, IS NEW URL GETS TRIGGERED
-
                     if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
             
                     }
-                    
-                    
+
                     lastState = event.data;
 
                 }       
@@ -514,7 +496,7 @@
 
                 if (player.readyState == 4){
 
-                    console.log("buffered directLink");
+                    console.log("buffered");
                     socket.emit('isBuffered');
                     clearInterval(checkBufferedUser);
 
