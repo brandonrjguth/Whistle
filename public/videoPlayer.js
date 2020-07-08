@@ -10,7 +10,7 @@
     let lastStateArray = [];
     let gotNewUser = true;
     let isNewURL = false;
-    window.onYouTubeIframeAPIReady = function() {};
+    
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
@@ -100,7 +100,7 @@
 
             } else {
 
-                socket.emit("checkAllUsersBuffer");
+                socket.emit("YTPlay", newTime);
 
             }  
 
@@ -143,7 +143,7 @@
 
             } else {
 
-                socket.emit("checkAllUsersBuffer");
+                socket.emit("YTPlay", newTime);
 
             }  
 
@@ -183,7 +183,7 @@
 
             } else {
 
-                socket.emit("checkAllUsersBuffer");
+                socket.emit("YTPlay", newTime);
 
             }
             
@@ -370,9 +370,9 @@
                         setTimeout(() => {gotNewUser = true;}, 2000)
                     }
 
-                    if (isNewURL == true){ 
-                        socket.emit("YTPlay");
-                        socket.emit("Pause");
+                    if (isNewURL == true && event.data === YT.PlayerState.PLAYING ){ 
+                        socket.emit("YTPlay",  YTPlayer.getCurrentTime());
+                        //socket.emit("Pause");
                         console.log("here");
                         isNewURL = false;
                         
@@ -556,5 +556,3 @@
     });
     
 });
-
-
