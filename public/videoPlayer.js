@@ -10,6 +10,7 @@
     let lastStateArray = [];
     let gotNewUser = true;
     let isNewURL = false;
+    let playEvent = true;
     
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
@@ -26,7 +27,7 @@
         if (globalPlayerType === "youtube"){
 
             if (YTPlayer.getPlayerState() == 2 || YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 0){
-
+                socket.emit("newTime", YTPlayer.getCurrentTime());
                 socket.emit('checkAllUsersBuffer');
 
             }
@@ -100,7 +101,9 @@
 
             } else {
 
-                socket.emit("YTPlay", newTime);
+                socket.emit("newTime", newTime);
+                socket.emit("checkAllUsersBuffer")
+                
 
             }  
 
@@ -140,7 +143,7 @@
 
                
                 socket.emit("newTime", clickedTime);
-                socket.emit("YTPlay", clickedTime);
+                socket.emit("checkAllUsersBuffer")
 
             }  
 
@@ -187,7 +190,8 @@
 
             } else {
 
-                socket.emit("YTPlay", newTime);
+                
+                socket.emit("checkAllUsersBuffer");
 
             }  
 
@@ -227,7 +231,7 @@
 
             } else {
 
-                socket.emit("YTPlay", newTime);
+                socket.emit("checkAllUsersBuffer")
 
             }
             
@@ -283,8 +287,10 @@
     //Change the URL to the received URL.
 
     let regexedYoutubeURL
+    
 
     socket.on('newURL', (newURL) => {
+        playEvent = true;
         isNewURL = true;
         console.log("received URL from server");
         console.log("URL Type : " + globalPlayerType);
@@ -333,6 +339,8 @@
                     videoId: regexedYoutubeURL
                 });
 
+                socket.emit("Pause");
+                socket.emit("checkAllUsersBuffer");
 
                 //LOAD UP YOUTUBE SEEKBAR LISTENER
                 function onPlayerReady() {
@@ -383,7 +391,8 @@
 
                     setTimeout(function(){
                        //YTPlayer.pauseVideo();
-                        socket.emit("YTPlay", newURL.time);
+                       socket.emit("newTime", newURL.time)
+                        socket.emit("checkAllUsersBuffer")
                         
                         gotNewUser = false;
                     }, 1000)
@@ -424,9 +433,9 @@
                    
                     
 
-                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
-
-                        socket.emit("YTPlay", YTPlayer.getCurrentTime());
+                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED && playEvent == false){
+                        socket.emit("newTime", YTPlayer.getCurrentTime());
+                        socket.emit("checkAllUsersBuffer");
                         
 
                     }
@@ -583,22 +592,28 @@
     socket.on("checkAllUsersBuffer", () =>{
 
         console.log("received check buffered");
-
+        socket.emit("Pause");
+        playEvent = true;
+        lastState = 1;
+        setTimeout(function(){playEvent = false;}, 4000);
         
 
         //SET CHECKING INTERVAL
         let checkBufferedUser = setInterval(function(){
-
+           
+            console.log("about yo make playevent false")
             console.log("checking buffer");
            
             //IF YOUTUBE
             //Look for player state
             if (globalPlayerType === "youtube"){
 
-                if (YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 2){
+                
 
+                if (YTPlayer.getPlayerState() !== 3){
+                    
                     console.log("buffered");
-                    //socket.emit('isBuffered');
+                    socket.emit('isBuffered');
                     clearInterval(checkBufferedUser);
 
                 }
