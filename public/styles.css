@@ -22,6 +22,86 @@
 }
 
 
+.btn{
+
+}
+
+.black{
+    color:white;
+    background-color: black;
+    border:none;
+}
+
+.row{
+    display:flex;
+    width:100%;
+}
+
+.jc{
+    justify-content: center;
+}
+
+.js{
+    justify-content: flex-start;
+}
+
+
+.jr{
+    justify-content: flex-end;
+}
+
+.jcAround{
+    justify-content:space-around;
+}
+
+.jcBetween{
+    justify-content:space-between;
+}
+
+
+.ac{
+    align-items: center;
+}
+
+.al{
+    align-items: flex-start;
+}
+
+.ar{
+    align-items: flex-end;
+}
+
+
+
+.col{
+    display:flex;
+    flex-direction: column;
+}
+
+.col-3{
+    display:flex;
+    flex-direction: column;
+    width:33.3%;
+}
+
+.col-2{
+    display:flex;
+    flex-direction: column;
+    width:50%;
+}
+
+
+.seekbar{
+    width:45rem;
+}
+
+#controlsRow{
+    background-color:black;
+    width:50rem;
+}
+
+
+
 /* VIDEO AREA */
 #embeddedArea{
     align-items: center;
@@ -32,17 +112,11 @@
 	height:30rem;
 }
 
-#embeddedArea iframe, .video-container object, .video-container embed {
-	position:absolute;
-	top:0;
-	left:0;
+#embeddedArea iframe{
 	width:100%;
 	height:100%;
 }
 
-#fullScreen{
-    margin:  0 0.5rem 0 ;
-}
 
 #video {
     width: 100%;
@@ -50,41 +124,21 @@
     background-color: black;
 }
 
-#videoArea{
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    position:relative;
+#fullScreen{
+    margin:  0 0.5rem 0 ;
 }
 
 
-    /*Force Hidden Default HTML5 Controls in FullScreen*/
-    video::-webkit-media-controls-enclosure {
-        /*display:none;*/
-    }
+
+
 
     /*PLAYER COMMANDS*/
+#playerCommands{
+    height:2rem;
+}
+    
+  
 
-    #playerCommands{
-        align-items: flex-end;
-        bottom:0;
-        display: flex;
-        justify-content: center;
-        margin-bottom:1rem;
-        position:absolute;
-        max-width: 48rem;
-        z-index:2;
-    }
-
-    #playBackControls{
-        margin: 0 1.5rem 0 1rem;
-    }
-
-    #urlField{
-        align-items: center;
-        display: flex;
-        justify-content: center;
-    }
 
     /*SEEK COMMANDS*/
 
@@ -129,3 +183,5 @@
                 margin:0 0.25rem 1rem 0.25rem;
             }
 
+
+           

@@ -71,12 +71,10 @@ io.on('connection', (socket) => {
 
         console.log("THE PLAYER STATE IS : " + newURL.playerState);
         let newestUser = users[users.length - 1].id;
-
         newURL.isNewUser = true;
-
         io.sockets.connected[newestUser].emit("newURL", newURL);
         
-        //io.emit("newTime", newURL.time);
+        io.emit("newTime", newURL.time);
 
         if(newURL.type === "youtube"){
             if (newURL.playerState === 2){

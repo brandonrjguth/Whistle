@@ -122,6 +122,50 @@
     });
 
 
+    //--------------------- SEEK BAR -------------------------//
+
+    $(".seekBar").click(() =>{
+
+        let clickedTime = $(".seekBar").val();
+
+        if (globalPlayerType === "youtube"){
+
+        
+
+            if(YTPlayer.getPlayerState() === 2){
+                socket.emit("newTime", clickedTime);
+                socket.emit("Pause");
+
+            } else {
+
+               
+                socket.emit("newTime", clickedTime);
+                socket.emit("YTPlay", clickedTime);
+
+            }  
+
+            
+        } else{
+
+            if (player.paused === true){
+
+                socket.emit("newTime", clickedTime);
+                socket.emit("Pause");
+
+            } else {
+
+               
+                socket.emit("newTime", clickedTime);
+                socket.emit("checkAllUsersBuffer");
+            }  
+        }
+
+        
+        console.log($(".seekBar").val())
+    }); 
+
+
+
     //--------------------- SKIP BUTTONS ---------------------//
 
     //Calculates current timestamp and sets the video's current time to the timestamp plus 10 seconds.
@@ -272,7 +316,6 @@
                 //Do math here later to calculate rem sizing
 
                 setTimeout(function(){
-
                     player.pause();
                     player.removeAttribute('src'); // empty source
                     player.load();
@@ -281,19 +324,41 @@
                     YTPlayer = new YT.Player('YTPlayer', {
                     height: 500,
                     width: 300,
-                    playerVars: {'autoplay': 1, 'controls': 0},
+                    playerVars: {'autoplay': 1, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
                     events: {
-                        //'onReady': onPlayerReady,
+                        'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange
                          
                         },
                     videoId: regexedYoutubeURL
-                   
-
-                    
-
                 });
 
+
+                //LOAD UP YOUTUBE SEEKBAR LISTENER
+                function onPlayerReady() {
+                    let videotime
+                    videoLength = YTPlayer.getDuration();
+                    $(".seekBar").attr("max", videoLength);
+
+                    function updateTime() {
+                      let oldTime = videotime;
+                      if(YTPlayer && YTPlayer.getCurrentTime()) {
+                        videotime = YTPlayer.getCurrentTime();
+                      }
+                      if(videotime !== oldTime) {
+                        console.log(videotime);
+                        console.log(videoLength);
+                        $(".seekBar").val(videotime);       
+                      }
+
+                      if (globalPlayerType !== "youtube"){
+                          clearInterval(timeupdater);
+                      }
+                    }
+                    timeupdater = setInterval(updateTime, 500);
+                }
+
+                //PAUSE VIDEO AFTER LOAD
                 setTimeout(function(){YTPlayer.pauseVideo();}, 1500)
 
                 //Stop hiding and display div containing newly generated youtube iframe.
@@ -352,13 +417,19 @@
                     if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED){
 
                         socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                        lastStateArray = [];
+                        
 
                     }
 
                     if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
 
-                        lastStateArray.push(event.data);
+                        
+                        setTimeout(() => {
+                            $(".ytp-pause-overlay-controls-hidden").css("bottom", "5rem!");
+                            $(".ytp-pause-overlay").css("bottom", "5rem!");
+                            $(".ytp-pause-overlay-controls-hidden ytp-pause-overlay").css("bottom", "5rem!");
+
+                        }, 700)
                         setTimeout(() => {socket.emit("Pause")}, 300)
                         
 
@@ -403,6 +474,8 @@
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
 
+
+
             } else {
 
                 //CHANGE URL
@@ -411,6 +484,36 @@
                 globalPlayerType = "directLink";
 
             }
+                //STARTUP SEEKBAR LISTENER
+                
+                let seekBarListener = () => {
+                    console.log("here");
+                    let videotime
+                    videoLength = player.duration;
+                    $(".seekBar").attr("max", videoLength);
+
+                    function updateTime(){
+                    let oldTime = videotime;
+                    if(player && player.currentTime) {
+                        videotime = player.currentTime;
+                    }
+                    if(videotime !== oldTime) {
+                        console.log(videotime);
+                        console.log(videoLength);
+                        $(".seekBar").val(videotime);       
+                    }
+
+                    if (globalPlayerType !== "directLink"){
+                        clearInterval(timeupdater);
+                    }
+                    }
+                    timeupdater = setInterval(updateTime, 500);
+                    }
+
+                    player.onloadedmetadata = function(){
+                        seekBarListener();
+                    };
+                    
         }
     });
     
@@ -421,6 +524,7 @@
     //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
 
     socket.on("newUserSync", () => {
+             
             
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
@@ -431,7 +535,7 @@
         //IF DIRECT LINK
         } else {
 
-            
+                   
             let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), playerState:player.paused, type:"directLink"};
             socket.emit("newUserSync", newURL);
             

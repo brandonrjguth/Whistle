@@ -7,68 +7,110 @@
         crossorigin="anonymous"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>var socket = io();</script>
+        <script src="https://kit.fontawesome.com/144ecfb073.js" crossorigin="anonymous"></script>
     </head>
 <body id="body">
     
     <!-- VIDEO AREA -->
-    <div id="videoArea">
-        <div id ="embeddedArea">
-            <!-- VIDEO ELEMENT --> 
-            <video src="" id="video"></video>
-            <video src="" id="YTPlayer" style="display:none" autoplay=false></video>
-            
-            
-            <!-- PLAYER COMMANDS -->
-            <div id="playerCommands">
-
-                <!-- URL and LOAD -->
-                <div id="urlField">
-                    <input type="text" placeholder="Paste a URL" id="urlInputText"></input>
-                    <button id="urlSubmit">Load URL</button>
-                </div>
-
-                <!-- PLAYBACK CONTROLS -->
-
-                <div id="playBackControls">
-
-                    <!-- SEEK TO -->
-                    <div id="seekCommands" class="hidden">
-                        
-                        <div id=hourColumn >
-                            Hour
-                            <input id="hour" placeholder="hour" type="text"></input>
-                        </div>
-                        :
-                        <div id=minColumn>
-                            Minutes
-                            <input id="minute" placeholder="min" type="text"></input>
-                        </div>
-                        :
-                        <div id=secColumn>
-                            Seconds
-                            <input id="second" placeholder="sec" type="text"></input>
-                        </div>
-                        <button id="seek">Seek</button>
-                    </div>
-
-                    <!-- PLAY PAUSE SKIP REWIND -->
-                    <div id=playBackCommands>
-                        <button id="playPause">PLAY/PAUSE</button>
-                        <button id="skipBack"><<</button>
-                        <button id="skipAhead">>></button>
-                        <button id="showSeekCommands">Go To Time</button>
-                    </div>
-                </div>
-                <button id="fullScreen">Full-Screen</button>
-                <button>Hide Chat</button>
+<div class="col">
+    <div class="col">
+        <div class ="row jc">
+            <div id ="embeddedArea">
+                <!-- VIDEO ELEMENT --> 
+                <video src="" id="video"></video>
+                <video src="" id="YTPlayer" style="display:none" autoplay=false>
+                </video>       
             </div>
         </div>
+        <div class="row jc">     
+            
+                <div class="col" id="controlsRow">
+                    <div class="row jc">
+                        <input class="seekbar" type="range" min="0" max="100" value="0"></input>
+                    </div>
+                    
+                        <!-- PLAYER COMMANDS -->
+                    <div class="row ac" id="playerCommands">
+
+                        <!-- URL and LOAD -->
+                        <div class="col-3 al">
+                            <div class="row jc ac">
+                                <input type="text" placeholder="Paste a URL" id="urlInputText"></input>
+                                <button class="btn" id="urlSubmit">LOAD</button>
+                            
+                            </div>
+                        </div>
+                        <div class="col-3 ac">
+                            <div class="row jc">
+                                <div id=playBackCommands>
+                                    <button class="btn black" id="skipBack"><i class="fas fa-backward"></i></button>
+                                    <button class="btn black" id="playPause"><i class="fas fa-play"></i><i class="fas fa-pause"></i></button>
+                                    <button class="btn black" id="skipAhead"><i class="fas fa-forward"></i></button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3 ar">
+                            <div class="row">
+                                <div class="col-2 ac jc">
+                                    <button class="btn black jl" id="showSeekCommands"><i class="far fa-clock"></i></button>
+                                </div>
+                                <div class="col-2 ac">
+                                    <div class="row">
+                                        <button class="btn">HIDE CHAT</button>
+                                        <button class="btn black" id="fullScreen"><i class="fas fa-expand"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+
+                        <!-- PLAYBACK CONTROLS -->
+                        <div id="playBackControls">
+                            <!-- SEEK TO -->
+                            <div id="seekCommands" class="hidden">
+                                <div id=hourColumn >
+                                    Hour
+                                    <input id="hour" placeholder="hour" type="text"></input>
+                                </div>
+                                :
+                                <div id=minColumn>
+                                    Minutes
+                                    <input id="minute" placeholder="min" type="text"></input>
+                                </div>
+                                :
+                                <div id=secColumn>
+                                    Seconds
+                                    <input id="second" placeholder="sec" type="text"></input>
+                                </div>
+                                <button id="seek">Seek</button>
+                            </div>
+                            <!-- PLAY PAUSE SKIP REWIND -->
+                        </div>
+                 
+                    </div> 
+                    
+                </div>
+            
+        </div>   
+        
+    
+
     </div>
+</div>
+
+
+    <div id="flexRow">
+
+    </div>
+
 
     <ul id="messages"></ul>
     <form action="">
         <input id="m" autocomplete="off" /><button>Send</button>
     </form>
+
 
     <script src="videoPlayer.js"></script>
     
