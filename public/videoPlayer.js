@@ -358,38 +358,48 @@
                     timeupdater = setInterval(updateTime, 500);
                 }
 
-                //PAUSE VIDEO AFTER LOAD
-                setTimeout(function(){YTPlayer.pauseVideo();}, 1500)
-
+                
                 //Stop hiding and display div containing newly generated youtube iframe.
                 $("#YTPlayer").css("display", "block");
 
                 //Set the global variable for player type to youtube.
                 globalPlayerType = "youtube";
-
+                console.log("here");
 
                 if (newURL.time === undefined){
-
-                    newURL.time = 0;
-                }
+                    
+                    
+                } else 
 
                 if (newURL.playerState == 2 || newURL.playerState == -1){
-                    console.log("here");
-                    //setTimeout(function(){socket.emit("Pause")}, 2100);
-                    
-                }
-                setTimeout(function(){
-
-                    if (newURL.playerState == 2){
+                    console.log("shit")
+                    console.log(newURL.time)
+                    setTimeout(function(){
                         YTPlayer.seekTo(newURL.time);
                         YTPlayer.pauseVideo();
+                    }, 1000)
+                    
+                 } else {
 
-                    }
+                    setTimeout(function(){
+                       //YTPlayer.pauseVideo();
+                        socket.emit("YTPlay", newURL.time);
+                        
+                        gotNewUser = false;
+                    }, 1000)
+                    
+                }
 
-                    YTPlayer.seekTo(newURL.time);
+                
+                /*
+                setTimeout(function(){
 
-                }, 2000)
-                },1500);
+                    
+                 
+                
+
+                }, 2000)*/
+                },3000);
                 
                 
                 
@@ -574,7 +584,7 @@
 
         console.log("received check buffered");
 
-        socket.emit("Pause");
+        
 
         //SET CHECKING INTERVAL
         let checkBufferedUser = setInterval(function(){
@@ -588,7 +598,7 @@
                 if (YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 2){
 
                     console.log("buffered");
-                    socket.emit('isBuffered');
+                    //socket.emit('isBuffered');
                     clearInterval(checkBufferedUser);
 
                 }
@@ -596,7 +606,7 @@
 
             //IF DIRECT LINK
             //Look for player state
-
+                    socket.emit("Pause");
                 if (player.readyState == 4){
 
                     console.log("buffered");
@@ -632,7 +642,7 @@
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
 
-            if (time !== undefined){
+            if (time !== undefined ){
             YTPlayer.seekTo(time);
 
         }

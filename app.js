@@ -74,16 +74,11 @@ io.on('connection', (socket) => {
         newURL.isNewUser = true;
         io.sockets.connected[newestUser].emit("newURL", newURL);
         
-        io.emit("newTime", newURL.time);
-
+        
         if(newURL.type === "youtube"){
-            if (newURL.playerState === 2){
-                io.sockets.connected[newestUser].emit("Pause");
-            } else {
-                io.emit("Pause");
-                io.emit("Play");
-            };
+      
         } else{
+            io.emit("newTime", newURL.time);
             if (newURL.playerState === true){
                 io.sockets.connected[newestUser].emit("Pause");
             } else {
