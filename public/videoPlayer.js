@@ -318,9 +318,7 @@
                 //STARTUP YOUTUBE API
                 
                 
-                function onYouTubeIframeAPIReady() {
-                    console.log("Iframe READY");
-                };
+             
                 //CREATE NEW YOUTUBE IFRAME
                 //Do math here later to calculate rem sizing
 
@@ -342,9 +340,9 @@
                     videoId: regexedYoutubeURL
                 });
 
-                socket.emit("Pause");
-                socket.emit("checkAllUsersBuffer");
-
+                
+                
+                
                 //LOAD UP YOUTUBE SEEKBAR LISTENER
                 function onPlayerReady() {
                     let videotime
@@ -367,6 +365,46 @@
                       }
                     }
                     timeupdater = setInterval(updateTime, 500);
+
+
+                    
+                    YTPlayer.seekTo(newURL.time);   
+                    
+
+                    if (newURL.time === undefined){
+                    
+                    
+                    } else 
+    
+                    if (newURL.playerState == 2 || newURL.playerState == -1){
+                        console.log("shit")
+                        
+                       
+                        //socket.emit("Pause");
+                        let isPlayerReady = setInterval(checkPlayerReady, 200)
+                        function checkPlayerReady(){
+                            if (YTPlayer.getPlayerState() == 1){
+                                console.log("isPlayin")
+                                //socket.emit("checkAllUsersBuffer");
+                                socket.emit("Pause");
+                                
+                                clearInterval(isPlayerReady);
+                            }
+                        }
+                        
+                     } else {
+    
+                        setTimeout(function(){
+                           //YTPlayer.pauseVideo();
+                            socket.emit("newTime", newURL.time)
+                            console.log("GotHERE");
+                            socket.emit("checkAllUsersBuffer")
+                            
+                            gotNewUser = false;
+                        }, 1000)
+                        
+                    }
+
                 }
 
                 
@@ -377,40 +415,7 @@
                 globalPlayerType = "youtube";
                 console.log("here");
 
-                if (newURL.time === undefined){
-                    
-                    
-                } else 
 
-                if (newURL.playerState == 2 || newURL.playerState == -1){
-                    console.log("shit")
-
-                    setTimeout(function(){
-                        YTPlayer.seekTo(newURL.time);   
-                    }, 1000)
-
-                    let isPlayerReady = setInterval(checkPlayerReady, 500)
-                    function checkPlayerReady(){
-                        if (YTPlayer.getPlayerState() == 1){
-                            console.log("isPlayin")
-                            YTPlayer.pauseVideo();
-                            setTimeout(function(){YTPlayer.pauseVideo()}, 1000)
-                            
-                            clearInterval(isPlayerReady);
-                        }
-                    }
-                    
-                 } else {
-
-                    setTimeout(function(){
-                       //YTPlayer.pauseVideo();
-                        socket.emit("newTime", newURL.time)
-                        socket.emit("checkAllUsersBuffer")
-                        
-                        gotNewUser = false;
-                    }, 1000)
-                    
-                }
 
                 
                 /*
@@ -446,22 +451,16 @@
                    
                     
 
-                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED && playEvent == false){
+                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED/* && playEvent == false*/){
                         socket.emit("newTime", YTPlayer.getCurrentTime());
                         socket.emit("checkAllUsersBuffer");
                         
 
                     }
 
+                    
+
                     if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
-
-                        
-                        setTimeout(() => {
-                            $(".ytp-pause-overlay-controls-hidden").css("bottom", "5rem!");
-                            $(".ytp-pause-overlay").css("bottom", "5rem!");
-                            $(".ytp-pause-overlay-controls-hidden ytp-pause-overlay").css("bottom", "5rem!");
-
-                        }, 700)
                         socket.emit("Pause");
                         
 
