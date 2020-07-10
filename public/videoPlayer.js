@@ -12,7 +12,10 @@
     let isNewURL = false;
     let playEvent = true;
     
-
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
 
@@ -313,11 +316,11 @@
                 } 
                     
                 //STARTUP YOUTUBE API
-                var tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
-                var firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
                 
+                
+                function onYouTubeIframeAPIReady() {
+                    console.log("Iframe READY");
+                };
                 //CREATE NEW YOUTUBE IFRAME
                 //Do math here later to calculate rem sizing
 
@@ -391,7 +394,7 @@
 
                     setTimeout(function(){
                        //YTPlayer.pauseVideo();
-                       socket.emit("newTime", newURL.time)
+                        socket.emit("newTime", newURL.time)
                         socket.emit("checkAllUsersBuffer")
                         
                         gotNewUser = false;
@@ -408,7 +411,7 @@
                 
 
                 }, 2000)*/
-                },3000);
+                },2000);
                 
                 
                 
@@ -492,6 +495,7 @@
 
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
+                socket.emit("checkAllUsersBuffer");
 
 
 
@@ -500,7 +504,15 @@
                 //CHANGE URL
                 $("#video").attr("src", newURL.urlID);
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
+                if (newURL.playerState == true){
+                    
+                    socket.emit("Pause");
+
+                } else {
+                    socket.emit("checkAllUsersBuffer");
+                }
                 globalPlayerType = "directLink";
+                
 
             }
                 //STARTUP SEEKBAR LISTENER
@@ -548,8 +560,12 @@
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
 
+                console.log("checkin sync");
                 let newURL = {time:YTPlayer.getCurrentTime(), urlID:regexedYoutubeURL, playerState:YTPlayer.getPlayerState(), type:"youtube"};
-                socket.emit("newUserSync", newURL);
+                setTimeout(function(){
+                    socket.emit("newUserSync", newURL);
+                }, 1000)
+                
 
         //IF DIRECT LINK
         } else {
