@@ -616,7 +616,8 @@
                     console.log("buffered");
                     socket.emit('isBuffered');
                     clearInterval(checkBufferedUser);
-                    setTimeout(function(){playEvent = false}, 2000);
+                    setTimeout(function(){playEvent = false; lastState = 1;}, 500);
+                    setTimeout(function(){playEvent = false; lastState = 1;}, 1500);
 
                 }
             } else {
