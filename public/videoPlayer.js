@@ -333,7 +333,7 @@
                     YTPlayer = new YT.Player('YTPlayer', {
                     height: 500,
                     width: 300,
-                    playerVars: {'autoplay': 1, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
+                    playerVars: {'autoplay': 0, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
                     events: {
                         'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange
@@ -384,11 +384,21 @@
 
                 if (newURL.playerState == 2 || newURL.playerState == -1){
                     console.log("shit")
-                    console.log(newURL.time)
+
                     setTimeout(function(){
-                        YTPlayer.seekTo(newURL.time);
-                        YTPlayer.pauseVideo();
+                        YTPlayer.seekTo(newURL.time);   
                     }, 1000)
+
+                    let isPlayerReady = setInterval(checkPlayerReady, 500)
+                    function checkPlayerReady(){
+                        if (YTPlayer.getPlayerState() == 1){
+                            console.log("isPlayin")
+                            YTPlayer.pauseVideo();
+                            setTimeout(function(){YTPlayer.pauseVideo()}, 1000)
+                            
+                            clearInterval(isPlayerReady);
+                        }
+                    }
                     
                  } else {
 
