@@ -449,7 +449,7 @@
                             $(".ytp-pause-overlay-controls-hidden ytp-pause-overlay").css("bottom", "5rem!");
 
                         }, 700)
-                        setTimeout(() => {socket.emit("Pause")}, 300)
+                        socket.emit("Pause");
                         
 
                     }
@@ -594,12 +594,13 @@
         console.log("received check buffered");
         socket.emit("Pause");
         playEvent = true;
-        lastState = 1;
-        setTimeout(function(){playEvent = false;}, 4000);
+        //lastState = 1;
         
 
         //SET CHECKING INTERVAL
         let checkBufferedUser = setInterval(function(){
+            
+        
            
             console.log("about yo make playevent false")
             console.log("checking buffer");
@@ -615,6 +616,7 @@
                     console.log("buffered");
                     socket.emit('isBuffered');
                     clearInterval(checkBufferedUser);
+                    setTimeout(function(){playEvent = false}, 2000);
 
                 }
             } else {
