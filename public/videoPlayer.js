@@ -109,7 +109,7 @@
                     YTPlayer.seekTo(newURL.time);   
                     
 
-                    if (newURL.time === undefined){
+                    if (newURL.time){
                     
                     
                     } else 

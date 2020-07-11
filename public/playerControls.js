@@ -70,7 +70,11 @@
         
         //Declare variable "newTime" storing the new time.
         let newTime = parseInt(($("#hour").val()) * 60 * 60) + (parseInt($("#minute").val()) * 60) + parseInt($("#second").val());
-
+        $("#second").val('');
+        $("#minute").val('');
+        $("#hour").val('');
+        
+        
         //Send signal to socket "newTime", syncing all users to the timestamp.
         //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
 
@@ -112,13 +116,9 @@
 
     //--------------------- SEEK BAR -------------------------//
 
-    $(".seekBar").click(() =>{
-
+    let seekFunction = () => {
         let clickedTime = $(".seekBar").val();
-
         if (globalPlayerType === "youtube"){
-
-        
 
             if(YTPlayer.getPlayerState() === 2){
                 socket.emit("newTime", clickedTime);
@@ -126,7 +126,6 @@
 
             } else {
 
-               
                 socket.emit("newTime", clickedTime);
                 socket.emit("checkAllUsersBuffer")
 
@@ -146,11 +145,21 @@
                 socket.emit("newTime", clickedTime);
                 socket.emit("checkAllUsersBuffer");
             }  
-        }
-
-        
+        }  
         console.log($(".seekBar").val())
+    }
+
+
+    $(".seekBar").click(() =>{
+        seekFunction();      
     }); 
+
+ 
+    $(".seekBar").on( "touchstart click",  function() {
+        setTimeout(function(){seekFunction()}, 100)
+        
+        });
+  
 
 
 
@@ -248,7 +257,41 @@
         console.log("URL submitted");
         let newURL = ({urlID:$("#urlInputText").val()});
         socket.emit('newURL', newURL);   
+        $(".loadURLInput").css("display", "none");
     });
 
-    //FULLSCREEN BUTTON TO DO//
+    //SHOW LOAD URL MOBILE
+    
+    $("#showLoadURL").click(() => {
+        if ($("#showLoadURL").html() === "LOAD<br>VIDEO"){
+            $('.loadURLInput').css("display", "flex");
+            $("#showLoadURL").text("");
+            $("#showLoadURL").append("<i class=\"fas fa-angle-double-down\"></i>");
+
+        } else {
+
+            $(".fa-angle-double-down").remove();
+            $("#showLoadURL").html("LOAD<br>VIDEO");
+            $('.loadURLInput').css("display", "none");
+        }
+       
+    });
+
+
+    $("#volumeButton").click(() => {
+        if (($(".volumeInput").css("display")) === "flex"){
+            $(".volumeInput").css("display", "none");
+        } else {
+        $(".volumeInput").css("display", "flex");
+        }
+    });
+
+
+    $("#showTimeIcon").click(() => {
+        if (($(".playBackControls").css("display")) === "none"){
+            $(".playBackControls").css("display", "flex");
+        } else {
+        $(".playBackControls").css("display", "none");
+        }
+    });
    
