@@ -1,42 +1,20 @@
-
-
-
-/*  
-    BODY DEFAULTS
-
-
-    Some Notes on Sizing:
-
-    Font-size of 62.5% is equal to 10px. This is convenient for rem sizing and is considered current best practice. 
-    Reason for % over px is that it doesn't ruin user experience for people using either browsers that have a higher default font-size (ie. Opera is 15px),
-    or users who have purposely increased their default font-size.
-*/
-
-/* width */
 ::-webkit-scrollbar {
     width: 0.5rem;
-    background:#1d1d1d;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px black;
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #EB3434;
-    border-radius: 10px;
-  }
-
-#html{
-    font-size: 62.5%;
-    
+    background: #1d1d1d;
 }
-
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #000;
+}
+::-webkit-scrollbar-thumb {
+    background: #eb3434;
+    border-radius: 10px;
+}
+html {
+    font-size: 62.5%;
+}
 body {
-    margin:0;
-    border-style:none;
+    margin: 0;
+    border-style: none;
     font-family: 'Lato', sans-serif;
     font-weight: 500;
 }
@@ -47,87 +25,77 @@ body {
     justify-content: flex-start;
     padding-left: 1rem;
 }
-.logoImg{
-    height:4rem;
+.logoImg {
+    height: 4rem;
 }
-
-.btn{
-    font-family: 'Lato', sans-serif;
+.btn {
+    font-family: ''Lato'', sans-serif;
     height: 6rem;
     min-width: 6rem;
     font-size: 2.95rem;
-    font-weight: bold;
-    color:white;
-    border-style:none;
-    background:content-box;
+    font-weight: 700;
+    color: #fff;
+    border-style: none;
+    background: content-box;
     padding: 0 1rem 0 1rem;
 }
 
-div{
+div {
     font-family: 'Lato', sans-serif;
 }
-
-button{
+button {
     font-family: 'Lato', sans-serif;
 }
-
-input{
+input {
     font-family: 'Lato', sans-serif;
     height: 2rem;
-    width:13rem;
+    width: 13rem;
     background: #383838;
     border-radius: 0.5rem;
     border: 0;
     margin: 0;
-    box-shadow: 0px 0px 2px 0px;
+    box-shadow: 0 0 2px 0;
 }
-
 .submitChat {
     font-weight: 600;
-    background: #7c80ff;  
+    background: #7c80ff;
 }
-
-
 .chatBubble {
     height: 1.5rem;
     width: 20rem;
     border-radius: 0.5rem;
-    border:0;
-    box-shadow: 0px 0px 2px 0px;
+    border: 0;
+    box-shadow: 0 0 2px 0;
 }
-
-.chatInputText{
-    height:100%;
-    width:100%;
+.chatInputText {
+    height: 100%;
+    width: 100%;
     border-radius: 0.5rem;
     color: #c1c1c1;
     font-size: 0.8rem;
     border: none;
-    box-shadow: 0px 0px 1px 0px;
-    outline: none;
+    box-shadow: 0 0 1px 0;
+    outline: 0;
 }
-
-.msgsWrapper{
+.msgsWrapper {
     overflow: auto;
     display: flex;
     flex-direction: column-reverse;
-    height:100%
+    height: 100%;
 }
-
-.submitUserButton{
+.submitUserButton {
     width: 4rem;
     height: 2rem;
     border-radius: 0.25rem;
     border: none;
-    font-weight: bold;
-    color: white;
+    font-weight: 700;
+    color: #fff;
     outline: 1rem;
-    background: #EB3434;
-    outline-color: black;
-    text-shadow: 0px 0px 10px #464646;
+    background: #eb3434;
+    outline-color: #000;
+    text-shadow: 0 0 10px #464646;
 }
-
-.middleNewUserWrapper{
+.middleNewUserWrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -135,425 +103,406 @@ input{
     height: 25%;
     width: 75%;
     background: #1d1d1d;
-    color: white;
+    color: #fff;
     border-radius: 1rem;
 }
-
-
-.usernameForm{
-display:flex;
-flex-direction:column;
-align-items: center;
+.usernameForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-
 .usernameText {
-    outline: none;
+    outline: 0;
     margin-bottom: 2rem;
     color: #ececec;
 }
-
-.usernameError{
-    padding-top: 1.7rem;
-    position: absolute;
-    font-size: 0.85rem;
-    color:#A585E6;
-}
-
 .username {
     list-style: none;
-    color: white;
-    font-weight: normal;
+    color: #fff;
+    font-weight: 400;
     margin-top: 1rem;
 }
-.msg {
-    list-style: none;
-    color: #b5b5b5;
-    font-weight: 400;
-    font-size: 0.8rem;
-}
-/*MAIN ROWS*/
-
-.header{
-    background: #542CA2;
+.header {
+    background: #542ca2;
     height: 7.5%;
 }
-
-.roomSelect{
-    border-top-left-radius: 10px;
-    background: rgb(31, 31, 31);
-    height: 7.5%;
-    box-shadow: -1px 0px 7px 0px;
-}
-
-.newUserWrapper{
+.newUserWrapper {
     height: 100%;
     width: 100%;
     background: #2e2e2e;
     display: flex;
     flex-direction: column;
-    align-items:center;
-    justify-content:center;
+    align-items: center;
+    justify-content: center;
 }
-
-    /*Video Column */
-    .roomSelectBackground{
-        background: #9d0202;
-    }
-
-    .videoArea{
-        flex: 1 1;
-        height:50%;
-    }
-
-    .player{
-        box-shadow: inset 0px 0px 20px 20px;
-        display:flex;
-        flex-direction: column;
-        height:100%;
-    }
-
-    .videoScreen{
-        flex:1;
-        background: black;
+.videoArea {
+    flex: 1 1;
+    height: 50%;
 }
-       
-    }
-
-    .cueArea{
-        background: #673ab7;
-    }
-
-    iframe{
-        width:100%;
-        height:100%;
-    }
-    
-    #video {
-        width: 100%;
-        height: 100%;
-        background-color: rgb(0, 0, 0);
-    }
-    
-    /*Controls Row*/
-
-    .playerControls{
-        background: linear-gradient(0deg, #050505, #2e2e2e);
-        box-shadow: inset 3px -2px 20px 0px;
-        display:flex;
-        justify-content:center;
-        flex-direction: column;
-        height: 15rem;
-    }
-
-        /*Seek Bar Row*/
-        .seekBarRow{
-            display:flex;
-            justify-content: center;
-            margin: 1rem 0 2rem 0;
-        }
-        .seekbar{
-            width:90%
-        }
-
-        /*Button Row*/
-        .buttonsRow{
-            height:50%;
-            display:flex;     
-            
-        }
-
-            .loadURLInput{
-                display:flex;
-                background:black;
-                width:100%;
-                justify-content: space-around;
-                align-items:center;
-            }
-
-            .volumeInput{
-                display:flex;
-                background:black;
-                width:100%;
-                height:7rem;
-                justify-content:center;
-                align-items:center;
-            }
-
-
-            #hour, #minute, #second{
-                height: 4rem;
-                font-size: 2.25rem;
-                width: 20%;
-                margin-left: 2rem;
-            }
-                
-            
-
-            #hour::placeholder, #minute::placeholder, #second::placeholder{
-                font-family: 'Lato', sans-serif;
-                color:rgb(71, 71, 71)
-            }
-
-            #seek{
-                height: 5rem;
-                width: 7rem;
-                font-size: 2rem;
-                margin-top: 1rem;
-                font-weight: 800;
-                margin-right: 2rem;
-                margin-bottom: 1rem;
-                background-color: black;
-                border-style: none;
-                color: white;
-                font-family: 'Lato', sans-serif;
-            }
-
-            #skipBack{
-                padding-right:3rem;
-                padding-left:0rem;
-            }
-
-            #skipAhead{
-                padding-left:3rem;
-                padding-right:0rem;
-            }
-
-            #playPause{
-                font-size: 1.5rem;
-            }
-
-            .volume{
-                width:80%;
-            }
-            
-            #urlInputText{
-                width:60%;
-                height:60%;
-                padding-left:0.5rem;
-                padding-right:0.5rem;
-                font-size: 2.3rem;
-            }
-
-            .playBackCommandsCol{
-                display:flex;
-                flex-direction:column;
-                align-items: center;
-                justify-content: center;
-                font-size:200%;
-                width:33%;
-                height:100%;
-            }
-
-            .playBackCommandsRow{
-                display: flex;
-            }
-
-            .loadURLCol{
-                display:flex;
-                width:33%;
-                justify-content:center;
-                align-items:center;
-            }
-
-            .playBackControls{
-                display:flex;
-                background:black;
-                height:10rem;
-                width:100%;
-                justify-content: space-around;
-                align-items:center;
-        }
-
-            .fullScreenCol{
-                width:33%;
-                display:flex;
-                justify-content:center;
-                align-items: center;
-            }
-
-            #showLoadURL{
-                font-size:1.5rem;
-            }
-
-        
-            .fa-pause{
-                padding-left:0.5rem;
-            }
-
-            .fa-play{
-                padding-right:0.5rem;
-            }
-
-            
-
-
-    /*Chat Column */
-
-
-    .chatArea{   
+.player {
+    box-shadow: inset 0 0 20px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.videoScreen {
+    flex: 1;
+    background: #000;
+}
+.cueArea {
+    background: #673ab7;
+}
+#video {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+.playerControls {
+    background: linear-gradient(0deg, #050505, #2e2e2e);
+    box-shadow: inset 3px -2px 20px 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 15rem;
+}
+.seekBarRow {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0 2rem 0;
+}
+.seekbar {
+    width: 90%;
+}
+.buttonsRow {
+    height: 50%;
+    display: flex;
+}
+.loadURLInput {
+    display: flex;
+    background: #000;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    position:absolute;
+}
+.volumeInput {
+    display: flex;
+    background: #000;
+    width: 100%;
+    height: 7rem;
+    justify-content: center;
+    align-items: center;
+}
+#hour,
+#minute,
+#second {
+    height: 4rem;
+    font-size: 2.25rem;
+    width: 20%;
+    margin-left: 2rem;
+}
+#hour::placeholder,
+#minute::placeholder,
+#second::placeholder {
+    font-family: 'Lato', sans-serif;
+    color: #474747;
+}
+#seek {
+    height: 5rem;
+    width: 7rem;
+    font-size: 2rem;
+    margin-top: 1rem;
+    font-weight: 800;
+    margin-right: 2rem;
+    margin-bottom: 1rem;
+    background-color: #000;
+    border-style: none;
+    color: #fff;
+    font-family: 'Lato', sans-serif;
+}
+#skipBack {
+    padding-right: 3rem;
+    padding-left: 0;
+}
+#skipAhead {
+    padding-left: 3rem;
+    padding-right: 0;
+}
+#playPause {
+    font-size: 1.5rem;
+}
+.volume {
+    width: 80%;
+}
+#urlInputText {
+    width: 60%;
+    height: 60%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: 2.3rem;
+}
+.playBackCommandsCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 200%;
+    width: 33%;
+    height: 100%;
+}
+.playBackCommandsRow {
+    display: flex;
+}
+.loadURLCol {
+    display: flex;
+    width: 33%;
+    justify-content: center;
+    align-items: center;
+}
+.playBackControls {
+    display: flex;
+    background: #000;
+    height: 10rem;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+}
+.fullScreenCol {
+    width: 33%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#showLoadURL {
+    font-size: 1.5rem;
+}
+.fa-pause {
+    padding-left: 0.5rem;
+}
+.fa-play {
+    padding-right: 0.5rem;
+}
+.chatArea {
     flex: 0 1 30%;
     height: 42.5%;
-    }
-    
-    .chat{
-        display:flex;
-        flex-direction: column;
-        height:100%;
-    }
-    
-    .msgs{
-        flex: 1;
-        background: #2e2e2e;
-        box-shadow: inset 0px 1px 10px 0px;
-        padding-left: 2rem;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-    }
-    
-    .chatBar{
-        background: #1d1d1d;
-        height:6rem;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        flex-direction: column;
-    }
-    
-
-
-
- 
-
-
-  /* The slider itself */
-  .seekBar {
-    -webkit-appearance: none;  /* Override default CSS styles */
+}
+.chat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.msgs {
+    flex: 1;
+    background: #2e2e2e;
+    box-shadow: inset 0 1px 10px 0;
+    padding-left: 2rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.chatBar {
+    background: #1d1d1d;
+    height: 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.seekBar {
+    -webkit-appearance: none;
     appearance: none;
-    width: 100%; /* Full-width */
-    height: 3rem; /* Specified height */
-    outline: none;
+    width: 100%;
+    height: 3rem;
+    outline: 0;
     opacity: 1;
-    box-shadow: inset 0px 0px 6px 0px;
-    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-    transition: opacity .2s;
-  }
-  
-  /* Mouse-over effects */
-  .seekBar:hover {
-    opacity: 1; /* Fully shown on mouse-over */
-  }
-  
-  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-  .seekBar::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Override default look */
+    box-shadow: inset 0 0 6px 0;
+    -webkit-transition: 0.2s;
+    transition: opacity 0.2s;
+}
+.seekBar:hover {
+    opacity: 1;
+}
+.seekBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
     appearance: none;
-    width: 3rem; /* Set a specific slider handle width */
-    height: 3rem; /* Slider handle height */
+    width: 3rem;
+    height: 3rem;
     background: #00a05d;
-    box-shadow: 0px 0px 4px 0px;
-    cursor: pointer; /* Cursor on hover */
-  }
-  
-  .seekBar::-moz-range-thumb {
-    width: 3rem; /* Set a specific slider handle width */
-    height: 3rem; /* Slider handle height */
+    box-shadow: 0 0 4px 0;
+    cursor: pointer;
+}
+.seekBar::-moz-range-thumb {
+    width: 3rem;
+    height: 3rem;
     background: #00a05d;
-    box-shadow: 0px 0px 4px 0px;
-    cursor: pointer; /* Cursor on hover */
-  }
-
-
-
-
-
-
-
-/* Custom, iPhone Retina */ 
-@media only screen and (min-width : 320px) {
-
+    box-shadow: 0 0 4px 0;
+    cursor: pointer;
 }
-
-/* Extra Small Devices, Phones */ 
-@media only screen and (min-width : 480px) {
-
-}
-
-/* Small Devices, Tablets */
-@media only screen and (min-width : 768px) {
-
-}
-
-/* Medium Devices, Desktops */
-@media only screen and (min-width : 992px) {
+@media only screen and (min-width: 992px) {
     .videoChatRow {
-        
         display: flex;
-        height:92.5%;
-    } 
-   
+        height: 92.5%;
+    }
     #showLoadURL {
         font-size: 1rem;
     }
-    .videoArea, .chatArea{
-        height: 100%
+    .chatArea,
+    .videoArea {
+        height: 100%;
     }
-
-    .btn{
+    .btn {
         height: 3rem;
         min-width: 3rem;
         font-size: 1rem;
-        font-weight: bold;
-        color:white;
-        border:none;
+        font-weight: 700;
+        color: #fff;
+        border: none;
         padding: 0 1rem 0 1rem;
     }
-
     #playPause {
         font-size: 0.75rem;
     }
-
-    .playerControls{
-        /*padding-top:-0.5rem;
-        height:7rem;*/
+    .playerControls {
         height: 5.4rem;
     }
-
     #urlInputText {
         height: 80%;
         font-size: 1.5rem;
     }
-
-    #hour, #minute, #second{
-        font-size: 1.5rem;     
+    #hour,
+    #minute,
+    #second {
+        font-size: 1.5rem;
     }
-    .playBackControls{
+    .playBackControls {
         height: 2rem;
     }
-
     #showLoadURL {
         font-size: 1rem;
         width: 9rem !important;
         max-width: 10rem;
     }
-    }
-    .msgs{
+    .msgs {
         box-shadow: none;
         list-style: none;
-        color: white;
+        color: #fff;
         font-weight: 300;
         font-size: 0.8rem;
     }
-    .seekBarRow{
+    .seekBarRow {
         margin: 1rem 0 0 0;
-        
     }
-
-    .buttonsRow{
-        
-    }
-        
     button.submitChat {
-margin-top: 2.45%;
+        margin-top: 2.45%;
+        margin-left: 14rem;
+        width: 6rem;
+        height: 1.5rem;
+        border-radius: 0.25rem;
+        border: none;
+        color: #fff;
+        background: #eb3434;
+    }
+    .seekBar {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 1rem;
+        background: #fff;
+        outline: 0;
+        opacity: 1;
+        box-shadow: inset 0 0 6px 0;
+        -webkit-transition: 0.2s;
+        transition: opacity 0.2s;
+        margin: 0;
+        border-radius: 0;
+    }
+    .seekBar:hover {
+        opacity: 1;
+    }
+    .seekBar::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 1.25rem;
+        height: 1rem;
+        background: #542ca2;
+        box-shadow: 0 0 4px 0;
+        cursor: pointer;
+    }
+    .seekBar::-moz-range-thumb {
+        width: 1.25rem;
+        height: 1rem;
+        background: #542ca2;
+        box-shadow: 0 0 4px 0;
+        cursor: pointer;
+    }
+}
+
+
+@media only screen and (min-width : 992px) {
+    .videoChatRow {
+    display: flex;
+    height:92.5%;
+    } 
+    
+    #showLoadURL {
+    font-size: 1rem;
+    }
+    .videoArea, .chatArea{
+    height: 100%
+    }
+    
+    .btn{
+    height: 3rem;
+    min-width: 3rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color:white;
+    border:none;
+    padding: 0 1rem 0 1rem;
+    }
+    
+    #playPause {
+    font-size: 0.75rem;
+    }
+    
+    .playerControls{
+    /*padding-top:-0.5rem;
+    height:7rem;*/
+    height: 5.4rem;
+    }
+    
+    #urlInputText {
+    height: 80%;
+    font-size: 1.5rem;
+    }
+    
+    #hour, #minute, #second{
+    font-size: 1.5rem;     
+    }
+    
+    .playBackControls{
+    height: 2rem;
+    }
+    
+    #showLoadURL {
+    font-size: 1rem;
+    width: 9rem !important;
+    max-width: 10rem;
+    }
+    
+    
+    .msgs{
+    box-shadow: none;
+    list-style: none;
+    color: white;
+    font-weight: 300;
+    font-size: 0.8rem;
+    }
+    .seekBarRow{
+    margin: 1rem 0 0 0;
+    }
+    
+    button.submitChat {
+    margin-top: 2.45%;
     margin-left: 14rem;
     width: 6rem;
     height: 1.5rem;
@@ -561,14 +510,13 @@ margin-top: 2.45%;
     border: none;
     color: white;
     background:#EB3434;
-
     }
-
-
-
-
-      /* The slider itself */
-  .seekBar {
+    
+    
+    
+    
+    /* The slider itself */
+    .seekBar {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
     width: 100%; /* Full-width */
@@ -581,15 +529,15 @@ margin-top: 2.45%;
     transition: opacity .2s;
     margin: 0;
     border-radius: 0px;
-  }
-  
-  /* Mouse-over effects */
-  .seekBar:hover {
+    }
+    
+    /* Mouse-over effects */
+    .seekBar:hover {
     opacity: 1; /* Fully shown on mouse-over */
-  }
-  
-  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-  .seekBar::-webkit-slider-thumb {
+    }
+    
+    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+    .seekBar::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
     appearance: none;
     width: 1.25rem; /* Set a specific slider handle width */
@@ -597,108 +545,15 @@ margin-top: 2.45%;
     background: #542CA2;
     box-shadow: 0px 0px 4px 0px;
     cursor: pointer; /* Cursor on hover */
-  }
-  
-  .seekBar::-moz-range-thumb {
+    }
+    
+    .seekBar::-moz-range-thumb {
     width: 1.25rem; /* Set a specific slider handle width */
     height: 1rem; /* Slider handle height */
     background: #542CA2;
     box-shadow: 0px 0px 4px 0px;
     cursor: pointer; /* Cursor on hover */
-  }
-
-}
-
-/* Large Devices, Wide Screens */
-@media only screen and (min-width : 1200px) {
-
-}
-
-
-
-/*
-.seekbar{
-    width:90%;
-}
-
-#controlsRow{
-    background-color:black;
-    width:100%;
-}
-
-
-//VIDEO AREA 
-#embeddedArea{
-    width: 100%;
-	height:100%;
-}
-
-#embeddedArea iframe{
-	width:100%;
-	height:100%;
-}
-
-
-
-
-#fullScreen{
-    margin:  0 0.5rem 0 ;
-}
-
-
-
-
-
- //PLAYER COMMANDS
-#playerCommands{
-    height:2rem;
-}
+    }
     
-  
-
-
-    //SEEK COMMANDS
-
-    #seekCommands{
-        align-items: center;
-        color:white;
-        display: flex;
-        font-size:1rem;
-        justify-content: center;
-        }
-
-        #seekCommands button{
-            margin:0 0 0 0.5rem;
-        }
-
-        #seekCommands input{
-            font-size:0.75rem;
-            width:3rem;  
-        }
-
-        #seekCommands.hidden{
-        display:none;
-        }
-
-
-            //SEEK BY TIME
-            #hourColumn{
-                display:flex;
-                flex-direction: column;
-                margin:0 0.25rem 1rem 0.25rem;
-            }
-
-            #minColumn{
-                display:flex;
-                flex-direction: column;
-                margin:0 0.25rem 1rem 0.25rem;
-            }
-
-            #secColumn{
-                display:flex;
-                flex-direction: column;
-                margin:0 0.25rem 1rem 0.25rem;
-            }
-
-
-           */
+    
+    }

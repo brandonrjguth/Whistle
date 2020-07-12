@@ -270,6 +270,8 @@
             $('.loadURLInput').css("display", "flex");
             $("#showLoadURL").text("");
             $("#showLoadURL").append("<i class=\"fas fa-angle-double-down\"></i>");
+            $(".volumeInput").css("display", "none")
+            $(".playBackControls").css("display", "none")
 
         } else {
 
@@ -284,7 +286,11 @@
     $("#volumeButton").click(() => {
         if (($(".volumeInput").css("display")) === "flex"){
             $(".volumeInput").css("display", "none");
+            $(".playBackControls").css("display", "none")
+            $('.loadURLInput').css("display", "none")
+            $("#showLoadURL").html("LOAD VIDEO");
         } else {
+            $("#showLoadURL").html("LOAD VIDEO");
         $(".volumeInput").css("display", "flex");
         }
     });
@@ -293,6 +299,10 @@
     $("#showTimeIcon").click(() => {
         if (($(".playBackControls").css("display")) === "none"){
             $(".playBackControls").css("display", "flex");
+            $("#showLoadURL").html("LOAD VIDEO");
+            $(".volumeInput").css("display", "none");
+            $('.loadURLInput').css("display", "none")
+
         } else {
         $(".playBackControls").css("display", "none");
         }
@@ -314,7 +324,7 @@
         if ($('.usernameText').val() === ""){
 
             if ($('.usernameForm').html().includes('usernameError') === false){
-                $('.usernameForm').append("<p class=\"usernameError\">You must enter a Username before joining the chat.</p>")
+                $('.usernameForm').append("<p class=\"usernameError\">You must enter a Username before joining chat.</p>")
             } else {
               
             }    
