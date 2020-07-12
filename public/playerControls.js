@@ -4,7 +4,7 @@
     //--------------------- PLAY AND PAUSE ---------------------//
     //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
 
-    
+
     $("#playPause").click(function(){
 
 
@@ -258,12 +258,15 @@
         let newURL = ({urlID:$("#urlInputText").val()});
         socket.emit('newURL', newURL);   
         $(".loadURLInput").css("display", "none");
+        $(".fa-angle-double-down").remove();
+        $("#showLoadURL").html("LOAD VIDEO");
+        $('.loadURLInput').css("display", "none");
     });
 
     //SHOW LOAD URL MOBILE
     
     $("#showLoadURL").click(() => {
-        if ($("#showLoadURL").html() === "LOAD<br>VIDEO"){
+        if ($("#showLoadURL").html() === "LOAD VIDEO"){
             $('.loadURLInput').css("display", "flex");
             $("#showLoadURL").text("");
             $("#showLoadURL").append("<i class=\"fas fa-angle-double-down\"></i>");
@@ -271,7 +274,7 @@
         } else {
 
             $(".fa-angle-double-down").remove();
-            $("#showLoadURL").html("LOAD<br>VIDEO");
+            $("#showLoadURL").html("LOAD VIDEO");
             $('.loadURLInput').css("display", "none");
         }
        
@@ -294,4 +297,35 @@
         $(".playBackControls").css("display", "none");
         }
     });
+
+    $('.chatBubble').submit(function(e) {
+        e.preventDefault(); // prevents page reloading
+        socket.emit('chat message', $('.chatInputText').val());
+        $('.chatInputText').val('');
+        return false;
+      });
    
+
+    $('.usernameForm').submit(function(e) {
+        e.preventDefault(); // prevents page reloading
+        
+
+
+        if ($('.usernameText').val() === ""){
+
+            if ($('.usernameForm').html().includes('usernameError') === false){
+                $('.usernameForm').append("<p class=\"usernameError\">You must enter a Username before joining the chat.</p>")
+            } else {
+              
+            }    
+        } else {
+            myUsername = $('.usernameText').val();
+            $('.newUserWrapper').css("display", "none");
+            $('.chat').css("display", "flex");
+        }
+      });
+
+      socket.on('chat message', (msg) =>{
+          console.log(msg);
+          $('.msgs').append('<li class=\'username\'>' + myUsername + '</li><li class=\'msg\'>' + msg + '</li>');
+      })

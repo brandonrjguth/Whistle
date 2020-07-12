@@ -15,8 +15,11 @@
     
 
         <!-- Header -->
-        <div class="header"></div>
-        <div class="roomSelect"></div>
+        <div class="header">
+            <div class='logo'>
+                <img src="path34.png" class='logoImg'>
+            </div>
+        </div>
         <div class="videoChatRow">
             <!-- Video Area -->
             <div class="videoArea">
@@ -29,8 +32,6 @@
 
                     <div class="playBackControls" style="display:none">
                          <!-- SEEK TO -->
-                         
-                           
                                 <input id="hour" placeholder="Hour" type="text"></input>
                             
                     
@@ -71,7 +72,7 @@
                         </div>
                         <div class="buttonsRow">
                             <div class="loadURLCol">
-                                <button class="btn" id="showLoadURL">LOAD<br>VIDEO</button>
+                                <button class="btn" id="showLoadURL">LOAD VIDEO</button>
                                 <button class="btn" id="showTimeIcon"><i class="far fa-clock"></i></button>   
                             </div>
                             <div class="playBackCommandsCol">
@@ -97,9 +98,32 @@
             </div>
             <div class="cueArea" style="display:none"></div>
             <div class="chatArea">
-                <div class="chat">
+                
+                
+                <!--ONLY DISPLAYS FOR NEW USER-->
+                <div class="newUserWrapper">
+                    <div class="middleNewUserWrapper">
+                        <h1>JOIN CHAT</h1>
+                        <form class="usernameForm">
+                            <input type="text" placeholder="Enter A Username" class="usernameText"></input>
+                            <button class='submitUserButton'>ENTER</button>
+                        </form>
+                    </div>
+                </div>
+
+
+                <div class="chat" style="display:none">
+                    <div class="msgsWrapper">
                     <div class="msgs"></div> 
-                    <div class="chatBar"></div>
+                    </div>
+                    <div class="chatBar">
+                        
+                            <form class="chatBubble">
+                                <input type="text" class="chatInputText" placeholder="Type a message">
+                                <button class="submitChat">SEND</button>
+                            </form>
+                        
+                    </div>
                 </div>  
             </div>
             
@@ -109,6 +133,7 @@
         <!-- Footer -->
     <script src="playerControls.js"></script>
     <script src="videoPlayer.js"></script>
+    <script src="chat.js"></script>
     
     </body>
 </html>

@@ -11,6 +11,7 @@
     let gotNewUser = true;
     let isNewURL = false;
     let playEvent = true;
+    let myUsername;
     
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
@@ -113,13 +114,14 @@
                     
                     
                     } else 
-    
+                    
+                    console.log("shit")
                     if (newURL.playerState == 2 || newURL.playerState == -1){
-                        console.log("shit")
+                        console.log("shit2")
                         
                        
                         //socket.emit("Pause");
-                        let isPlayerReady = setInterval(checkPlayerReady, 200)
+                        let isPlayerReady = setInterval(checkPlayerReady, 500)
                         function checkPlayerReady(){
                             if (YTPlayer.getPlayerState() == 1){
                                 console.log("isPlayin")
@@ -131,12 +133,11 @@
                         }
                         
                      } else {
-    
+                        console.log("shit3")
                         setTimeout(function(){
-                           //YTPlayer.pauseVideo();
                             socket.emit("newTime", newURL.time)
                             console.log("GotHERE");
-                            socket.emit("checkAllUsersBuffer")
+                            socket.emit("checkAllUsersBuffer");
                             
                             gotNewUser = false;
                         }, 1000)
@@ -439,26 +440,4 @@
     });
 
 
-    //----------------- CHAT MESSAGE ------------------//
-
-    //Append the recevied message to an unordered list.
-
-    socket.on('chat message', (msg) => {
-
-        $('#messages').append($('<li>').text(msg));
-
-    });
-    
-
-    //----------------------------------------------------- SOCKET.IO FUNCTIONS -----------------------------------------------------------//
-
-    $(function () {
-        //DEFAULT SOCKET.IO MESSAGE FUNCTION
-        $('form').submit(function(e){
-            e.preventDefault(); // prevents page reloading
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-
-});
+  

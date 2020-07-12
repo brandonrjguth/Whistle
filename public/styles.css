@@ -12,6 +12,23 @@
     or users who have purposely increased their default font-size.
 */
 
+/* width */
+::-webkit-scrollbar {
+    width: 0.5rem;
+    background:#1d1d1d;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px black;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #EB3434;
+    border-radius: 10px;
+  }
+
 #html{
     font-size: 62.5%;
     
@@ -24,34 +41,164 @@ body {
     font-weight: 500;
 }
 
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 1rem;
+}
+.logoImg{
+    height:4rem;
+}
+
 .btn{
     font-family: 'Lato', sans-serif;
     height: 6rem;
     min-width: 6rem;
     font-size: 2.95rem;
     font-weight: bold;
-    background:black;
     color:white;
     border-style:none;
+    background:content-box;
     padding: 0 1rem 0 1rem;
 }
 
+div{
+    font-family: 'Lato', sans-serif;
+}
+
+button{
+    font-family: 'Lato', sans-serif;
+}
+
+input{
+    font-family: 'Lato', sans-serif;
+    height: 2rem;
+    width:13rem;
+    background: #383838;
+    border-radius: 0.5rem;
+    border: 0;
+    margin: 0;
+    box-shadow: 0px 0px 2px 0px;
+}
+
+.submitChat {
+    font-weight: 600;
+    background: #7c80ff;  
+}
 
 
+.chatBubble {
+    height: 1.5rem;
+    width: 20rem;
+    border-radius: 0.5rem;
+    border:0;
+    box-shadow: 0px 0px 2px 0px;
+}
+
+.chatInputText{
+    height:100%;
+    width:100%;
+    border-radius: 0.5rem;
+    color: #c1c1c1;
+    font-size: 0.8rem;
+    border: none;
+    box-shadow: 0px 0px 1px 0px;
+    outline: none;
+}
+
+.msgsWrapper{
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    height:100%
+}
+
+.submitUserButton{
+    width: 4rem;
+    height: 2rem;
+    border-radius: 0.25rem;
+    border: none;
+    font-weight: bold;
+    color: white;
+    outline: 1rem;
+    background: #EB3434;
+    outline-color: black;
+    text-shadow: 0px 0px 10px #464646;
+}
+
+.middleNewUserWrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    height: 25%;
+    width: 75%;
+    background: #1d1d1d;
+    color: white;
+    border-radius: 1rem;
+}
+
+
+.usernameForm{
+display:flex;
+flex-direction:column;
+align-items: center;
+}
+
+.usernameText {
+    outline: none;
+    margin-bottom: 2rem;
+    color: #ececec;
+}
+
+.usernameError{
+    padding-top: 1.7rem;
+    position: absolute;
+    font-size: 0.85rem;
+    color:#A585E6;
+}
+
+.username {
+    list-style: none;
+    color: white;
+    font-weight: normal;
+    margin-top: 1rem;
+}
+.msg {
+    list-style: none;
+    color: #b5b5b5;
+    font-weight: 400;
+    font-size: 0.8rem;
+}
 /*MAIN ROWS*/
 
 .header{
-    background: #2052b6;
-    height:7.5%
+    background: #542CA2;
+    height: 7.5%;
 }
 
 .roomSelect{
-    background: rgb(148, 148, 148);
-    height:7.5%
+    border-top-left-radius: 10px;
+    background: rgb(31, 31, 31);
+    height: 7.5%;
+    box-shadow: -1px 0px 7px 0px;
 }
 
+.newUserWrapper{
+    height: 100%;
+    width: 100%;
+    background: #2e2e2e;
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+}
 
     /*Video Column */
+    .roomSelectBackground{
+        background: #9d0202;
+    }
 
     .videoArea{
         flex: 1 1;
@@ -59,6 +206,7 @@ body {
     }
 
     .player{
+        box-shadow: inset 0px 0px 20px 20px;
         display:flex;
         flex-direction: column;
         height:100%;
@@ -66,6 +214,8 @@ body {
 
     .videoScreen{
         flex:1;
+        background: black;
+}
        
     }
 
@@ -87,18 +237,19 @@ body {
     /*Controls Row*/
 
     .playerControls{
-        background: #000000;
-        height: 11.5rem;
+        background: linear-gradient(0deg, #050505, #2e2e2e);
+        box-shadow: inset 3px -2px 20px 0px;
         display:flex;
         justify-content:center;
         flex-direction: column;
+        height: 15rem;
     }
 
         /*Seek Bar Row*/
         .seekBarRow{
             display:flex;
             justify-content: center;
-            margin: 3rem 0 0.5rem 0;
+            margin: 1rem 0 2rem 0;
         }
         .seekbar{
             width:90%
@@ -106,11 +257,9 @@ body {
 
         /*Button Row*/
         .buttonsRow{
-            background: #000000;
             height:50%;
-            display:flex;    
-            padding-top: 1rem;   
-            padding-bottom:1rem;
+            display:flex;     
+            
         }
 
             .loadURLInput{
@@ -243,7 +392,7 @@ body {
 
     .chatArea{   
     flex: 0 1 30%;
-    height:35%;
+    height: 42.5%;
     }
     
     .chat{
@@ -253,23 +402,65 @@ body {
     }
     
     .msgs{
-        flex:1;
+        flex: 1;
         background: #2e2e2e;
+        box-shadow: inset 0px 1px 10px 0px;
+        padding-left: 2rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
     
     .chatBar{
-        background: #474747;
-        height:7rem;
+        background: #1d1d1d;
+        height:6rem;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-direction: column;
     }
     
 
 
 
+ 
 
 
-
-
-
+  /* The slider itself */
+  .seekBar {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 3rem; /* Specified height */
+    outline: none;
+    opacity: 1;
+    box-shadow: inset 0px 0px 6px 0px;
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+  }
+  
+  /* Mouse-over effects */
+  .seekBar:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+  }
+  
+  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+  .seekBar::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 3rem; /* Set a specific slider handle width */
+    height: 3rem; /* Slider handle height */
+    background: #00a05d;
+    box-shadow: 0px 0px 4px 0px;
+    cursor: pointer; /* Cursor on hover */
+  }
+  
+  .seekBar::-moz-range-thumb {
+    width: 3rem; /* Set a specific slider handle width */
+    height: 3rem; /* Slider handle height */
+    background: #00a05d;
+    box-shadow: 0px 0px 4px 0px;
+    cursor: pointer; /* Cursor on hover */
+  }
 
 
 
@@ -295,48 +486,101 @@ body {
 /* Medium Devices, Desktops */
 @media only screen and (min-width : 992px) {
     .videoChatRow {
+        
         display: flex;
-        height:85%;
-    }  
-
+        height:92.5%;
+    } 
+   
+    #showLoadURL {
+        font-size: 1rem;
+    }
     .videoArea, .chatArea{
         height: 100%
     }
 
     .btn{
-        height: 2rem;
-        min-width: 4rem;
-        font-size: 1.5rem;
+        height: 3rem;
+        min-width: 3rem;
+        font-size: 1rem;
         font-weight: bold;
-        background:black;
         color:white;
         border:none;
         padding: 0 1rem 0 1rem;
     }
 
+    #playPause {
+        font-size: 0.75rem;
+    }
+
     .playerControls{
         /*padding-top:-0.5rem;
         height:7rem;*/
+        height: 5.4rem;
     }
 
-}
+    #urlInputText {
+        height: 80%;
+        font-size: 1.5rem;
+    }
 
-/* Large Devices, Wide Screens */
-@media only screen and (min-width : 1200px) {
+    #hour, #minute, #second{
+        font-size: 1.5rem;     
+    }
+    .playBackControls{
+        height: 2rem;
+    }
 
-}
+    #showLoadURL {
+        font-size: 1rem;
+        width: 9rem !important;
+        max-width: 10rem;
+    }
+    }
+    .msgs{
+        box-shadow: none;
+        list-style: none;
+        color: white;
+        font-weight: 300;
+        font-size: 0.8rem;
+    }
+    .seekBarRow{
+        margin: 1rem 0 0 0;
+        
+    }
 
-  /* The slider itself */
+    .buttonsRow{
+        
+    }
+        
+    button.submitChat {
+margin-top: 2.45%;
+    margin-left: 14rem;
+    width: 6rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    border: none;
+    color: white;
+    background:#EB3434;
+
+    }
+
+
+
+
+      /* The slider itself */
   .seekBar {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
     width: 100%; /* Full-width */
-    height: 25px; /* Specified height */
-    background: #d3d3d3; /* Grey background */
-    outline: none; /* Remove outline */
-    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    height: 1rem; /* Specified height */
+    background: #ffffff;
+    outline: none;
+    opacity: 1;
+    box-shadow: inset 0px 0px 6px 0px;
     -webkit-transition: .2s; /* 0.2 seconds transition on hover */
     transition: opacity .2s;
+    margin: 0;
+    border-radius: 0px;
   }
   
   /* Mouse-over effects */
@@ -348,18 +592,29 @@ body {
   .seekBar::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
     appearance: none;
-    width: 3rem; /* Set a specific slider handle width */
-    height: 3rem; /* Slider handle height */
-    background: #00a6ff; /* Green background */
+    width: 1.25rem; /* Set a specific slider handle width */
+    height: 1rem; /* Slider handle height */
+    background: #542CA2;
+    box-shadow: 0px 0px 4px 0px;
     cursor: pointer; /* Cursor on hover */
   }
   
   .seekBar::-moz-range-thumb {
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
+    width: 1.25rem; /* Set a specific slider handle width */
+    height: 1rem; /* Slider handle height */
+    background: #542CA2;
+    box-shadow: 0px 0px 4px 0px;
     cursor: pointer; /* Cursor on hover */
   }
+
+}
+
+/* Large Devices, Wide Screens */
+@media only screen and (min-width : 1200px) {
+
+}
+
+
 
 /*
 .seekbar{
