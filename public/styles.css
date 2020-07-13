@@ -116,6 +116,8 @@ input::placeholder{
     padding-top: 4rem;
     box-sizing: border-box;
     height:100%;
+    display:flex;
+    flex-direction: column;
 }
 
 
@@ -126,9 +128,8 @@ input::placeholder{
 /*----- Player Container ----------*/
 
 .playerContainer{
-    height:50%;
     display:flex;
-    flex:0;
+    flex:0 19rem;
     flex-direction: column;
 }
 
@@ -291,10 +292,16 @@ video, iframe{
 /*---------------------  Chat Container --------------------*/
 
 .chatContainer{
-    height:50%;
-    display:flex;
     flex-direction: column;
-    background:black;
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0.5rem 0 #141414;
+    overflow: auto;
+    box-sizing: border-box;
 }
 
 
@@ -303,7 +310,6 @@ video, iframe{
 
 .chatMsgs{
     width:100%;
-    height:100%;
     flex: 1;
     display:flex;
     flex-direction: column-reverse;
@@ -372,13 +378,13 @@ li {
  
 .newUserWrapper {
     width:100%;
-    height:50%;
     display:flex;
     flex-direction: column;
     background:rgb(53, 53, 53);
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 0.5rem 0 #141414;
+    flex: 1;
 }
 
 .middleNewUserWrapper{
@@ -390,6 +396,7 @@ li {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow:hidden;
 }
 
 .usernameForm {
@@ -409,7 +416,8 @@ li {
 
 .submitUserButton {
     width: 50%;
-    height: 2rem;
+    height: 1.5rem;
+    font-size:0.75rem;
     border-radius: 0.5rem;
     border: none;
     font-weight: 700;
@@ -421,7 +429,8 @@ li {
 }
 
 .joinChatText{
-    font-size: 2rem;
+    font-size: 1.5rem;
+    font-size:3vh;
 }
 
 
@@ -533,7 +542,7 @@ input::placeholder{
 /*----------------------- Content ---------------------------*/
     .content{
         padding-top:4rem;
-        display:flex;
+        flex-direction:row;
     }
 
 
@@ -712,6 +721,7 @@ input::placeholder{
     background:rgb(53, 53, 53);
     align-items: center;
     justify-content: center;
+    flex: 1 30%;
 
 }
 
