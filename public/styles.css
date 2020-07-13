@@ -25,9 +25,9 @@ html,body
 
 button{
     font-family: 'Lato', sans-serif;
-    height: 6rem;
-    min-width: 6rem;
-    font-size: 2.95rem;
+    height: 3rem;
+    min-width: 3rem;
+    font-size: 1rem;
     font-weight: 700;
     border-style: none;
     background: content-box;
@@ -36,9 +36,9 @@ button{
 }
 
 input{
-    font-size: 2rem;
+    font-size: 1rem;
     background: #252525;
-    padding-left:1rem;
+    padding-left:0.5rem;
     border-radius:0.75rem;
     outline:none;
     border:none;
@@ -49,7 +49,7 @@ input{
 
 input::placeholder{
     font-weight: 300;
-    font-size: 2rem;
+    font-size: 0.85rem;
     color:rgb(197, 197, 197);
 }
 
@@ -58,11 +58,12 @@ input::placeholder{
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 3rem;
+    height: 1rem;
     outline: 0;
     opacity: 1;
     -webkit-transition: 0.2s;
     transition: opacity 0.2s;
+    border-radius: 0rem;
 }
 
 .seekBar:hover {
@@ -72,15 +73,15 @@ input::placeholder{
 .seekBar::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 3rem;
-    height: 3rem;
+    width: 1rem;
+    height: 1rem;
     background: #542ca2;
     cursor: pointer;
 }
 
 .seekBar::-moz-range-thumb {
-    width: 3rem;
-    height: 3rem;
+    width: 1rem;
+    height: 1rem;
     background: #542ca2;
     cursor: pointer;
 }
@@ -96,7 +97,7 @@ input::placeholder{
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 10rem;
+    height: 4rem;
     background: #542ca2;
 }
 
@@ -107,9 +108,12 @@ input::placeholder{
     padding-left: 1rem;
 }
 
+.logoIMG{
+    height:3rem;
+}
 /*----------------------- Content ---------------------------*/
 .content{
-    padding-top: 10rem;
+    padding-top: 4rem;
     box-sizing: border-box;
     height:100%;
 }
@@ -124,6 +128,7 @@ input::placeholder{
 .playerContainer{
     height:50%;
     display:flex;
+    flex:0;
     flex-direction: column;
 }
 
@@ -147,8 +152,8 @@ video, iframe{
 .playerControls{
     display:flex;
     flex-direction:column;
-    justify-content: space-evenly;
-    height:15rem;
+    justify-content: center;
+    height:5rem;
     width:100%;
     background: #101010;
 }
@@ -160,8 +165,8 @@ video, iframe{
 }
 
 #playPause{
-    font-size: 1.5rem;
-    padding-bottom:0.5rem;
+    font-size: 0.5rem;
+    padding-bottom:0.1255rem;
 }
 
 /*-------------------------------------------- Seek Row -------------------------------------------*/
@@ -173,6 +178,7 @@ video, iframe{
 
 /*------------------------------------------- Buttons Row -----------------------------------------*/
 .buttonRow{
+    margin-top: 0.25rem;
     display:flex;
 }
 
@@ -186,7 +192,7 @@ video, iframe{
 }
 
 #showLoadURL {
-    font-size: 1.5rem;
+    font-size: 0.5rem;
 }
 
 /*---------------------------------------- Buttons COL2 -----------------------------------------------*/
@@ -213,12 +219,16 @@ video, iframe{
  display:flex;
  justify-content: center;
  align-items: center;
- font-size:4rem;
- width:15rem;
+ font-size:1rem;
+ width:25%;
  height:100%;
 }
 
-
+.hiddenControls{
+    margin-top:0.25rem;
+    justify-content: center;
+    align-items: center;
+}
 /*---------------------------------------------------------------- URL LOAD --------------------------------------------------------------------*/
 
 
@@ -229,9 +239,9 @@ video, iframe{
     width:100%
 }
 .urlInputText{
-    height:100%;
+    height:65%;
     width:70%;
-    margin-right:2rem;  
+    
 }
 
 
@@ -243,13 +253,27 @@ video, iframe{
 .seekToRow {
     height:100%;
     width:100%;
+    display: flex;
+    align-items: center;
 }
 
 .seekToRow input {
-    height:100%;
-    width:20%;
-    margin-right:2rem;  
+    height:65%;
+    width:22%;
+    margin-left:0.75rem; 
+    padding-left:0.25rem;
+    border-radius: 0.5rem;
 }
+
+#seek{
+    width: 25%;
+    font-size: .85rem;
+}
+
+#hour{
+    margin-left:0rem;
+}
+
 
 
 /*-------------------------------------------------------------- VOLUME SLIDEBAR ----------------------------------------------------------------*/
@@ -258,7 +282,6 @@ video, iframe{
     height:90%;
     width:100%;
     display: flex;
-    justify-content: space-around;
 }
 
 .volumeInput input{
@@ -287,22 +310,22 @@ video, iframe{
     background: #2e2e2e;
     padding-top: 2rem;
     padding-bottom: 2rem;
-    overflow: scroll;
+    overflow: auto;
     box-shadow: inset 0 0px 5px 0px #141414;
 }
 
 li {
     display:flex;
-    margin-left:3rem;
+    margin-left:1rem;
 }
 
 .username{
-    padding-top:1.5rem;
-    font-size:2.4rem;
+    padding-top:0.75rem;
+    font-size:0.8rem;
 }
 
 .msg{
-    font-size:2rem;
+    font-size:0.75rem;
     font-weight: 300;
     color: #e8e8e8;
 }
@@ -311,7 +334,7 @@ li {
 /*---------------------  Chat Bar --------------------*/
 
 .chatBar{
-    height:13rem;
+    height:7rem;
     width:100%;
     background: #1d1d1d;
     display:flex;
@@ -319,18 +342,26 @@ li {
     align-items: center;
     }
 
+    .chatBarForm{
+        display: flex;
+    }
+
     .chatInputText{
-    height:7rem;
-    width:30rem;
-    border-radius:1rem;
+    height:2rem;
+    width:80%;
+    border-radius:0.75rem;
     box-shadow:0 0px 2px 0px #141414;
     }
 
     .submitChat{
     background:#eb3434;
-    border-radius: 1rem;
-    width:15rem;
-    margin-left:2rem;
+    border-radius: 0.5rem;
+    width:4.5rem;
+    font-size:0.75rem;
+    height:2rem;
+    margin-left: 1rem;
+    box-shadow: inset 0px 0px 2px 0px black;
+
     }
 
 
@@ -369,17 +400,17 @@ li {
 
 .usernameText {
     outline: 0;
-    margin-bottom: 3rem;
-    height:5rem;
-    margin-top: 2rem;
+    margin-bottom: 1rem;
+    height:2rem;
+    margin-top: 1rem;
     box-shadow:0 0px 2px 0px #141414;
 }
 
 
 .submitUserButton {
-    width: 25rem;
-    height: 6rem;
-    border-radius: 1rem;
+    width: 50%;
+    height: 2rem;
+    border-radius: 0.5rem;
     border: none;
     font-weight: 700;
     color: #fff;
@@ -390,7 +421,7 @@ li {
 }
 
 .joinChatText{
-    font-size: 6rem;
+    font-size: 2rem;
 }
 
 
@@ -438,7 +469,7 @@ html, body{
 }
 
 button {
-    height:1rem;
+    height:4rem;
     font-size:1rem;
 }
 
@@ -546,7 +577,10 @@ input::placeholder{
 
     #urlSubmit{
         font-size:1rem;
-        margin-bottom: 0.5rem;
+        height:2rem;
+        width:6rem;
+        width: 25%;
+        margin-bottom: 0.25rem;
     }
 
     .urlInputText{
@@ -564,10 +598,19 @@ input::placeholder{
         border-radius: 0.25rem;
         
     }
+    
+    #seek{
+        font-size: 1rem;
+    }
 
     .volumeInput{
         align-items: center;
     }
+
+    .volumeInput input{
+        width: 70%;
+    }
+    
     
     #playPause{
         font-size: 1rem;
@@ -640,7 +683,7 @@ input::placeholder{
     .submitChat{
         margin-top:0.5rem;
         margin-left:50%;
-        width:1rem;
+        width:4rem;
         height:1.5rem;
         border-radius: 0.35rem;
         margin-left: 63%;
@@ -704,7 +747,7 @@ input::placeholder{
 }
 
 .joinChatText{
-    font-size: 3rem;
+    font-size: 2.5rem;
 }
 
 

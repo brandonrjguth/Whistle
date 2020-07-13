@@ -330,3 +330,5 @@
           console.log(msg);
           $('.msgs').append('<li class=\'username\'>' + myUsername + '</li><li class=\'msg\'>' + msg + '</li>');
       })
+
+    
