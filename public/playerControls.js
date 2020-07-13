@@ -255,60 +255,51 @@
     //send signal to "newURL" socket with the newURL which will sync all users with the new url.
     $("#urlSubmit").click(function(){
         console.log("URL submitted");
-        let newURL = ({urlID:$("#urlInputText").val()});
-        socket.emit('newURL', newURL);   
-        $(".loadURLInput").css("display", "none");
-        $(".fa-angle-double-down").remove();
-        $("#showLoadURL").html("LOAD VIDEO");
-        $('.loadURLInput').css("display", "none");
+        let newURL = ({urlID:$(".urlInputText").val()});
+        socket.emit('newURL', newURL);  
     });
 
-    //SHOW LOAD URL MOBILE
-    
+
+
+
+ 
+    //IF LOAD URL BUTTON CLICKED, HIDE THE BUTTON ROW AND SHOW THE URLLOAD ROW IN ITS PLACE
     $("#showLoadURL").click(() => {
-        if ($("#showLoadURL").html() === "LOAD VIDEO"){
-            $('.loadURLInput').css("display", "flex");
-            $("#showLoadURL").text("");
-            $("#showLoadURL").append("<i class=\"fas fa-angle-double-down\"></i>");
-            $(".volumeInput").css("display", "none")
-            $(".playBackControls").css("display", "none")
-
-        } else {
-
-            $(".fa-angle-double-down").remove();
-            $("#showLoadURL").html("LOAD VIDEO");
-            $('.loadURLInput').css("display", "none");
-        }
-       
+            $('.hiddenControls').css("display", "flex");
+            $('.urlLoad').css("display", "flex");
+            $('.buttonRow').css("display", "none");
+         
     });
 
-
-    $("#volumeButton").click(() => {
-        if (($(".volumeInput").css("display")) === "flex"){
-            $(".volumeInput").css("display", "none");
-            $(".playBackControls").css("display", "none")
-            $('.loadURLInput').css("display", "none")
-            $("#showLoadURL").html("LOAD VIDEO");
-        } else {
-            $("#showLoadURL").html("LOAD VIDEO");
-        $(".volumeInput").css("display", "flex");
-        }
-    });
-
-
+    //IF SHOW TIME ICON IS CLICKED
     $("#showTimeIcon").click(() => {
-        if (($(".playBackControls").css("display")) === "none"){
-            $(".playBackControls").css("display", "flex");
-            $("#showLoadURL").html("LOAD VIDEO");
-            $(".volumeInput").css("display", "none");
-            $('.loadURLInput').css("display", "none")
-
-        } else {
-        $(".playBackControls").css("display", "none");
-        }
+        $('.hiddenControls').css("display", "flex");
+        $('.seekToRow').css("display", "flex");
+        $('.buttonRow').css("display", "none");
     });
 
-    $('.chatBubble').submit(function(e) {
+
+    //IF VOLUME SHOW BUTTON CLICKED
+    $("#volumeButton").click(() => {
+        $('.hiddenControls').css("display", "flex");
+        $('.volumeInput').css("display", "flex");
+        $('.buttonRow').css("display", "none");
+    });
+
+    //IF HIDE CONTROLS BUTTON CLICKED
+    $("#hideControls").click(() => {
+        $('.urlLoad').css("display", "none");
+        $('.volumeInput').css("display", "none");
+        $('.seekToRow').css("display", "none");
+        $('.hiddenControls').css("display", "none");
+        $('.buttonRow').css("display", "flex");
+    });
+
+
+
+
+    $('.chatBarForm').submit(function(e) {
+        console.log('here');
         e.preventDefault(); // prevents page reloading
         socket.emit('chat message', $('.chatInputText').val());
         $('.chatInputText').val('');
@@ -331,7 +322,7 @@
         } else {
             myUsername = $('.usernameText').val();
             $('.newUserWrapper').css("display", "none");
-            $('.chat').css("display", "flex");
+            $('.chatContainer').css("display", "flex");
         }
       });
 
