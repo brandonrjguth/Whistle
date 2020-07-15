@@ -176,90 +176,149 @@
     //Calculates current timestamp and sets the video's current time to the timestamp plus 10 seconds.
     //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
 
-    //----------- SKIP AHEAD -----------//
-    $("#skipAhead").click(function(){
+//----------- SKIP AHEAD -----------//
 
-        //IF YOUTUBE
-        if (globalPlayerType === "youtube"){
+let skip = [];
+$("#skipAhead").click(function(){
 
-            let currentTime = YTPlayer.getCurrentTime();
-            newTime = currentTime + 10;
-            socket.emit("newTime", newTime);
+    //IF YOUTUBE
+    if (globalPlayerType === "youtube"){
 
-            if(YTPlayer.getPlayerState() === 1){
-                socket.emit("checkAllUsersBuffer");
-                //THIS WILL RUN ONCE PER TIME BUTTON IS SPAMMED, TODO: write some logic to wait for an amount of time to collect skip presses
-               
+       
+        let currentTime = YTPlayer.getCurrentTime();
+        newTime = currentTime + 10;
+        
+        
+        //IF THE PLAYER IS PLAYING
+        if(YTPlayer.getPlayerState() === 1){
+           
+            //ADD TO AN EMPTY SKIP ARRAY
+            skip.push('');
+            console.log(skip);
+            console.log(skip.length);
 
-            } else {
 
-                
-                socket.emit("Pause");
+                //WHEN FIRST SKIP IS DETECTED, START INTERVAL TO DETECT MORE CLICKS
+                if (skip.length == 1) {
+                    
+                    let skips = setInterval(checkSkip, 500);
 
-            }  
+                    function checkSkip(){
 
-        //IF DIRECTLINK
+                        //If after 2 seconds, the skip length is 1
+                        if (skip.length == 1) {
+                            console.log('here');
+                            socket.emit("newTime", newTime);
+                            socket.emit("checkAllUsersBuffer");
+                            skip = [];
+                            clearInterval(skips);
+
+                        } if (skip.length >= 2){
+                            console.log('here2');
+                            skip = [];
+                            socket.emit("newTime", newTime);
+                            socket.emit("checkAllUsersBuffer");
+                            clearInterval(skips);
+                        }
+                    }
+
+
+
+                }
         } else {
 
-            let currentTime = player.currentTime;
-            newTime = currentTime + 10;
             socket.emit("newTime", newTime);
+            //socket.emit("Pause");
 
-            if(player.paused === true){
+        }  
 
-                socket.emit("Pause");
+    //IF DIRECTLINK
+    } else {
 
-            } else if (player.paused === false){
+        let currentTime = player.currentTime;
+        newTime = currentTime + 10;
+        socket.emit("newTime", newTime);
 
-                socket.emit("checkAllUsersBuffer");
+        if(player.paused === true){
 
-            }  
-        }
-    });
+            socket.emit("Pause");
+
+        } else if (player.paused === false){
+
+            socket.emit("checkAllUsersBuffer");
+
+        }  
+    }
+});
 
 
-    //----------- SKIP BACK -----------//
-    $("#skipBack").click(function(){
+//----------- SKIP BACK -----------//
+$("#skipBack").click(function(){
 
-        //IF YOUTUBE
-        if (globalPlayerType === "youtube"){
+    //IF YOUTUBE
+    if (globalPlayerType === "youtube"){
 
-            let currentTime = YTPlayer.getCurrentTime();
-            newTime = currentTime - 10;
-            socket.emit("newTime", newTime);
+       
+        let currentTime = YTPlayer.getCurrentTime();
+        newTime = currentTime + 10;
+        
+        
 
-            if(YTPlayer.getPlayerState() === 1){
+        if(YTPlayer.getPlayerState() === 1){
+           
+            skip.push('');
+            console.log(skip);
+            console.log(skip.length);
 
-                //THIS WILL RUN ONCE PER TIME BUTTON IS SPAMMED, TODO: write some logic to wait for an amount of time to collect skip presses
-                socket.emit("checkAllUsersBuffer")
+                if (skip.length == 1) {
+                    
+                    let skips = setInterval(checkSkip, 500);
 
-               
+                    function checkSkip(){
+                        if (skip.length == 1) {
+                            console.log('here');
+                            socket.emit("newTime", newTime);
+                            socket.emit("checkAllUsersBuffer");
+                            skip = [];
+                            clearInterval(skips);
 
-            } else {
+                        } if (skip.length >= 2){
+                            console.log('here2');
+                            skip = [];
+                            socket.emit("newTime", newTime);
+                            socket.emit("checkAllUsersBuffer");
+                            clearInterval(skips);
+                        }
+                    }
 
-                socket.emit("Pause");
 
-            }
-            
-        //IF DIRECT LINK
+
+                }
         } else {
 
-            let currentTime = player.currentTime;
-            newTime = currentTime - 10;
             socket.emit("newTime", newTime);
+            //socket.emit("Pause");
 
-            if(player.paused === true){
+        }  
 
-                socket.emit("Pause");
+    //IF DIRECT LINK
+    } else {
 
-            } else if (player.paused === false){
+        let currentTime = player.currentTime;
+        newTime = currentTime - 10;
+        socket.emit("newTime", newTime);
 
-                socket.emit("checkAllUsersBuffer");
+        if(player.paused === true){
 
-            }  
-        }
-    });
+            socket.emit("Pause");
 
+        } else if (player.paused === false){
+
+            socket.emit("checkAllUsersBuffer");
+
+        }  
+    }
+});
 
     //--------------------- NEW URL BUTTON ---------------------/
 
