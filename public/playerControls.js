@@ -124,7 +124,7 @@
 
     //--------------------- SEEK BAR -------------------------//
 
-    let seekFunction = () => {
+       let seekFunction = () => {
 
         let clickedTime = $(".seekBar").val();
         socket.emit("newTime", clickedTime);
@@ -158,9 +158,19 @@
     }
 
 
+
+    $(".seekBar").mousedown(function(){
+        $(".seekBar").mousedown(function(){
+            seekFunction();   
+        })
+    });
+
+
+/*
+    
     $(".seekBar").click(() =>{
         seekFunction();      
-    }); 
+    }); */
 
  
     $(".seekBar").on( "touchstart click",  function() {
