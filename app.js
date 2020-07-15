@@ -121,12 +121,15 @@ io.on('connection', (socket) => {
     //RECEIVED A NEW URL
     socket.on('newURL', (newURL) =>{
                 console.log("URL received by Server");
+
                 //DO A REGEX CHECK ON URL
                 if (newURL.urlID != undefined || newURL.urlID != '') {
+
                     var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
                     var match = newURL.urlID.match(regExp);
 
                     console.log("Done Reg Check");
+
                     //IF YOUTUBE URL, SEND THE NEW URL WITH TYPE YOUTUBE
                     if (match && match[2].length == 11) {
                         console.log("is youtube video");
@@ -159,10 +162,18 @@ io.on('connection', (socket) => {
     socket.on('isBuffered', () =>{
         counter.push(1);    
         console.log("here1");
+        console.log(counter.length);
+        console.log(users.length);
+
+       
+
         if (counter.length == users.length){
             console.log("here2");
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
-                setTimeout(function(){io.emit("Play");}, 1800);
+                setTimeout(function(){
+                    io.emit("Play");
+                    
+            }, 1800);
                 counter = [];
         }
     });
@@ -179,7 +190,7 @@ io.on('connection', (socket) => {
     //RECEIVED CHAT MESSAGE
     socket.on('chat message', (msg) => {
         console.log('message: ' + msg);
-        socket.emit('chat message', msg);
+        io.emit('chat message', msg);
       });
 });
 

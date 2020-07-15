@@ -2,25 +2,25 @@
 
 //const { NONAME } = require("dns");
 
-    //Declare variable "player" equal to the video player in the users dom.
     let player = $("#video").get(0);
     let globalPlayerType = "directLink";
     let YTPlayer;
     let lastState;
-    let lastStateArray = [];
-    let gotNewUser = true;
-    let isNewURL = false;
-    let playEvent = true;
     let myUsername;
+    let regexedYoutubeURL;
     
+
+    let bufferInProgress = true;
+
+    //STARTUP YOUTUBE API
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+
+
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
-
-
-
 
       
     //---------------------  NEW URL ---------------------//
@@ -28,204 +28,220 @@
     //(MUST BE FIRST BECAUSE THIS IS WHEN YOUTUBE API BECOMES SUBSTANTIATED)
     //Change the URL to the received URL.
 
-    let regexedYoutubeURL
+
+    //IF NEW URL RECIEVED, OR NEW USER RECEIVES URL FROM OTHER CLIENTS
+    socket.on('newURL', (newURL) => {
+        console.log("received URL from server");
     
 
-    socket.on('newURL', (newURL) => {
-        playEvent = true;
-        isNewURL = true;
-        console.log("received URL from server");
-        console.log("URL Type : " + globalPlayerType);
-        
+
         //IF YOUTUBE
         if (newURL.type == "youtube"){
 
+                //change regexed youtubeURL variable to the received urlID from the servers regexer.
                 regexedYoutubeURL = newURL.urlID;
                 
-                //AND YOUTUBE PLAYER IS UP
+                //IF YOUTUBE PLAYER IS ALREADY UP
                 if (globalPlayerType === "youtube"){
 
-                    //CHANGE THE SOURCE
-                    console.log("here");
+                    //remove the youtube iframe
                     $("#YTPlayer").remove();
+                    //create a new div for the new iframe to be inserted into.
                     $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
                     
-
-                //IF OTHER PLAYER IS UP
                 } 
                     
-                //STARTUP YOUTUBE API
-                
-                
-             
-                //CREATE NEW YOUTUBE IFRAME
-                //Do math here later to calculate rem sizing
+
+
+                //-------------------------------------------------------------------------------------------------SET TIMEOUT AND DO THIS IN ALL IN 2 SECONDS FROM NOW --------------------------------------------------------------------------------------------
 
                 setTimeout(function(){
+
+
+                    //Pause and remove directLink video player
                     player.pause();
                     player.removeAttribute('src'); // empty source
                     player.load();
                     $("#video").remove();
+                    
+                    //Stop hiding and display div containing newly generated youtube iframe.
+                    $("#YTPlayer").css("display", "block");
 
-                    YTPlayer = new YT.Player('YTPlayer', {
-                    height: 500,
-                    width: 300,
-                    playerVars: {'autoplay': 0, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
-                         
-                        },
-                    videoId: regexedYoutubeURL
-                });
+                    //Set the global variable for player type to youtube.
+                    globalPlayerType = "youtube";
 
-                
-                
-                
-                //LOAD UP YOUTUBE SEEKBAR LISTENER
-                function onPlayerReady() {
-                    let videotime
-                    videoLength = YTPlayer.getDuration();
-                    $(".seekBar").attr("max", videoLength);
 
-                    function updateTime() {
-                      let oldTime = videotime;
-                      if(YTPlayer && YTPlayer.getCurrentTime()) {
-                        videotime = YTPlayer.getCurrentTime();
-                      }
-                      if(videotime !== oldTime) {
-                        console.log(videotime);
-                        console.log(videoLength);
-                        $(".seekBar").val(videotime);       
-                      }
+                    //Insert transparent overlay on top of Iframe.
+                     $('.transparentOverlay').height($('.playerScreen').height());
+                     $('.transparentOverlay').width($('.playerScreen').width());
 
-                      if (globalPlayerType !== "youtube"){
-                          clearInterval(timeupdater);
-                      }
-                    }
-                    timeupdater = setInterval(updateTime, 500);
+                    //When window it resized, keep transparent div laid over top of the iframe
+                    $( window ).resize(() =>{
+                        $('.transparentOverlay').height($('.playerScreen').height());
+                        $('.transparentOverlay').width($('.playerScreen').width());
+                    });
 
 
                     
-                    YTPlayer.seekTo(newURL.time);   
-                    
+                    //------------------------------------------------------------------------------- DO THIS WHEN THE IFRAME IS READY ---------------------------------------------------------------------------------//
 
-                    if (newURL.time){
-                    
-                    
-                    } else 
-                    
-                    console.log("shit")
-                    if (newURL.playerState == 2 || newURL.playerState == -1){
-                        console.log("shit2")
-                        
-                       
-                        //socket.emit("Pause");
-                        let isPlayerReady = setInterval(checkPlayerReady, 500)
-                        function checkPlayerReady(){
-                            if (YTPlayer.getPlayerState() == 1){
-                                console.log("isPlayin")
-                                //socket.emit("checkAllUsersBuffer");
-                                socket.emit("Pause");
-                                
-                                clearInterval(isPlayerReady);
-                            }
-                        }
-                        
-                     } else {
-                        console.log("shit3")
-                        setTimeout(function(){
-                            socket.emit("newTime", newURL.time)
-                            console.log("GotHERE");
-                            socket.emit("checkAllUsersBuffer");
+                    //insert a new player
+                    window.YT.ready(function() {
+        
+                        YTPlayer = new YT.Player('YTPlayer', {
+                        height: 500,
+                        width: 300,
+                        playerVars: {'autoplay': 0, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange': onPlayerStateChange
                             
-                            gotNewUser = false;
-                        }, 1000)
+                            },
+                        videoId: regexedYoutubeURL
+                        });
+
+                     });
+
+                     
                         
-                    }
-
-                }
-
-                
-                //Stop hiding and display div containing newly generated youtube iframe.
-                $("#YTPlayer").css("display", "block");
-
-                //Set the global variable for player type to youtube.
-                globalPlayerType = "youtube";
-                console.log("here");
+                     //------------------------------------------------------------------------------- DO THIS WHEN THE PLAYER IS READY ---------------------------------------------------------------------------------//
 
 
+                    function onPlayerReady() {
 
-                
-                /*
-                setTimeout(function(){
 
+                        //------------------------------------------------------START UP SEEK BAR ----------------------------------------------//
+
+                        let videotime;
+                        //find length of video from YTPlayer and set the seekbars max to that time.
+                        videoLength = YTPlayer.getDuration();
+                        $(".seekBar").attr("max", videoLength);
+
+
+                        //Run an interval ever 1/2 second
+                        function updateTime() {
+
+                        
+                        let oldTime = videotime;
+
+                        //set variable for video's current time to YTPlayers current time.
+                        if(YTPlayer && YTPlayer.getCurrentTime()) {
+                            videotime = YTPlayer.getCurrentTime();
+                        }
+
+                        //if time has changed since last interval, change the seekbar to the new time;
+                        if(videotime !== oldTime) {
+                            //
+                            $(".seekBar").val(videotime);       
+                        }
+
+
+                        //CLEAR INTERVAL IF PLAYERTYPE CHANGES
+                        if (globalPlayerType !== "youtube"){
+                            clearInterval(timeupdater);
+                        }
+                        }
+                        timeupdater = setInterval(updateTime, 500);
+                        //-------------------------------------------------------------------------------------------------------------------//
+                        
+
+
+
+                        //SEND PLAYER TO TIME RECEIVED FROM OLDEST CLIENT (If alone this will just go to zero and rest of this will be ignored)
+                        YTPlayer.seekTo(newURL.time);   
+                        
                     
-                 
-                
 
-                }, 2000)*/
+
+
+
+                        //IF OLDEST CLIENT WAS PAUSED
+                        if (newURL.playerState == 2 || newURL.playerState == -1){
+                        
+                            
+                            //Start up interval to see if player has buffered and started playing
+                            let isPlayerReady = setInterval(checkPlayerReady, 500)
+
+                            function checkPlayerReady(){
+                                
+                                //If the player is playing, its buffered so pause it and clear the interval.
+                                if (YTPlayer.getPlayerState() == 1){
+                                    //send signal to pause to all clients again to be sure they are all paused.
+                                    socket.emit("Pause");
+
+                                    //Set buffering to false so that play/pause can be detected
+                                    bufferInProgress = false;
+                                    clearInterval(isPlayerReady);
+                                }
+                            }
+                            
+
+
+                        //IF OLDEST CLIENT WASN'T PAUSED
+                        } else {
+
+                            //DO IN ONE SECOND
+                            setTimeout(function(){
+
+                                //Pause
+                                socket.emit('Pause');
+                                //Send everyone back to the time recieved with the URL
+                                socket.emit("newTime", newURL.time);
+                                //Check Everyones Buffer
+                                socket.emit("checkAllUsersBuffer");         
+                            
+                            }, 1000)   
+                        }
+                    }  
                 },2000);
                 
                 
-                
+                //---------------------------------------------------------------------------------------------------------------------------------------END OF CODE THAT RUNS IN 2 SCONDS --------------------------------------------------
+
+
+
+
+
+
+
+
+
+                //---------------------------------------------------------------- WHEN THE PLAYER EVENT CHANGES --------------------------------------------------//
                 function onPlayerStateChange(event){
 
-                    if (event.data === YT.PlayerState.CUED){
-                        console.log("YT.PlayerState.CUED");
-                    }
+                    console.log('state change  ' + event.data);
 
-                    if (event.data === YT.PlayerState.ENDED){
-                        console.log("YT.PlayerState.ENDED");
-                    }
-                    if (event.data === YT.PlayerState.PLAYING){
-                        console.log("YT.PlayerState.PLAYING");
-                    }
-                    if (event.data === YT.PlayerState.PAUSED){
-                        console.log("YT.PlayerState.PAUSED");
-                    }
-                    if (event.data === YT.PlayerState.BUFFERING){
-                        console.log("YT.PlayerState.BUFFERING");
-                    }
-                   
+
+                    //IF play event is fired, paused was last, and bufferInProgress hasn't been triggered
+                    if (event.data == 1 && lastState == 2 && bufferInProgress == false){
                     
-
-                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.PAUSED/* && playEvent == false*/){
-                        socket.emit("newTime", YTPlayer.getCurrentTime());
-                        socket.emit("checkAllUsersBuffer");
-                        
+                        //Check All Users Buffer
+                        socket.emit('checkAllUsersBuffer');
+                        console.log("buffer in progress = " + bufferInProgress);
 
                     }
 
-                    
-
-                    if (event.data === YT.PlayerState.PAUSED && lastState === YT.PlayerState.PLAYING){
-                        socket.emit("Pause");
-                        
+                    //If pause event was fired, and bufferInProgress hasn't been triggered.
+                    if (event.data == 2 && bufferInProgress == false){
+                       
+                        //Pause
+                        socket.emit('Pause');
 
                     }
-                    /*
-                    if (event.data === YT.PlayerState.PLAYING && lastState === YT.PlayerState.BUFFERING && gotNewUser == true){ 
-                        socket.emit("YTPlay", YTPlayer.getCurrentTime());
-                        gotNewUser = false;
-                        setTimeout(() => {gotNewUser = true;}, 2000)
-                    }
 
-                    if (isNewURL == true && event.data === YT.PlayerState.PLAYING ){ 
-                        socket.emit("YTPlay",  YTPlayer.getCurrentTime());
-                        //socket.emit("Pause");
-                        console.log("here");
-                        isNewURL = false;
-                    }*/
-
-                    if (event.data === YT.PlayerState.BUFFERING && lastState === YT.PlayerState.BUFFERING){
-            
-                    }
 
                     lastState = event.data;
 
                 }       
             
+                //--------------------------------------------------------------------
+
+
+
+
+
+
+
 
         //IF NEW TYPE IS NOT A YOUTUBE LINK
         } else {
@@ -298,6 +314,11 @@
     
         
 
+
+
+
+
+
     //--------------------------- FIND TIME ---------------------------//
 
     //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
@@ -355,36 +376,67 @@
 
     socket.on("checkAllUsersBuffer", () =>{
 
-        console.log("received check buffered");
-        socket.emit("Pause");
-        playEvent = true;
-        //lastState = 1;
-        
+        //set bufferInProgress to prevent play and pause events from capturing during hour buffer process.
+        bufferInProgress = true;
 
-        //SET CHECKING INTERVAL
-        let checkBufferedUser = setInterval(function(){
-            
         
-           
-            console.log("about yo make playevent false")
-            console.log("checking buffer");
            
             //IF YOUTUBE
-            //Look for player state
             if (globalPlayerType === "youtube"){
+                console.log("checking YT buffer");
 
-                
-
-                if (YTPlayer.getPlayerState() !== 3){
+                //Pause and then play video to force buffer.
+                YTPlayer.pauseVideo();
+                YTPlayer.playVideo();
+                 
                     
-                    console.log("buffered");
-                    socket.emit('isBuffered');
-                    clearInterval(checkBufferedUser);
-                    setTimeout(function(){playEvent = false; lastState = 1;}, 500);
-                    setTimeout(function(){playEvent = false; lastState = 1;}, 1500);
+                //start interval to check for when playing.
 
-                }
-            } else {
+                setTimeout(function(){
+                    let YTBuffer = setInterval(YTCheck, 500);
+
+                    function YTCheck(){
+    
+                        //if playing, player is buffered
+                        if (YTPlayer.getPlayerState() == 1){
+                            
+                            //Pause
+                            YTPlayer.pauseVideo();
+            
+                            //In two seconds
+                            console.log('im buffered');
+    
+    
+                            setTimeout(function(){
+                                //Tell everyone you're buffered
+                                socket.emit("isBuffered");
+                            }, 200)
+                            
+                            clearInterval(YTBuffer);
+                             
+                            }  
+                    }
+    
+
+
+
+
+
+
+                }, 500)
+      
+             
+           
+       
+            
+            
+            }
+
+
+
+            
+            
+            if (globalPlayerType === "directLink"){
 
             //IF DIRECT LINK
             //Look for player state
@@ -393,11 +445,12 @@
 
                     console.log("buffered");
                     socket.emit('isBuffered');
-                    clearInterval(checkBufferedUser);
+                 
 
                 }  
             }
-        },500);
+
+        
     });
 
 
@@ -407,8 +460,9 @@
 
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
-
+            $('.transparentOverlay').css("display", "none");
             YTPlayer.pauseVideo();
+            
 
         //IF DIRECT LINK
         } else {
@@ -420,21 +474,22 @@
      //-------------------- PLAY -----------------------//
 
     socket.on('Play', (time) => { 
-        
+
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
-
             if (time !== undefined ){
             YTPlayer.seekTo(time);
-
         }
+            socket.emit('newTime', YTPlayer.getCurrentTime());
             YTPlayer.playVideo();
-        
+            lastState = 3;
+            bufferInProgress = false;
+            console.log('playing video, buffering = ' + bufferInProgress);
+            
+
         //IF DIRECT LINK
         } else {
-
             player.play();
-
         }
 
     });

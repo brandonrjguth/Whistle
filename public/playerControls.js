@@ -11,15 +11,18 @@
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
 
-            if (YTPlayer.getPlayerState() == 2 || YTPlayer.getPlayerState() == 5 || YTPlayer.getPlayerState() == 0){
-                socket.emit("newTime", YTPlayer.getCurrentTime());
-                socket.emit('checkAllUsersBuffer');
+            //IF NOT PLAYING
+            if (YTPlayer.getPlayerState() === 1 ){
 
+                //Else make everyone pause
+                socket.emit('Pause');
             }
 
             else  {
 
-                socket.emit('Pause');
+                //SEND EVERYONE MY TIME AND MAKE EVERYONE BUFFER TO PLAY
+                socket.emit("newTime", YTPlayer.getCurrentTime());
+                socket.emit('checkAllUsersBuffer');
 
             }
 
@@ -41,6 +44,8 @@
         }   
     });
   
+
+
     //--------------------- GO TO TIME ---------------------//
 
     //Button to hide or show time button
@@ -55,6 +60,7 @@
         }
         ;  
     });
+
 
     //When the seek button is pressed, do the math to calculate the seconds value of the format hh:mm:ss, 
     $("#seek").click(function(){
@@ -84,16 +90,18 @@
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
 
-            if(YTPlayer.getPlayerState() === 2){
+            //IF PAUSED
+            if(YTPlayer.getPlayerState() === 1){
                 
-                socket.emit("Pause");
+                  //check buffer and play
+                  socket.emit("checkAllUsersBuffer")
+                
 
             } else {
 
-                socket.emit("newTime", newTime);
-                socket.emit("checkAllUsersBuffer")
-                
-
+              //pause
+              socket.emit("Pause");
+    
             }  
 
         //IF DIRECT LINK
@@ -117,21 +125,21 @@
     //--------------------- SEEK BAR -------------------------//
 
     let seekFunction = () => {
+
         let clickedTime = $(".seekBar").val();
+        socket.emit("newTime", clickedTime);
+
         if (globalPlayerType === "youtube"){
 
-            if(YTPlayer.getPlayerState() === 2){
-                socket.emit("newTime", clickedTime);
+            if(YTPlayer.getPlayerState() === 1){
                 socket.emit("Pause");
+                
 
             } else {
-
-                socket.emit("newTime", clickedTime);
                 socket.emit("checkAllUsersBuffer")
-
+                
             }  
-
-            
+    
         } else{
 
             if (player.paused === true){
@@ -178,14 +186,15 @@
             newTime = currentTime + 10;
             socket.emit("newTime", newTime);
 
-            if(YTPlayer.getPlayerState() === 2){
-
-                socket.emit("Pause");
+            if(YTPlayer.getPlayerState() === 1){
+                socket.emit("checkAllUsersBuffer");
+                //THIS WILL RUN ONCE PER TIME BUTTON IS SPAMMED, TODO: write some logic to wait for an amount of time to collect skip presses
+               
 
             } else {
 
                 
-                socket.emit("checkAllUsersBuffer");
+                socket.emit("Pause");
 
             }  
 
@@ -219,13 +228,16 @@
             newTime = currentTime - 10;
             socket.emit("newTime", newTime);
 
-            if(YTPlayer.getPlayerState() === 2){
+            if(YTPlayer.getPlayerState() === 1){
 
-                socket.emit("Pause");
+                //THIS WILL RUN ONCE PER TIME BUTTON IS SPAMMED, TODO: write some logic to wait for an amount of time to collect skip presses
+                socket.emit("checkAllUsersBuffer")
+
+               
 
             } else {
 
-                socket.emit("checkAllUsersBuffer")
+                socket.emit("Pause");
 
             }
             

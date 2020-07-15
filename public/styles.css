@@ -2,12 +2,7 @@
 
 
 
-
-
-
-
-
-
+  
 
 /*----------------------- GLOBAL ---------------------------*/
 
@@ -15,6 +10,32 @@
 {
  margin:0;padding:0;
 }
+
+
+
+.over {
+    background: rgba(0, 0, 0, 0);
+    float: right;
+    height:100%;
+    width:100%;
+    margin-top: -100%;
+    margin-right:100%;
+    overflow: visible;
+    position: relative;
+    color: #FFFFFF;
+    /* Just for looks*/
+    z-index: 1000;
+  
+  }
+  
+
+.transparentOverlay{
+    background:transparent;
+    z-index:2;
+    position:absolute;
+    pointer-events: all;
+}
+
 html,body
 {
     font-family: 'Lato', sans-serif;
