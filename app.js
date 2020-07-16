@@ -54,6 +54,7 @@ app.post('/testButton', function(req, res) {
 /*------------------------------------------IO CONTROLS------------------------------------------------------*/
 let users = [];
 let counter = [];
+let counter2 = [];
 
 
 
@@ -138,6 +139,9 @@ io.on('connection', (socket) => {
                         newURL.url = match[0];
                         console.log(newURL);
                         io.emit('newURL', newURL);
+
+                        
+                       
                       
     
                     }
@@ -158,6 +162,27 @@ io.on('connection', (socket) => {
         io.emit('checkAllUsersBuffer');
     });
 
+
+    socket.on('sendCheckAllUsersBuffer', () => {
+        counter2.push(1);    
+        console.log("here1");
+        console.log('new url ready users = ' + counter2.length);
+        console.log(users.length);
+
+       
+
+        if (counter2.length >= users.length){
+            counter2 = [];
+                //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
+                setTimeout(function(){
+                    io.emit("checkAllUsersBuffer");    
+            }, 400);
+                
+        }
+    });
+
+
+
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
     socket.on('isBuffered', () =>{
         counter.push(1);    
@@ -167,14 +192,13 @@ io.on('connection', (socket) => {
 
        
 
-        if (counter.length == users.length){
-            console.log("here2");
+        if (counter.length >= users.length){
+            counter = [];
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
                 setTimeout(function(){
-                    io.emit("Play");
-                    
-            }, 1800);
-                counter = [];
+                    io.emit("Play");    
+            }, 400);
+                
         }
     });
 
@@ -195,4 +219,4 @@ io.on('connection', (socket) => {
 });
 
 //LISTEN PORT
-http.listen(3000, "0.0.0.0");
+http.listen(3001, "0.0.0.0");

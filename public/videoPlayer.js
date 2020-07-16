@@ -1,5 +1,7 @@
 //TODO: 
 
+
+
 //const { NONAME } = require("dns");
 
     let player = $("#video").get(0);
@@ -8,9 +10,11 @@
     let lastState;
     let myUsername;
     let regexedYoutubeURL;
-    
-
+    let seekbarHeld = false;
     let bufferInProgress = true;
+    let urlClicked = false;
+
+    let isNewUser = true;
 
     //STARTUP YOUTUBE API
     var tag = document.createElement('script');
@@ -31,13 +35,19 @@
 
     //IF NEW URL RECIEVED, OR NEW USER RECEIVES URL FROM OTHER CLIENTS
     socket.on('newURL', (newURL) => {
+        
         console.log("received URL from server");
+
+        if (newURL.fromButton == true){
+            isNewUser = false;
+        }
     
 
 
         //IF YOUTUBE
         if (newURL.type == "youtube"){
-
+            
+                bufferInProgress = false;
                 //change regexed youtubeURL variable to the received urlID from the servers regexer.
                 regexedYoutubeURL = newURL.urlID;
                 
@@ -51,7 +61,7 @@
                     
                 } 
                     
-
+                globalPlayerType = 'youtube';
 
                 //-------------------------------------------------------------------------------------------------SET TIMEOUT AND DO THIS IN ALL IN 2 SECONDS FROM NOW --------------------------------------------------------------------------------------------
 
@@ -71,27 +81,17 @@
                     globalPlayerType = "youtube";
 
 
-                    //Insert transparent overlay on top of Iframe.
-                     $('.transparentOverlay').height($('.playerScreen').height());
-                     $('.transparentOverlay').width($('.playerScreen').width());
-
-                    //When window it resized, keep transparent div laid over top of the iframe
-                    $( window ).resize(() =>{
-                        $('.transparentOverlay').height($('.playerScreen').height());
-                        $('.transparentOverlay').width($('.playerScreen').width());
-                    });
-
-
+                   
                     
                     //------------------------------------------------------------------------------- DO THIS WHEN THE IFRAME IS READY ---------------------------------------------------------------------------------//
-
+                    console.log('new?' + isNewUser)
                     //insert a new player
                     window.YT.ready(function() {
         
                         YTPlayer = new YT.Player('YTPlayer', {
                         height: 500,
                         width: 300,
-                        playerVars: {'autoplay': 0, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
+                        playerVars: {'autoplay': 1, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
                         events: {
                             'onReady': onPlayerReady,
                             'onStateChange': onPlayerStateChange
@@ -107,8 +107,26 @@
                      //------------------------------------------------------------------------------- DO THIS WHEN THE PLAYER IS READY ---------------------------------------------------------------------------------//
 
 
-                    function onPlayerReady() {
+                     
+                       
+                            
+                        function onPlayerReady() {
+                            if (isNewUser == false){
 
+                            let videoStarted = setInterval(isVideoStarted, 100)
+                            
+                            function isVideoStarted(){
+                                if (YTPlayer.getPlayerState() === 1){
+                                    clearInterval(videoStarted);
+                                    console.log('here?')
+                                    YTPlayer.pauseVideo();
+                                    socket.emit('sendCheckAllUsersBuffer');
+                                }
+                                }
+                            }
+                    
+                       
+                     
 
                         //------------------------------------------------------START UP SEEK BAR ----------------------------------------------//
 
@@ -130,7 +148,7 @@
                         }
 
                         //if time has changed since last interval, change the seekbar to the new time;
-                        if(videotime !== oldTime) {
+                        if(videotime !== oldTime && seekbarHeld !== true) {
                             //
                             $(".seekBar").val(videotime);       
                         }
@@ -141,57 +159,72 @@
                             clearInterval(timeupdater);
                         }
                         }
-                        timeupdater = setInterval(updateTime, 500);
+                        timeupdater = setInterval(updateTime, 1000);
                         //-------------------------------------------------------------------------------------------------------------------//
                         
 
 
 
                         //SEND PLAYER TO TIME RECEIVED FROM OLDEST CLIENT (If alone this will just go to zero and rest of this will be ignored)
-                        YTPlayer.seekTo(newURL.time);   
-                        
+                       
                     
 
 
 
 
-                        //IF OLDEST CLIENT WAS PAUSED
-                        if (newURL.playerState == 2 || newURL.playerState == -1){
+                        //IF OLDEST CLIENT WAS PAUSED AND WE ARE A NEW USER
+
+                        if (isNewUser == true){
+                            YTPlayer.seekTo(newURL.time);   
+                            isNewUser = false;
+
+                            if (newURL.playerState == 2 || newURL.playerState == -1){
                         
                             
-                            //Start up interval to see if player has buffered and started playing
-                            let isPlayerReady = setInterval(checkPlayerReady, 500)
-
-                            function checkPlayerReady(){
-                                
-                                //If the player is playing, its buffered so pause it and clear the interval.
-                                if (YTPlayer.getPlayerState() == 1){
-                                    //send signal to pause to all clients again to be sure they are all paused.
-                                    socket.emit("Pause");
-
-                                    //Set buffering to false so that play/pause can be detected
-                                    bufferInProgress = false;
-                                    clearInterval(isPlayerReady);
+                                //Start up interval to see if player has buffered and started playing
+                                let isPlayerReady = setInterval(checkPlayerReady, 500)
+    
+                                function checkPlayerReady(){
+                                    
+                                    //If the player is playing, its buffered so pause it and clear the interval.
+                                    if (YTPlayer.getPlayerState() == 1){
+                                        //send signal to pause to all clients again to be sure they are all paused.
+                                        socket.emit("Pause");
+    
+                                        //Set buffering to false so that play/pause can be detected
+                                        bufferInProgress = false;
+                                        clearInterval(isPlayerReady);
+                                    }
                                 }
+                                
+    
+    
+                            //IF OLDEST CLIENT WASN'T PAUSED
+                            } else {
+    
+                                //DO IN ONE SECOND
+                                setTimeout(function(){
+    
+                                    //Pause
+                                    socket.emit('Pause');
+                                    //Send everyone back to the time recieved with the URL
+                                    socket.emit("newTime", newURL.time);
+                                    //Check Everyones Buffer
+                                    socket.emit("checkAllUsersBuffer");         
+                                
+                                }, 1000)   
                             }
-                            
-
-
-                        //IF OLDEST CLIENT WASN'T PAUSED
-                        } else {
-
-                            //DO IN ONE SECOND
-                            setTimeout(function(){
-
-                                //Pause
-                                socket.emit('Pause');
-                                //Send everyone back to the time recieved with the URL
-                                socket.emit("newTime", newURL.time);
-                                //Check Everyones Buffer
-                                socket.emit("checkAllUsersBuffer");         
-                            
-                            }, 1000)   
                         }
+
+                       
+                        
+
+
+                        isNewUser = false; 
+
+
+
+
                     }  
                 },2000);
                 
@@ -212,7 +245,7 @@
                     console.log('state change  ' + event.data);
 
 
-                    //IF play event is fired, paused was last, and bufferInProgress hasn't been triggered
+                    //IF play event is fired, paused was last, and bufferInProgress hasn't been triggered (SHOULD ONLY TRIGGER IF USER HITS PLAY OR PAUSE IN WINDOW)
                     if (event.data == 1 && lastState == 2 && bufferInProgress == false){
                     
                         //Check All Users Buffer
@@ -220,8 +253,8 @@
                         console.log("buffer in progress = " + bufferInProgress);
 
                     }
-
-                    //If pause event was fired, and bufferInProgress hasn't been triggered.
+ 
+                    //If pause event was fired, and bufferInProgress hasn't been triggered. (SHOULD ONLY TRIGGER IF USER HITS PLAY OR PAUSE IN WINDOW)
                     if (event.data == 2 && bufferInProgress == false){
                        
                         //Pause
@@ -259,7 +292,11 @@
 
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
+
+                if (isNewUser == true){
+                    isNewUser = false;
                 socket.emit("checkAllUsersBuffer");
+            }
 
 
 
@@ -270,10 +307,15 @@
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 if (newURL.playerState == true){
                     
-                    socket.emit("Pause");
+                    video.pause();
 
                 } else {
+
+                    if (isNewUser == true){
+                        isNewUser = false;
                     socket.emit("checkAllUsersBuffer");
+                }
+                   
                 }
                 globalPlayerType = "directLink";
                 
@@ -330,7 +372,7 @@
         if (globalPlayerType === "youtube"){
 
                 console.log("checkin sync");
-                let newURL = {time:YTPlayer.getCurrentTime(), urlID:regexedYoutubeURL, playerState:YTPlayer.getPlayerState(), type:"youtube"};
+                let newURL = {time:YTPlayer.getCurrentTime(), urlID:regexedYoutubeURL, playerState:YTPlayer.getPlayerState(), type:"youtube", fromButton:false};
                 setTimeout(function(){
                     socket.emit("newUserSync", newURL);
                 }, 1000)
@@ -373,14 +415,14 @@
     //Runs an interval that checks the readystate of the video player every half second.
     //Once the player has reached readystate 4 (Buffered enough to play), send signal 
     //to "isBuffered" socket.
-
+   
     socket.on("checkAllUsersBuffer", () =>{
 
         //set bufferInProgress to prevent play and pause events from capturing during hour buffer process.
         bufferInProgress = true;
 
         
-           
+          
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
                 console.log("checking YT buffer");
@@ -389,28 +431,30 @@
                 YTPlayer.pauseVideo();
                 YTPlayer.playVideo();
                  
-                    
+                        
+
                 //start interval to check for when playing.
 
                 setTimeout(function(){
-                    let YTBuffer = setInterval(YTCheck, 500);
+                    let YTBuffer = setInterval(YTCheck, 200);
 
                     function YTCheck(){
-    
+                        
+                        
+                        
                         //if playing, player is buffered
                         if (YTPlayer.getPlayerState() == 1){
                             
                             //Pause
                             YTPlayer.pauseVideo();
-            
                             //In two seconds
                             console.log('im buffered');
     
     
-                            setTimeout(function(){
-                                //Tell everyone you're buffered
-                                socket.emit("isBuffered");
-                            }, 200)
+                            
+                            //Tell everyone you're buffered
+                            socket.emit("isBuffered");
+                            
                             
                             clearInterval(YTBuffer);
                              
@@ -423,7 +467,7 @@
 
 
 
-                }, 500)
+                }, 100)
       
              
            
@@ -440,7 +484,7 @@
 
             //IF DIRECT LINK
             //Look for player state
-                    socket.emit("Pause");
+                    
                 if (player.readyState == 4){
 
                     console.log("buffered");
@@ -460,7 +504,7 @@
 
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
-            $('.transparentOverlay').css("display", "none");
+          
             YTPlayer.pauseVideo();
             
 
@@ -475,15 +519,32 @@
 
     socket.on('Play', (time) => { 
 
+     
+   
+        console.log(globalPlayerType);
+
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
+            
             if (time !== undefined ){
             YTPlayer.seekTo(time);
         }
-            socket.emit('newTime', YTPlayer.getCurrentTime());
+            console.log('lets play');
+            socket.emit('newTime', YTPlayer.getCurrentTime());//MAY NEED TO LOOK AT THIS SINCE IT SENDS ONCE PER CLIENT
             YTPlayer.playVideo();
             lastState = 3;
-            bufferInProgress = false;
+
+
+            //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
+            let bufferDone = setInterval(isbufferDone, 200);
+            function isbufferDone(){
+                console.log('here');
+                if (YTPlayer.getPlayerState() === 1){
+                    clearInterval(bufferDone);
+                    bufferInProgress = false;
+                }
+            }
+            
             console.log('playing video, buffering = ' + bufferInProgress);
             
 

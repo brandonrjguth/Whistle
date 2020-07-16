@@ -125,43 +125,60 @@
     //--------------------- SEEK BAR -------------------------//
 
        let seekFunction = () => {
-
+        
         let clickedTime = $(".seekBar").val();
         socket.emit("newTime", clickedTime);
+       
 
-        if (globalPlayerType === "youtube"){
+     
 
-            if(YTPlayer.getPlayerState() === 1){
-                socket.emit("Pause");
-                
+            if (globalPlayerType === "youtube"){
 
-            } else {
-                socket.emit("checkAllUsersBuffer")
-                
-            }  
+                if(YTPlayer.getPlayerState() === 1){
+                    
+                   socket.emit("checkAllUsersBuffer")
+                    
+                    
     
-        } else{
-
-            if (player.paused === true){
-
-                socket.emit("newTime", clickedTime);
-                socket.emit("Pause");
-
-            } else {
-
-               
-                socket.emit("newTime", clickedTime);
-                socket.emit("checkAllUsersBuffer");
+                } else {
+                    socket.emit("Pause");
+                    
+                    
+                }  
+        
+            } else{
+    
+                if (player.paused === true){
+    
+                    socket.emit("newTime", clickedTime);
+                    socket.emit("Pause");
+    
+                } else {
+    
+                   
+                    socket.emit("newTime", clickedTime);
+                    socket.emit("checkAllUsersBuffer");
+                }  
             }  
-        }  
+
+
+
+
+
+            
+        
+        
         console.log($(".seekBar").val())
     }
 
 
 
     $(".seekBar").mousedown(function(){
-        $(".seekBar").mousedown(function(){
-            seekFunction();   
+            seekbarHeld = true;
+        $(".seekBar").mouseup(function(){
+            seekFunction()
+            seekbarHeld = false;
+           
         })
     });
 
@@ -172,9 +189,17 @@
         seekFunction();      
     }); */
 
- 
-    $(".seekBar").on( "touchstart click",  function() {
-        setTimeout(function(){seekFunction()}, 100)
+
+   
+
+
+    $(".seekBar").on( "touchstart",  function() {
+        seekbarHeld = true;
+        (".seekBar").on( "touchend",  function() {
+            seekbarHeld = false;
+            setTimeout(function(){seekFunction()}, 500);
+        });
+        
         
         });
   
@@ -211,7 +236,7 @@ $("#skipAhead").click(function(){
                 //WHEN FIRST SKIP IS DETECTED, START INTERVAL TO DETECT MORE CLICKS
                 if (skip.length == 1) {
                     
-                    let skips = setInterval(checkSkip, 500);
+                    let skips = setInterval(checkSkip, 1000);
 
                     function checkSkip(){
 
@@ -270,7 +295,7 @@ $("#skipBack").click(function(){
 
        
         let currentTime = YTPlayer.getCurrentTime();
-        newTime = currentTime + 10;
+        newTime = currentTime - 10;
         
         
 
@@ -282,7 +307,7 @@ $("#skipBack").click(function(){
 
                 if (skip.length == 1) {
                     
-                    let skips = setInterval(checkSkip, 500);
+                    let skips = setInterval(checkSkip, 1000);
 
                     function checkSkip(){
                         if (skip.length == 1) {
@@ -336,7 +361,7 @@ $("#skipBack").click(function(){
     //send signal to "newURL" socket with the newURL which will sync all users with the new url.
     $("#urlSubmit").click(function(){
         console.log("URL submitted");
-        let newURL = ({urlID:$(".urlInputText").val()});
+        let newURL = ({urlID:$(".urlInputText").val(), fromButton:true});
         socket.emit('newURL', newURL);  
     });
 
@@ -379,19 +404,12 @@ $("#skipBack").click(function(){
 
 
 
-    $('.chatBarForm').submit(function(e) {
-        console.log('here');
-        e.preventDefault(); // prevents page reloading
-        socket.emit('chat message', $('.chatInputText').val());
-        $('.chatInputText').val('');
-        return false;
-      });
-   
+
 
     $('.usernameForm').submit(function(e) {
         e.preventDefault(); // prevents page reloading
         
-
+        
 
         if ($('.usernameText').val() === ""){
 
@@ -407,9 +425,18 @@ $("#skipBack").click(function(){
         }
       });
 
+      $('.chatBarForm').submit(function(e) {
+        e.preventDefault(); // prevents page reloading
+        socket.emit('chat message', {msg:$('.chatInputText').val(), username:myUsername});
+        $('.chatInputText').val('');
+        return false;
+      });
+   
+
+
       socket.on('chat message', (msg) =>{
           console.log(msg);
-          $('.msgs').append('<li class=\'username\'>' + myUsername + '</li><li class=\'msg\'>' + msg + '</li>');
+          $('.msgs').append('<li class=\'username\'>' + msg.username + '</li><li class=\'msg\'>' + msg.msg + '</li>');
       })
 
     
