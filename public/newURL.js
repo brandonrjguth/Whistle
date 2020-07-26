@@ -15,6 +15,7 @@
 
         if (newURL.type == 'youtube'){
 
+                regexedURL = newURL.url;
         //IF YOUTUBE -------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 $('#video').css('display', 'none');
@@ -28,22 +29,46 @@
 
                 //----------------------------------- DO THIS WHEN THE IFRAME IS READY ---------------------------------------------//
               
-                //insert a new player
-                window.YT.ready(function() {
-    
-                    YTPlayer = new YT.Player('YTPlayer', {
-                    height: 500,
-                    width: 300,
-                    playerVars: {'autoplay': 0, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
-                        
-                        },
-                    videoId: newURL.url
-                    });
+               
 
-                 });
+
+
+                //Start interval that waits for window.YT to be detected
+                
+                
+                let windowReady = setInterval(isWindowReady, 300);
+                function isWindowReady(){
+
+                    //If window.YT is ready
+                    if (window.YT){
+                        clearInterval(windowReady);
+
+                         //insert a new player
+                         
+    
+                            YTPlayer = new YT.Player('YTPlayer', {
+                            height: 500,
+                            width: 300,
+                            playerVars: {'autoplay': 0, 'controls': 0, "disablekb":1, "rel": 1, "modestbranding": 1},
+                            events: {
+                                'onReady': onPlayerReady,
+                                'onStateChange': onPlayerStateChange
+                                
+                                },
+                            videoId: newURL.url
+                            
+        
+                        
+
+
+                        
+                    });
+                }
+            }
+            
+
+
+                
 
                  
                     
@@ -108,7 +133,7 @@
                     if (event.data == 1 && lastState == 2 && buffering == false){
 
                         let client = {id:socket.id, time:YTPlayer.getCurrentTime()};
-                        socket.emit('checkBuffer');
+                        socket.emit('checkBuffer', client);
 
                     }
 

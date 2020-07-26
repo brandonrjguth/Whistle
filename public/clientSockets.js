@@ -20,7 +20,10 @@
 
     //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
 
-    socket.on("newUserSync", () => {});
+    socket.on("newUserSync", (newUserID) => {
+        let videoData = {type:globalPlayerType, url:regexedURL, time:YTPlayer.getCurrentTime(), state:YTPlayer.getPlayerState(), id:newUserID};
+        socket.emit('newUserSync', videoData);
+    });
              
             
         
@@ -57,9 +60,12 @@
     //----------------------- CHECK ALL USERS BUFFER ---------------------//
     
    
-    socket.on("checkBuffer", () => {
+    socket.on("checkBuffer", (newClient) => {
         //set buffering to true
         buffering = true;
+        console.log(newClient);
+        console.log(newClient.id);
+        console.log(newClient.time);
 
         //play video
         
@@ -97,7 +103,8 @@
                         function isPaused(){
                             if (YTPlayer.getPlayerState() === 2){
                                 console.log('Im paused and buffered.');
-                                socket.emit('isBuffered', YTPlayer.getCurrentTime());
+                                console.log(newClient);
+                                socket.emit('isBuffered', newClient.time);
                                 console.log(socket.id);
                                 clearInterval(checkPaused);
                             }
@@ -140,6 +147,9 @@
 
     socket.on('Play', (time) => { 
         
+
+        //Setinterval to detect when the playVideo function is Ready.
+        
         YTPlayer.playVideo();
         
 
@@ -157,13 +167,47 @@
                 clearInterval(checkBuffer);
             }
         };
-
- 
-        
-        
-
-     
     });
 
+
+    socket.on('playNewUser', (videoData) => {
+        buffering = true;
+        console.log('here');
+
+        let windowReady = setInterval(isWindowReady, 300);
+        function isWindowReady(){
+        if (window.YT){
+            
+            console.log('window yt ready');
+            YTPlayer.playVideo();
+        
+            clearInterval(windowReady);
+            let checkBuffer = setInterval(isReady, 500);
+    
+            function isReady(){
+                console.log("Playing");
+                YTPlayer.seekTo(videoData.time);
+                //Once playing status detected, which means buffer pause video.
+                if (YTPlayer.getPlayerState() === 1){
+                    clearInterval(checkBuffer);
+    
+                    //Seek to the oldest time once the video is playing and buffered. This keeps everyone 
+                    //perfectly synced without losing time.
+                    
+                    console.log(videoData);
+                    if (videoData.state == 2){
+                        
+                        
+                        YTPlayer.pauseVideo();
+                        buffering = false;
+                    }
+                    
+                    clearInterval(checkBuffer);
+                }
+            };
+
+        }
+    }
+    });
 
   

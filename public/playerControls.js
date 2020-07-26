@@ -4,6 +4,7 @@ let YTPlayer;
 let buffering = false;
 let globalPlayerType = 'directLink';
 let playing = false;
+let regexedURL;
     
 
     //--------------------- PLAY AND PAUSE ---------------------//
@@ -87,11 +88,12 @@ let playing = false;
 
 
     $("#urlSubmit").click(function(){
+        
         let submittedURL = $(".urlInputText").val();
         socket.emit('newURL', {url:submittedURL});
         $(".urlInputText").val('');
-
-        socket.emit('checkBuffer');
+        let newClient = {id:socket.id, time:0};
+        socket.emit('checkBuffer', newClient);
     });
 
 

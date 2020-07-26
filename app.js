@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
     let oldestUser = users[0].id;
 
     if (users.length > 1){
-        io.to(oldestUser).emit("newUserSync");
+        io.to(oldestUser).emit("newUserSync", socket.id);
     }
     
     
@@ -132,9 +132,9 @@ io.on('connection', (socket) => {
 
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
-    socket.on('newUserSync', (newURL) =>{
-    
-
+    socket.on('newUserSync', (videoData) =>{
+        io.to(videoData.id).emit("newURL", videoData);
+        io.to(videoData.id).emit("playNewUser", videoData);        
     });
 
 
@@ -164,9 +164,9 @@ io.on('connection', (socket) => {
 
 
     //REVEIVED CHECK BUFFER MESSAGE
-    socket.on('checkBuffer', () => {
+    socket.on('checkBuffer', (newClient) => {
         //Send everyone a check buffer message.
-        io.emit('checkBuffer');
+        io.emit('checkBuffer', newClient);
     });
     
 
