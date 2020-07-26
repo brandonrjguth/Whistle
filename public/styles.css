@@ -85,6 +85,7 @@ input::placeholder{
     -webkit-transition: 0.2s;
     transition: opacity 0.2s;
     border-radius: 0rem;
+    padding: 0;
 }
 
 .seekBar:hover {

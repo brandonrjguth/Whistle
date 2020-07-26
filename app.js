@@ -1,6 +1,10 @@
 
 //INITIAL SETUP
 
+//
+    let counter = [];
+
+
 //Requires (Body Parser, EJS, Express, Mongo, Mongoose)
     const bodyParser = require('body-parser');
     const ejs = require("ejs");
@@ -46,31 +50,28 @@ app.get('/', function(req, res) {
     res.render('streamVideo');
 });
 
-app.post('/testButton', function(req, res) {
-    console.log(req.body.input);
-
-});
 
 /*------------------------------------------IO CONTROLS------------------------------------------------------*/
 let users = [];
-let counter = [];
-let counter2 = [];
+
 
 
 
 
 //ON CONNECT
 io.on('connection', (socket) => {
-
-    //push users to user array.
     users.push({id:socket.id});
+
     //find the timestamp and sync to first user to join
     let oldestUser = users[0].id;
-    io.to(oldestUser).emit("newUserSync");
+
+    if (users.length > 1){
+        io.to(oldestUser).emit("newUserSync");
+    }
+    
     
     
 
-    //TO-DO: ADD LOGIC THAT CHECKS IF OTHER PLAYERS ARE PAUSED, AND PAUSES.
     
 
     //ON DISCONNECT
@@ -87,129 +88,131 @@ io.on('connection', (socket) => {
         
     });
 
-    //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
-        socket.on('newUserSync', (newURL) =>{
 
-        console.log("THE PLAYER STATE IS : " + newURL.playerState);
-        let newestUser = users[users.length - 1].id;
-        newURL.isNewUser = true;
-        io.sockets.connected[newestUser].emit("newURL", newURL);
-        
-        
-        if(newURL.type === "youtube"){
-      
-        } else{
-            io.emit("newTime", newURL.time);
-            if (newURL.playerState === true){
-                io.sockets.connected[newestUser].emit("Pause");
-            } else {
-                io.emit("Pause");
-                io.emit("checkAllUsersBuffer");
-            }
-        }
-        
-
-    });
-
-    //FOUND TIME ALL USERS, SYNC ALL USERS
-    socket.on('newTime', (newTime) =>{
-        if (newTime < 0){
-            newTime = 0;
-        }
-        io.emit("newTime", newTime);
-    });
 
     //RECEIVED A NEW URL
     socket.on('newURL', (newURL) =>{
-                console.log("URL received by Server");
 
-                //DO A REGEX CHECK ON URL
-                if (newURL.urlID != undefined || newURL.urlID != '') {
+            //-----------------------------------------       DO A REGEX CHECK ON URL      -------------------------------------------------------------//
+        if (newURL.url != undefined || newURL.url != '') {
 
-                    var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
-                    var match = newURL.urlID.match(regExp);
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+            var match = newURL.url.match(regExp);
 
-                    console.log("Done Reg Check");
+            console.log("Done Reg Check");
+            
 
-                    //IF YOUTUBE URL, SEND THE NEW URL WITH TYPE YOUTUBE
-                    if (match && match[2].length == 11) {
-                        console.log("is youtube video");
-                        newURL.type = "youtube";
-                        newURL.urlID = match[2];
-                        newURL.url = match[0];
-                        console.log(newURL);
-                        io.emit('newURL', newURL);
 
-                        
-                       
-                      
+            //------------------------------------------------------------------------------------------------------------------------------------------//
+
+            //IF YOUTUBE URL, SEND THE NEW URL WITH TYPE YOUTUBE
+            if (match && match[2].length == 11) {
+
+                newURL.type = "youtube";
+                newURL.url = match[2];
+            }
+
+            //ELSE, SEND THE NEW URL WITH TYPE DIRECTLINK
+            else {
+
+                newURL.type = "directLink";     
+            }
+
+            console.log('This is a ' + newURL.type + ' link');
+            console.log('Sending URL : ' + newURL.url);
+
+            //Send new URL to all.
+            io.emit('newURL', newURL)
+        }
+    });
+
+
+
+    //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
+    socket.on('newUserSync', (newURL) =>{
     
-                    }
-                    //ELSE, SEND THE NEW URL WITH TYPE DIRECTLINK
-                    else {
-                        newURL.type = "directLink";
-                        io.emit('newURL', newURL);
-                    }
-                }
-  
 
+    });
+
+
+    //FOUND TIME ALL USERS, SYNC ALL USERS
+    socket.on('newTime', (newTime) =>{
+    });
+
+    
+
+
+
+  
+    socket.on('findTime', (newTime) => {
 
         
     });
 
+
+
+
+
+    //----------------------- CHECK ALL USERS BUFFER ---------------------//
+
+
+    socket.on("checkReady", () =>{
+
+ 
+    });
+
+
     //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED
-    socket.on('checkAllUsersBuffer', () => {
-        io.emit('checkAllUsersBuffer');
+    socket.on('checkBuffer', () => {
+        io.emit('checkBuffer');
     });
-
-
-    socket.on('sendCheckAllUsersBuffer', () => {
-        counter2.push(1);    
-        console.log("here1");
-        console.log('new url ready users = ' + counter2.length);
-        console.log(users.length);
-
-       
-
-        if (counter2.length >= users.length){
-            counter2 = [];
-                //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
-                setTimeout(function(){
-                    io.emit("checkAllUsersBuffer");    
-            }, 400);
-                
-        }
-    });
-
-
+    
 
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
     socket.on('isBuffered', () =>{
-        counter.push(1);    
-        console.log("here1");
-        console.log(counter.length);
+        if (socket.id !== undefined){
+            counter.push(socket.id);
+        } 
+         
+        console.log(counter);
+
+        console.log('this many users starting buffer ' + counter.length )
+        console.log('this many users on socket ' + users.length )
         console.log(users.length);
 
        
 
-        if (counter.length >= users.length){
-            counter = [];
+        if (counter.length === users.length){
+            
+            console.log(counter);
+            
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
-                setTimeout(function(){
-                    io.emit("Play");    
-            }, 400);
                 
+                console.log('ALL BUFFERED');
+                    counter = [];
+                    io.emit("Play");    
+          
         }
+      
     });
 
-    socket.on('YTPlay', (time) => {
-        io.emit('Play', time);
-    })
-       
+   
     //PAUSE
     socket.on('Pause', () =>{
         io.emit('Pause');
     });
+
+
+
+
+
+
+
+
+
+
+
+
 
     //RECEIVED CHAT MESSAGE
     socket.on('chat message', (msg) => {
