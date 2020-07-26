@@ -18,7 +18,10 @@
         //IF YOUTUBE -------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 $('#video').css('display', 'none');
-                $('#YTPlayer').css('display', 'flex');
+                //remove the youtube iframe
+                $("#YTPlayer").remove();
+                //create a new div for the new iframe to be inserted into.
+                $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
 
                 globalPlayerType = 'youtube';
 
@@ -103,6 +106,8 @@
 
                     //IF play event is fired, paused was last, and bufferInProgress hasn't been triggered (SHOULD ONLY TRIGGER IF USER HITS PLAY OR PAUSE IN WINDOW)
                     if (event.data == 1 && lastState == 2 && buffering == false){
+
+                        let client = {id:socket.id, time:YTPlayer.getCurrentTime()};
                         socket.emit('checkBuffer');
 
                     }

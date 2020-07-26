@@ -97,7 +97,7 @@
                         function isPaused(){
                             if (YTPlayer.getPlayerState() === 2){
                                 console.log('Im paused and buffered.');
-                                socket.emit('isBuffered');
+                                socket.emit('isBuffered', YTPlayer.getCurrentTime());
                                 console.log(socket.id);
                                 clearInterval(checkPaused);
                             }
@@ -139,8 +139,9 @@
      //-------------------- PLAY -----------------------//
 
     socket.on('Play', (time) => { 
+        
         YTPlayer.playVideo();
-
+        
 
         let checkBuffer = setInterval(isReady, 500);
 
@@ -148,7 +149,10 @@
             console.log("Playing");
             //Once playing status detected, which means buffer pause video.
             if (YTPlayer.getPlayerState() === 1){
-                
+
+                //Seek to the oldest time once the video is playing and buffered. This keeps everyone 
+                //perfectly synced without losing time.
+                YTPlayer.seekTo(time);
                 buffering = false;
                 clearInterval(checkBuffer);
             }

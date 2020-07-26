@@ -3,6 +3,8 @@
 
 //
     let counter = [];
+    let clients = [];
+    let oldestTime;
 
 
 //Requires (Body Parser, EJS, Express, Mongo, Mongoose)
@@ -26,6 +28,7 @@
 
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
+const { ClientRequest } = require('http');
  
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -149,9 +152,7 @@ io.on('connection', (socket) => {
         
     });
 
-
-
-
+  
 
     //----------------------- CHECK ALL USERS BUFFER ---------------------//
 
@@ -162,35 +163,44 @@ io.on('connection', (socket) => {
     });
 
 
-    //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED
+    //REVEIVED CHECK BUFFER MESSAGE
     socket.on('checkBuffer', () => {
+        //Send everyone a check buffer message.
         io.emit('checkBuffer');
     });
     
 
-    //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
-    socket.on('isBuffered', () =>{
+    //RECEIVE IM BUFFERED MESSAGE
+    socket.on('isBuffered', (userTime) =>{
+
+        
         if (socket.id !== undefined){
+            //Push users ID to counter array
             counter.push(socket.id);
         } 
          
-        console.log(counter);
-
+    
+        
         console.log('this many users starting buffer ' + counter.length )
         console.log('this many users on socket ' + users.length )
-        console.log(users.length);
 
+        //If this is the first user sending buffered signal
+        if (counter.length === 1){
+            //make oldest time their time
+            oldestTime = userTime;
+        }
        
-
+        
+       
+        //If all buffered users are here
         if (counter.length === users.length){
-            
-            console.log(counter);
-            
-                //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
-                
+        
+                //Reset counter array for next buffer
                 console.log('ALL BUFFERED');
-                    counter = [];
-                    io.emit("Play");    
+                counter = [];
+                
+                //Send play signal with the oldest users time.
+                io.emit("Play", oldestTime);    
           
         }
       
