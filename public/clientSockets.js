@@ -7,6 +7,8 @@
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+    window.onload = function(){socket.emit('pageReady')};
+
 
 
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//

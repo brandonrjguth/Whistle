@@ -29,6 +29,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const { ClientRequest } = require('http');
+const { SSL_OP_NO_TICKET } = require('constants');
  
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -72,7 +73,11 @@ io.on('connection', (socket) => {
         io.to(oldestUser).emit("newUserSync", socket.id);
     }
     
-    
+    socket.on('pageReady', () => {
+       let readyUser =  users.findIndex((user => user.id == socket.id))
+       console.log('this users page is ready: ' + readyUser);
+       users[readyUser].pageReady = true;
+    });
     
 
     
@@ -133,8 +138,22 @@ io.on('connection', (socket) => {
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
     socket.on('newUserSync', (videoData) =>{
-        io.to(videoData.id).emit("newURL", videoData);
-        io.to(videoData.id).emit("playNewUser", videoData);        
+        let newSyncingUser = users[users.findIndex((user => user.id == socket.id))];
+        console.log(newSyncingUser);
+
+        //set interval to wait for pageReady signal
+
+        let pageReady = setInterval(isPageReady, 500)
+        function isPageReady(){
+            if (newSyncingUser.pageReady == true){
+                    clearInterval(pageReady)
+                    io.to(videoData.id).emit("newURL", videoData);
+                    io.to(videoData.id).emit("playNewUser", videoData);   
+                }
+            }
+        
+    
+          
     });
 
 
