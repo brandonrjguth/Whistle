@@ -5,7 +5,11 @@ let buffering = false;
 let globalPlayerType = 'directLink';
 let playing = false;
 let regexedURL;
-    
+let timeReached;
+
+
+
+
 
     //--------------------- PLAY AND PAUSE ---------------------//
     //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
@@ -32,8 +36,6 @@ let regexedURL;
     
     });
 
-    
-    
 
     //--------------------- SEEK BAR -------------------------//
 
@@ -55,7 +57,6 @@ let regexedURL;
         });
     });
   
-
 
 
     //-----------------------     SEEK DIRECTLY TO TIMESTAMP    ---------------------------//
@@ -117,11 +118,6 @@ let regexedURL;
 
 
 
-
-
-
-
-
 //-------------------------------------------------------------------HIDING CONTROLS--------------------------------------------------//
     $("#showLoadURL").click(() => {
             $('.hiddenControls').css("display", "flex");
@@ -153,8 +149,6 @@ let regexedURL;
         $('.hiddenControls').css("display", "none");
         $('.buttonRow').css("display", "flex");
     });
-
-
 
     //Button to hide or show time button
     $("#showSeekCommands").click(function(){

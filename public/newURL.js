@@ -12,10 +12,11 @@
         console.log("Received URL")
         console.log(newURL);
 
-
         if (newURL.type == 'youtube'){
 
                 regexedURL = newURL.url;
+
+
         //IF YOUTUBE -------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 $('#video').css('display', 'none');
@@ -29,13 +30,8 @@
 
                 //----------------------------------- DO THIS WHEN THE IFRAME IS READY ---------------------------------------------//
               
-               
-
-
-
+            
                 //Start interval that waits for window.YT to be detected
-                
-                
                 let windowReady = setInterval(isWindowReady, 300);
                 function isWindowReady(){
 
@@ -44,8 +40,6 @@
                         clearInterval(windowReady);
 
                          //insert a new player
-                         
-    
                             YTPlayer = new YT.Player('YTPlayer', {
                             height: 500,
                             width: 300,
@@ -55,31 +49,18 @@
                                 'onStateChange': onPlayerStateChange
                                 
                                 },
-                            videoId: newURL.url
-                            
-        
-                        
-
-
-                        
+                            videoId: newURL.url     
                     });
                 }
             }
             
-
-
-                
-
-                 
-                    
+      
                 //--------------------------------------------- DO THIS WHEN THE PLAYER IS READY ----------------------------------------------------------//
 
 
-                 
-                
                 function onPlayerReady() {
 
-                     
+        
                 //----------------------------------------START UP SEEK BAR ----------------------------------------------//
 
 
@@ -87,7 +68,6 @@
                     //find length of video from YTPlayer and set the seekbars max to that time.
                     videoLength = YTPlayer.getDuration();
                     $(".seekBar").attr("max", videoLength);
-
 
                     //Run an interval ever 1/2 second
                     function updateTime() {
@@ -115,8 +95,6 @@
                     timeupdater = setInterval(updateTime, 1000);
 
                 //----------------------------------------------------------------------------------
-
-
                 }
 
 
@@ -144,20 +122,11 @@
                         
                     }
 
-
                     lastState = event.data;
 
                 }       
             
                 //--------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
 
 
@@ -170,9 +139,6 @@
         if (newURL.type == 'directLink')
 
         {
-
-
-
                 //STARTUP SEEKBAR LISTENER
                 
                 let seekBarListener = () => {
@@ -205,10 +171,7 @@
                     player.onloadedmetadata = function(){
                         seekBarListener();
                     };
-                
-
-        }
-                    
+        }                  
 });
 
 

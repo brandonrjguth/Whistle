@@ -65,7 +65,10 @@ let oldestUser
 
 //ON CONNECT
 io.on('connection', (socket) => {
+
+    if (socket.id !== undefined){
     users.push({id:socket.id});
+    }
 
     //find the timestamp and sync to first user to join
      
@@ -158,19 +161,22 @@ io.on('connection', (socket) => {
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
     socket.on('newUserSync', (videoData) =>{
-        let newSyncingUser = users[users.findIndex((user => user.id == videoData.id))];
+        let newSyncingUser = users.findIndex((user => user.id == videoData.id));
         console.log(newSyncingUser);
 
         //set interval to wait for pageReady signal
 
         let pageReady = setInterval(isPageReady, 500)
         function isPageReady(){
-            if (newSyncingUser.pageReady == true){
-                    clearInterval(pageReady)
+            
+            if (users[newSyncingUser] !== undefined){
+                if (users[newSyncingUser].pageReady == true){
+                        clearInterval(pageReady)
 
-                   
-                    io.to(videoData.id).emit("newURL", videoData);
-                    io.to(videoData.id).emit("playNewUser", videoData);   
+                    
+                        io.to(videoData.id).emit("newURL", videoData);
+                        io.to(videoData.id).emit("playNewUser", videoData);   
+                    }
                 }
             }
         
@@ -178,30 +184,20 @@ io.on('connection', (socket) => {
           
     });
 
-
-    //FOUND TIME ALL USERS, SYNC ALL USERS
-    socket.on('newTime', (newTime) =>{
+    //When oldest users time as reached the sync point for the new user
+    socket.on('timeReached', (videoData) =>{
+        console.log('time Reached');
+        console.log(videoData);
+        io.to(videoData.id).emit('timeReached');
     });
 
-    
 
-
-
-  
-    socket.on('findTime', (newTime) => {
-
-        
-    });
+ 
 
   
 
     //----------------------- CHECK ALL USERS BUFFER ---------------------//
 
-
-    socket.on("checkReady", () =>{
-
- 
-    });
 
 
     //REVEIVED CHECK BUFFER MESSAGE
@@ -215,6 +211,12 @@ io.on('connection', (socket) => {
     socket.on('isBuffered', (userTime) =>{
 
         
+
+        //TODO: Pushing to counter array is unreliable.
+        //Instead, add isBuffered property to users, when all are true, set to false, send signal
+        //Basically try to get rid of pushes to arrays on connections cause they can fuck up when refresh gets spammed
+
+
         if (socket.id !== undefined){
             //Push users ID to counter array
             counter.push(socket.id);
@@ -234,7 +236,7 @@ io.on('connection', (socket) => {
         
        
         //If all buffered users are here
-        if (counter.length === length){
+        if (counter.length >= length){
         
                 //Reset counter array for next buffer
                 console.log('ALL BUFFERED');
