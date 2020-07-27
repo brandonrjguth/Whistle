@@ -89,22 +89,26 @@ io.on('connection', (socket) => {
     console.log('users connected :' + numberOfClients);
 
 
-    //if more than one client is connected
-    if (numberOfClients > 1){
-        //sync to oldest client ie: host
-        io.to(oldestUser).emit("newUserSync", socket.id);
-    }
+   
     
 
     //When you receive page ready from a user
     socket.on('pageReady', () => {
 
-        //set variable readyUser equal to the index of the user array containing the same id
+        
+
+       //set variable readyUser equal to the index of the user array containing the same id
        let readyUser =  users.findIndex((user => user.id == socket.id))
        console.log('this users page is ready: ' + readyUser);
 
        //add pageReady attribute to that user and set equal to true
        users[readyUser].pageReady = true;
+
+        //if more than one client is connected
+        if (numberOfClients > 1){
+        //sync to oldest client ie: host
+        io.to(oldestUser).emit("newUserSync", socket.id);
+         }
     });
     
 

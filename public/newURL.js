@@ -11,10 +11,11 @@
 
         console.log("Received URL")
         console.log(newURL);
+        regexedURL = newURL.url;
 
         if (newURL.type == 'youtube'){
 
-                regexedURL = newURL.url;
+                
 
 
         //IF YOUTUBE -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -143,6 +144,70 @@
         if (newURL.type == 'directLink')
 
         {
+
+
+
+              //IF CURRENT PLAYER IS YOUTUBE
+              if (globalPlayerType === "youtube"){
+                
+                //HIDE YOUTUBE PLAYER AND SHOW MP4 PLAYER, CHANGE URL, ADD DIV TO BE CHANGED BACK TO YOUTUBE IFRAME IF CALLED AGAIN
+                $("#YTPlayer").remove();
+                $("#embeddedArea").append("<video src=\"\" id=\"video\"></video>");
+                $("#video").after("<video id=\"YTPlayer\" style=\"display:none\"></video>");
+                $("#video").css("display", "block");
+                $("#video").attr("src", newURL.url);
+                player = $("#video").get(0);
+
+                //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
+                globalPlayerType = "directLink";
+
+       
+            
+
+
+            } else {
+
+                console.log('changing url');
+                console.log(newURL);
+
+                //CHANGE URL
+                $("#video").attr("src", newURL.url);
+                globalPlayerType = "directLink";
+                
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 //STARTUP SEEKBAR LISTENER
                 
                 let seekBarListener = () => {
