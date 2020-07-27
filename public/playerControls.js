@@ -93,7 +93,16 @@ let regexedURL;
         socket.emit('newURL', {url:submittedURL});
         $(".urlInputText").val('');
         let newClient = {id:socket.id, time:0};
-        socket.emit('checkBuffer', newClient);
+        
+        //set interval to detect when video is ready and loaded
+        let isLoaded = setInterval(checkLoaded, 500)
+        function checkLoaded(){
+            if (YTPlayer.getPlayerState() === 5){
+                clearInterval(isLoaded);
+                socket.emit('checkBuffer', newClient);
+            }
+        }
+        
     });
 
 

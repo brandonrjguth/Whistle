@@ -1,13 +1,27 @@
 //TODO: 
 
 
+
+
     //STARTUP YOUTUBE API
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    window.onload = function(){socket.emit('pageReady')};
+    window.onload = function(){
+
+        let fullyLoaded = setInterval(isFullyLoaded, 500)
+        function isFullyLoaded(){
+            if (YT.Player){
+                console.log('page ready');
+                clearInterval(fullyLoaded);
+                socket.emit('pageReady');
+            }
+
+        };
+        
+    };
 
 
 
@@ -81,7 +95,7 @@
             //When function is available which means youtubeplayer is ready, play
             if (YTPlayer.playVideo()){
                 YTPlayer.playVideo()
-
+                console.log('got here!!!')
                 //clear interval waiting for player to be ready.
                 clearInterval(checkStarted);
 

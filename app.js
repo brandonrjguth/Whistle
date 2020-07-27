@@ -158,7 +158,7 @@ io.on('connection', (socket) => {
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
     socket.on('newUserSync', (videoData) =>{
-        let newSyncingUser = users[users.findIndex((user => user.id == socket.id))];
+        let newSyncingUser = users[users.findIndex((user => user.id == videoData.id))];
         console.log(newSyncingUser);
 
         //set interval to wait for pageReady signal
@@ -167,6 +167,8 @@ io.on('connection', (socket) => {
         function isPageReady(){
             if (newSyncingUser.pageReady == true){
                     clearInterval(pageReady)
+
+                   
                     io.to(videoData.id).emit("newURL", videoData);
                     io.to(videoData.id).emit("playNewUser", videoData);   
                 }
