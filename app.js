@@ -57,8 +57,9 @@ app.get('/', function(req, res) {
 
 /*------------------------------------------IO CONTROLS------------------------------------------------------*/
 let users = [];
-
-
+let length; 
+let newlength;
+let oldestUser
 
 
 
@@ -67,9 +68,19 @@ io.on('connection', (socket) => {
     users.push({id:socket.id});
 
     //find the timestamp and sync to first user to join
-    let oldestUser = users[0].id;
+     
 
-    if (users.length > 1){
+    
+    io.clients((error, clients) => {
+    oldestUser = clients[0];
+    length = clients.length;
+    });
+    
+
+    console.log('users connected :' + length);
+
+
+    if (length > 1){
         io.to(oldestUser).emit("newUserSync", socket.id);
     }
     
@@ -81,9 +92,18 @@ io.on('connection', (socket) => {
     
 
     
-
+    
     //ON DISCONNECT
     socket.on('disconnect', () => {
+
+            
+        io.clients((error, clients) => {
+    
+            newlength = clients.length;
+            });
+            
+        
+            console.log('disconnect, now their are :' + (newlength));
 
         //REMOVE NEW USER FROM ARRAY
         for (i=0; i < users.length; i++) {
@@ -212,7 +232,7 @@ io.on('connection', (socket) => {
         
        
         //If all buffered users are here
-        if (counter.length === users.length){
+        if (counter.length === length){
         
                 //Reset counter array for next buffer
                 console.log('ALL BUFFERED');
