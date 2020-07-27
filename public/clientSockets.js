@@ -195,13 +195,13 @@
     
                     //Seek to the oldest time once the video is playing and buffered. This keeps everyone 
                     //perfectly synced without losing time.
-                    
+                    buffering = false;
                     console.log(videoData);
                     if (videoData.state == 2){
                         
                         
                         YTPlayer.pauseVideo();
-                        buffering = false;
+                        
                     }
                     
                     clearInterval(checkBuffer);
