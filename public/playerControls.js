@@ -91,8 +91,11 @@ let timeReached;
     $("#urlSubmit").click(function(){
         
         let submittedURL = $(".urlInputText").val();
+        //send newURL 
         socket.emit('newURL', {url:submittedURL});
+        //remove text field from video input
         $(".urlInputText").val('');
+        
         let newClient = {id:socket.id, time:0};
         
         //set interval to detect when video is ready and loaded
@@ -100,6 +103,8 @@ let timeReached;
         function checkLoaded(){
             if (YTPlayer.getPlayerState() === 5){
                 clearInterval(isLoaded);
+
+                //when it's loaded, send the checkBuffer signal with start time of 0
                 socket.emit('checkBuffer', newClient);
             }
         }

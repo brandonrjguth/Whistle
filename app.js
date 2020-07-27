@@ -1,9 +1,12 @@
 
 //INITIAL SETUP
 
-//
-    let counter = [];
-    let clients = [];
+//Initiate Variables
+    let usersBuffered = [];
+    let users = [];
+    let numberOfClients; 
+    let newlength;
+    let oldestUser
     let oldestTime;
 
 
@@ -48,6 +51,8 @@ MongoClient.connect(url, function(err, client) {
 });
 
 
+
+
 /*---------------------------------------------ROUTES-------------------------------------------------------*/
 
 app.get('/', function(req, res) {
@@ -55,17 +60,18 @@ app.get('/', function(req, res) {
 });
 
 
+
+
 /*------------------------------------------IO CONTROLS------------------------------------------------------*/
-let users = [];
-let length; 
-let newlength;
-let oldestUser
+
 
 
 
 //ON CONNECT
 io.on('connection', (socket) => {
 
+
+    //if socket is defined, create a user in the user array with the id
     if (socket.id !== undefined){
     users.push({id:socket.id});
     }
@@ -73,23 +79,31 @@ io.on('connection', (socket) => {
     //find the timestamp and sync to first user to join
      
 
-    
+    //Set number of clients, and oldest user variables using the io.clients function
     io.clients((error, clients) => {
     oldestUser = clients[0];
-    length = clients.length;
+    numberOfClients = clients.length;
     });
     
 
-    console.log('users connected :' + length);
+    console.log('users connected :' + numberOfClients);
 
 
-    if (length > 1){
+    //if more than one client is connected
+    if (numberOfClients > 1){
+        //sync to oldest client ie: host
         io.to(oldestUser).emit("newUserSync", socket.id);
     }
     
+
+    //When you receive page ready from a user
     socket.on('pageReady', () => {
+
+        //set variable readyUser equal to the index of the user array containing the same id
        let readyUser =  users.findIndex((user => user.id == socket.id))
        console.log('this users page is ready: ' + readyUser);
+
+       //add pageReady attribute to that user and set equal to true
        users[readyUser].pageReady = true;
     });
     
@@ -102,11 +116,13 @@ io.on('connection', (socket) => {
             
         io.clients((error, clients) => {
     
+            //create variable equal to length of IO's returned clients array.
             newlength = clients.length;
             });
             
-        
+            //Console log new amount of users
             console.log('disconnect, now their are :' + (newlength));
+
 
         //REMOVE NEW USER FROM ARRAY
         for (i=0; i < users.length; i++) {
@@ -159,42 +175,49 @@ io.on('connection', (socket) => {
 
 
 
-    //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
+    //Got signal with information for sync from host.
     socket.on('newUserSync', (videoData) =>{
+
+        //let newSyncingUser variable be equal to the index of the users array containing this ID of the user we are syncing.
         let newSyncingUser = users.findIndex((user => user.id == videoData.id));
         console.log(newSyncingUser);
 
-        //set interval to wait for pageReady signal
-
+        //set interval to wait for pageReady
         let pageReady = setInterval(isPageReady, 500)
         function isPageReady(){
             
+            //if the user is undefined (This protects against refresh spam)
             if (users[newSyncingUser] !== undefined){
+
+                //if page is ready and variable's been set to true by pageReady message
                 if (users[newSyncingUser].pageReady == true){
+
+                        //clear the interval
                         clearInterval(pageReady)
 
-                    
+                        //send the newURL
                         io.to(videoData.id).emit("newURL", videoData);
+                        
+                        //send the commands for syncing and playing the new user
                         io.to(videoData.id).emit("playNewUser", videoData);   
                     }
                 }
             }
-        
-    
-          
+       
     });
 
-    //When oldest users time as reached the sync point for the new user
+
+
+    //When oldest users time(host) has reached the sync point for the new user
     socket.on('timeReached', (videoData) =>{
         console.log('time Reached');
         console.log(videoData);
+
+        //send the time to the user who requested it.
         io.to(videoData.id).emit('timeReached');
     });
 
 
- 
-
-  
 
     //----------------------- CHECK ALL USERS BUFFER ---------------------//
 
@@ -210,37 +233,30 @@ io.on('connection', (socket) => {
     //RECEIVE IM BUFFERED MESSAGE
     socket.on('isBuffered', (userTime) =>{
 
-        
-
-        //TODO: Pushing to counter array is unreliable.
-        //Instead, add isBuffered property to users, when all are true, set to false, send signal
-        //Basically try to get rid of pushes to arrays on connections cause they can fuck up when refresh gets spammed
-
-
+        //if socket id isn't undefined. (Helps protect against refresj spam)
         if (socket.id !== undefined){
-            //Push users ID to counter array
-            counter.push(socket.id);
+            //Push users ID to usersBuffered array
+            usersBuffered.push(socket.id);
         } 
          
     
-        
-        console.log('this many users starting buffer ' + counter.length )
+        console.log('this many users starting buffer ' + usersBuffered.length )
         console.log('this many users on socket ' + users.length )
 
+
         //If this is the first user sending buffered signal
-        if (counter.length === 1){
+        if (usersBuffered.length === 1){
             //make oldest time their time
             oldestTime = userTime;
         }
        
-        
-       
+    
         //If all buffered users are here
-        if (counter.length >= length){
+        if (usersBuffered.length >= numberOfClients){
         
-                //Reset counter array for next buffer
+                //Reset usersBuffered array for next buffer
                 console.log('ALL BUFFERED');
-                counter = [];
+                usersBuffered = [];
                 
                 //Send play signal with the oldest users time.
                 io.emit("Play", oldestTime);    
@@ -250,19 +266,11 @@ io.on('connection', (socket) => {
     });
 
    
+
     //PAUSE
     socket.on('Pause', () =>{
         io.emit('Pause');
     });
-
-
-
-
-
-
-
-
-
 
 
 
@@ -272,6 +280,10 @@ io.on('connection', (socket) => {
         console.log('message: ' + msg);
         io.emit('chat message', msg);
       });
+
+
+
+
 });
 
 //LISTEN PORT

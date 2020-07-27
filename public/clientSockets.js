@@ -23,32 +23,38 @@
         
     };
 
+
     //--------------TIME REACHED FOR SYNCED NEW USER-----------------//
 
     socket.on('timeReached', () =>{
+        //make timeReached true (THIS ONLY GETS SENT TO USER WHO'M IS WAITING ON THE TIMER)
         timeReached = true;
     });
 
 
 
     //--------------------------- NEW USER SYNC ---------------------------//
-
-    //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
+ 
 
     socket.on("newUserSync", (newUserID) => {
         console.log('got signal from new user');
+
+        
+        //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket with the ID of the user requesting sync.
         let videoData = {type:globalPlayerType, url:regexedURL, time:YTPlayer.getCurrentTime(), state:YTPlayer.getPlayerState(), id:newUserID};
+
+        //send newUserSync message with this data.
         socket.emit('newUserSync', videoData);
 
         //start interval to check when we've progressed 10 seconds
-
         if (videoData.state == 1){
             let progressed = setInterval(checkProgressed, 500)
             function checkProgressed(){
                 console.log('our time :' + YTPlayer.getCurrentTime());
                 console.log('time to get to: ' + (videoData.time + 10))
                 if (YTPlayer.getCurrentTime() >= (videoData.time + 10)){
-                    //let server know we've progressed
+
+                    //let server know we've progressed and clear interval.
                     clearInterval(progressed);
                     console.log('sending time reached');
                     socket.emit('timeReached', videoData);

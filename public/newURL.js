@@ -110,6 +110,7 @@
                     //IF play event is fired, paused was last, and bufferInProgress hasn't been triggered (SHOULD ONLY TRIGGER IF USER HITS PLAY OR PAUSE IN WINDOW)
                     if (event.data == 1 && lastState == 2 && buffering == false){
 
+                        //send checkBuffer signal with current time
                         let client = {id:socket.id, time:YTPlayer.getCurrentTime()};
                         socket.emit('checkBuffer', client);
 
@@ -117,11 +118,14 @@
 
                     //If pause event was fired, and bufferInProgress hasn't been triggered. (SHOULD ONLY TRIGGER IF USER HITS PLAY OR PAUSE IN WINDOW)
                     if (event.data == 2 && lastState == 1 && buffering == false){
+
+                        //Pause everyone
                         socket.emit('Pause');
                         console.log('paused from event change')
                         
                     }
 
+                    //the next time it is triggered again, lastState will be the event state that just triggered prior to this.
                     lastState = event.data;
 
                 }       
@@ -144,23 +148,37 @@
                 let seekBarListener = () => {
                     
                     let videotime
+
+                    //video length is the duration of the video in player.
                     videoLength = player.duration;
+
+                    //set html seek bars max value to the value of the video length
                     $(".seekBar").attr("max", videoLength);
 
                     function updateTime(){
 
+                        //start interval every half second  
+                        
+                        //let old time equal current time
                         let oldTime = videotime;
 
+                            //set videotime to the current time
                             if(player && player.currentTime) {
                                 videotime = player.currentTime;
                             }
+
+                            //if video time is not the same as the time last checked
                             if(videotime !== oldTime) {
                                 console.log(videotime);
                                 console.log(videoLength);
+
+                                //change the seek bar to new video time
                                 $(".seekBar").val(videotime);       
                             }
 
+                            //if player type changes
                             if (globalPlayerType !== "directLink"){
+                                //clear interval
                                 clearInterval(timeupdater);
                             }
                         }
@@ -169,6 +187,7 @@
                     }
 
                     player.onloadedmetadata = function(){
+                        //start the seekBar function when the metadata from the video is fully loaded
                         seekBarListener();
                     };
         }                  
