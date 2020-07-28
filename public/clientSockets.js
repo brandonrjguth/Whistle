@@ -131,9 +131,8 @@
 
         socket.on('newTime', (client) => {
             console.log('received new time socked');
-            videoPlayer.seek(client.time);
-            
-
+            videoPlayer.seek(client.time); 
+            oldTime = client.time;
     });
 
 
@@ -161,7 +160,7 @@
             let checkBuffer = setInterval(isReady, 500);
 
             function isReady(){
-                console.log("Playing youtube");
+                console.log("Playing");
                 //Once playing status detected, which means buffer pause video.
                 if (videoPlayer.state() === 1){
 

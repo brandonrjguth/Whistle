@@ -27,7 +27,7 @@ let seekBarTracker = () => {
             videotime = videoPlayer.time();
         }
         //if video time is not the same as the time last checked
-        if(videotime !== oldTime) {
+        if(videotime !== oldTime && seekbarHeld === false) {
             console.log(videotime);
             console.log(videoLength);
             //change the seek bar to new video time
@@ -144,24 +144,40 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
     //--------------------- SEEK BAR -------------------------//
 
-    let seekFunction = () => {};
+    $(".seekBar").mouseup(function(){
+
+        console.log('mouse up');
+       
+        let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoPlayer.state()};
+        
+
+        socket.emit('newTime', newClient);
+    
+        if (newClient.state === 1){
+            setTimeout(function(){socket.emit('checkBuffer', newClient)}, 1000);
+        } else if (newClient.state === 2){
+            buffering = false;
+        }
+        seekbarHeld = false;
+              
+    })
         
 
     $(".seekBar").mousedown(function(){
+        buffering = true;
+        seekbarHeld = true;
 
-        $(".seekBar").mouseup(function(){
-                  
-        })
+
     });
 
-
+/*
     $(".seekBar").on( "touchstart",  function() {
        
         (".seekBar").on( "touchend",  function() {
            
         });
     });
-  
+  */
 
 
     //-----------------------     SEEK DIRECTLY TO TIMESTAMP    ---------------------------//
@@ -188,8 +204,11 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
         let newClient = {id:socket.id, time:newTime, state:videoPlayer.state()};
         socket.emit('newTime', newClient);
-        //socket.emit('checkBuffer', newClient);
-        setTimeout(function(){socket.emit('checkBuffer', newClient)}, 2000);
+        
+        if (newClient.state === 1){
+            socket.emit('checkBuffer', newClient);
+        }
+        
     });
 
 
