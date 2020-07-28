@@ -47,15 +47,15 @@
             let videoData = {type:globalPlayerType, url:regexedURL, time:videoPlayer.time(), state:videoPlayer.state(), id:newUserID};
 
             //send newUserSync message with this data.
-            socket.emit('newUserSync', videoData);
+            setTimeout(function(){socket.emit('newUserSync', videoData)}, 1000)
 
             //start interval to check when we've progressed 10 seconds
             if (videoData.state == 1){
                 let progressed = setInterval(checkProgressed, 500)
                 function checkProgressed(){
                     console.log('our time :' + videoPlayer.time());
-                    console.log('time to get to: ' + (videoData.time +15))
-                    if (videoPlayer.time() >= (videoData.time +15)){
+                    console.log('time to get to: ' + (videoData.time +16))
+                    if (videoPlayer.time() >= (videoData.time +16)){
 
                         //let server know we've progressed and clear interval.
                         clearInterval(progressed);

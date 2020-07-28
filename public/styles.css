@@ -108,7 +108,12 @@ input::placeholder{
     cursor: pointer;
 }
 
-
+.volume{
+    padding-left: 0;
+}
+.mute{
+    color:white;
+}
 
 /*----------------------- Header ---------------------------*/
 
@@ -561,6 +566,7 @@ html, body{
 button {
     height:4rem;
     font-size:1rem;
+    outline: none;
 }
 
 input {

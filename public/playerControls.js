@@ -12,6 +12,7 @@ let timeReached;
 let noSkips = true;
 let skips = 0;
 let videoState;
+let lastVolume;
 
 
 let seekBarTracker = () => {          
@@ -71,7 +72,9 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
             },
             seek: function(time){return YTPlayer.seekTo(time)},
             duration:function(){return YTPlayer.getDuration()},
-            type:globalPlayerType
+            type:globalPlayerType,
+            volume:function(volume){return YTPlayer.setVolume(volume)},
+            getVolume:function(){return YTPlayer.getVolume()}
 
         }
     }
@@ -97,7 +100,9 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
             },
             seek: function(time){return player.currentTime = time},
             duration:function(){return player.duration},
-            type:globalPlayerType
+            type:globalPlayerType,
+            volume:function(volume){return player.volume = (volume/100)},
+            getVolume:function(){return player.volume*100}
         }
     }
 })
@@ -340,6 +345,53 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
 
 
+    //--------------------- Volume Slider ---------------------/
+
+    $(".volume").mousedown(function(){})
+
+    $(".volume").mouseup(function(){
+        console.log($(".volume").val())
+        videoPlayer.volume($(".volume").val());
+        $('.mute').css('color', 'white');
+        lastVolume = $(".volume").val();
+    })
+
+    $('.mute').click(() =>{
+        console.log(videoPlayer.getVolume())
+        if (videoPlayer.getVolume() !== 0){
+            lastVolume = $(".volume").val();
+            console.log('here')
+            videoPlayer.volume(0);
+            $('.mute').css('color', 'red');
+        } else if (videoPlayer.getVolume() === 0) {
+            videoPlayer.volume(lastVolume);
+            $('.mute').css('color', 'white');
+
+        } else {
+            
+        }
+
+
+       
+    });
+
+    $('.volUp').click(() =>{
+        let volume = $(".volume").val();
+        let newVolume = (parseInt(volume) + 10);
+        $(".volume").val(newVolume); 
+        console.log(volume);
+        console.log(newVolume);
+        videoPlayer.volume(newVolume);
+    });
+
+    $('.volDown').click(() =>{
+        let volume = $(".volume").val();
+        let newVolume = (parseInt(volume) - 10);
+        $(".volume").val(newVolume); 
+        console.log(volume);
+        console.log(newVolume);
+        videoPlayer.volume(newVolume);
+    });
 
 
 //-------------------------------------------------------------------HIDING CONTROLS--------------------------------------------------//
