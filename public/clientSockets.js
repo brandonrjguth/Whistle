@@ -131,6 +131,7 @@
 
         socket.on('newTime', (client) => {
             console.log('received new time socked');
+            console.log(client.time);
             videoPlayer.seek(client.time); 
             oldTime = client.time;
     });

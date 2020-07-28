@@ -1,5 +1,6 @@
 
 
+
 let player = $("#video").get(0)
 let seekbarHeld = false;
 let YTPlayer;
@@ -8,6 +9,8 @@ let globalPlayerType = 'directLink';
 let playing = false;
 let regexedURL;
 let timeReached;
+let noSkips = true;
+let skips = 0;
 
 
 
@@ -129,28 +132,84 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
     //----------- SKIP AHEAD -----------//
 
-    let skip = [];
+   
     $("#skipAhead").click(function(){
+         console.log(videoPlayer.time())
+        noSkips = false;
+        skips++;
+
+        //set interval for 1 second
+
+        if (skips === 1){
+            let skipsFinished = setInterval(checkSkipsFinished, 1000)
+            function checkSkipsFinished(){
+                if (noSkips === true){
+                    
+
+                    let newClient = {id:socket.id, time:videoPlayer.time() + (skips*10), state:videoPlayer.state()};
+                    skips = 0;
+
+                    socket.emit('newTime', newClient);
+                
+                    if (newClient.state === 1){
+                        socket.emit('checkBuffer', newClient);
+                    } else if (newClient.state === 2){
+                        buffering = false;
+                    }
+
+                    clearInterval(skipsFinished);
+                }
+                noSkips = true;
+            }
+
+        }
+        
 
     });
 
 
     //----------- SKIP BACK -----------//
     $("#skipBack").click(function(){
+        console.log(videoPlayer.time())
+       noSkips = false;
+       skips++;
 
-    
-    });
+       //set interval for 1 second
 
+       if (skips === 1){
+           let skipsFinished = setInterval(checkSkipsFinished, 1000)
+           function checkSkipsFinished(){
+               if (noSkips === true){
+                   
+
+                   let newClient = {id:socket.id, time:videoPlayer.time() - (skips*10), state:videoPlayer.state()};
+                   skips = 0;
+
+                   socket.emit('newTime', newClient);
+               
+                   if (newClient.state === 1){
+                       socket.emit('checkBuffer', newClient);
+                   } else if (newClient.state === 2){
+                       buffering = false;
+                   }
+
+                   clearInterval(skipsFinished);
+               }
+               noSkips = true;
+           }
+
+       }
+       
+
+   });
 
     //--------------------- SEEK BAR -------------------------//
 
     $(".seekBar").mouseup(function(){
 
         console.log('mouse up');
-       
         let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoPlayer.state()};
         
-
         socket.emit('newTime', newClient);
     
         if (newClient.state === 1){
@@ -159,15 +218,13 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
             buffering = false;
         }
         seekbarHeld = false;
-              
+           
     })
         
 
     $(".seekBar").mousedown(function(){
         buffering = true;
         seekbarHeld = true;
-
-
     });
 
 /*
