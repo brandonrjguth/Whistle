@@ -292,6 +292,15 @@ io.on('connection', (socket) => {
         io.emit('newTime', client);
     });
 
+    socket.on('syncTimeNewUser', (clientID) => {
+        io.to(oldestUser).emit('syncTimeNewUser', clientID);
+    })
+
+    socket.on('syncTimeNewUserFinal', (client) => {
+        console.log('last sync time sent');
+        io.to(client.id).emit('syncTimeNewUserFinal', client.time);
+    });
+
     //RECEIVED CHAT MESSAGE
     socket.on('chat message', (msg) => {
         console.log('message: ' + msg);

@@ -129,21 +129,29 @@
 
     //--------------------- NEW TIMe ---------------------//
 
-        socket.on('newTime', (client) => {
-            console.log('received new time socked');
-            console.log(client.time);
-            videoPlayer.seek(client.time); 
-            oldTime = client.time;
+    socket.on('newTime', (client) => {
+        console.log('received new time socked');
+        console.log(client.time);
+        videoPlayer.seek(client.time); 
+        oldTime = client.time;
+    });
+
+    socket.on('syncTimeNewUser', (clientID) => {
+        let newClient = {id:clientID, time:videoPlayer.time()};
+        socket.emit('syncTimeNewUserFinal', newClient);
     });
 
 
-
+    socket.on('syncTimeNewUserFinal', (time) => {
+        console.log('making videos sync final = ' +  time);
+        videoPlayer.seek(time + .112);
+    });
     //--------------------- PAUSE ---------------------//
 
     socket.on('Pause', () => {
 
-            videoPlayer.pause()
-            buffering = false;
+        videoPlayer.pause()
+        buffering = false;
 
     });
 
@@ -246,6 +254,7 @@
 
                                         //play video
                                         videoPlayer.play();
+                                        socket.emit('syncTimeNewUser', socket.id);
 
                                         //start interval to detect playing
                                         let checkBuffer = setInterval(isReady, 500);
