@@ -13,6 +13,7 @@
 
         console.log("Received URL")
         console.log(newURL);
+
         regexedURL = newURL.url;
 
         if (newURL.type == 'youtube'){
@@ -63,42 +64,7 @@
 
 
                 function onPlayerReady() {
-
-        
-                //----------------------------------------START UP SEEK BAR ----------------------------------------------//
-
-
-                    let videotime;
-                    //find length of video from YTPlayer and set the seekbars max to that time.
-                    videoLength = YTPlayer.getDuration();
-                    $(".seekBar").attr("max", videoLength);
-
-                    //Run an interval ever 1/2 second
-                    function updateTime() {
-
-                    
-                        let oldTime = videotime;
-
-                        //set variable for video's current time to YTPlayers current time.
-                        if(YTPlayer && YTPlayer.getCurrentTime()) {
-                            videotime = YTPlayer.getCurrentTime();
-                        }
-
-                        //if time has changed since last interval, change the seekbar to the new time;
-                        if(videotime !== oldTime && seekbarHeld !== true) {
-                            //
-                            $(".seekBar").val(videotime);       
-                        }
-
-
-                        //CLEAR INTERVAL IF PLAYERTYPE CHANGES
-                        if (globalPlayerType !== "youtube"){
-                            clearInterval(timeupdater);
-                        }
-                    }
-                    timeupdater = setInterval(updateTime, 1000);
-
-                //----------------------------------------------------------------------------------
+                    seekBarTracker();
                 }
 
 
@@ -148,8 +114,6 @@
 
         {
 
-
-
               //IF CURRENT PLAYER IS YOUTUBE
               if (globalPlayerType === "youtube"){
                 
@@ -161,74 +125,21 @@
                 $("#video").attr("src", newURL.url);
                 player = $("#video").get(0);
 
-                //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
-                globalPlayerType = "directLink";
-                socket.emit('globalPlayerType', globalPlayerType);
-
-       
-            
-
-
             } else {
-
-                console.log('changing url');
-                console.log(newURL);
 
                 //CHANGE URL
                 $("#video").attr("src", newURL.url);
-                globalPlayerType = "directLink";
-                socket.emit('globalPlayerType', globalPlayerType);
-                
 
             }
 
+            globalPlayerType = "directLink";
+            socket.emit('globalPlayerType', globalPlayerType);
 
                 //STARTUP SEEKBAR LISTENER
-                
-                let seekBarListener = () => {
-                    
-                    let videotime
-
-                    //video length is the duration of the video in player.
-                    videoLength = player.duration;
-
-                    //set html seek bars max value to the value of the video length
-                    $(".seekBar").attr("max", videoLength);
-
-                    function updateTime(){
-
-                        //start interval every half second  
-                        
-                        //let old time equal current time
-                        let oldTime = videotime;
-
-                            //set videotime to the current time
-                            if(player && player.currentTime) {
-                                videotime = player.currentTime;
-                            }
-
-                            //if video time is not the same as the time last checked
-                            if(videotime !== oldTime) {
-                                console.log(videotime);
-                                console.log(videoLength);
-
-                                //change the seek bar to new video time
-                                $(".seekBar").val(videotime);       
-                            }
-
-                            //if player type changes
-                            if (globalPlayerType !== "directLink"){
-                                //clear interval
-                                clearInterval(timeupdater);
-                            }
-                        }
-                        
-                        timeupdater = setInterval(updateTime, 500);
-                    }
 
                     player.onloadedmetadata = function(){
                         //start the seekBar function when the metadata from the video is fully loaded
-                        seekBarListener();
+                        seekBarTracker();
                     };
         }                  
 });

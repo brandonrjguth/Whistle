@@ -1,4 +1,5 @@
 
+
 let player = $("#video").get(0)
 let seekbarHeld = false;
 let YTPlayer;
@@ -7,6 +8,40 @@ let globalPlayerType = 'directLink';
 let playing = false;
 let regexedURL;
 let timeReached;
+
+
+
+let seekBarTracker = () => {          
+             
+    let videotime
+    //video length is the duration of the video in player.
+    videoLength = videoPlayer.duration();
+    //set html seek bars max value to the value of the video length
+    $(".seekBar").attr("max", videoLength);
+    function updateTime(){
+        //start interval every half second  
+        //let old time equal current time
+        let oldTime = videotime;
+        //set videotime to the current time
+        if(videoPlayer && videoPlayer.time()) {
+            videotime = videoPlayer.time();
+        }
+        //if video time is not the same as the time last checked
+        if(videotime !== oldTime) {
+            console.log(videotime);
+            console.log(videoLength);
+            //change the seek bar to new video time
+            $(".seekBar").val(videotime);       
+        }
+        //if player type changes
+        if (globalPlayerType !== videoPlayer.type){
+            //clear interval
+            clearInterval(timeupdater);
+        }
+    }
+    timeupdater = setInterval(updateTime, 500);
+}
+
 
 
 
@@ -31,7 +66,9 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
                     return false;
                 }
             },
-            seek: function(time){return YTPlayer.seekTo(time)}
+            seek: function(time){return YTPlayer.seekTo(time)},
+            duration:function(){return YTPlayer.getDuration()},
+            type:globalPlayerType
 
         }
     }
@@ -55,7 +92,9 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
                     return false;
                 }
             },
-            seek: function(time){return player.currentTime = time}
+            seek: function(time){return player.currentTime = time},
+            duration:function(){return player.duration},
+            type:globalPlayerType
         }
     }
 })
