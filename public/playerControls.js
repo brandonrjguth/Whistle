@@ -185,6 +185,11 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
         $("#second").val('');
         $("#minute").val('');
         $("#hour").val('');
+
+        let newClient = {id:socket.id, time:newTime, state:videoPlayer.state()};
+        socket.emit('newTime', newClient);
+        //socket.emit('checkBuffer', newClient);
+        setTimeout(function(){socket.emit('checkBuffer', newClient)}, 2000);
     });
 
 

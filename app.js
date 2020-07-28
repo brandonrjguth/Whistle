@@ -243,13 +243,18 @@ io.on('connection', (socket) => {
     //RECEIVE IM BUFFERED MESSAGE
     socket.on('isBuffered', (userTime) =>{
 
+        io.clients((error, clients) => {
+            numberOfClients = clients.length;
+        });
+            
+
         //if socket id isn't undefined. (Helps protect against refresj spam)
         if (socket.id !== undefined){
             //Push users ID to usersBuffered array
             usersBuffered.push(socket.id);
         } 
          
-    
+        console.log('im buffered : '+ socket.id)
         console.log('this many users starting buffer ' + usersBuffered.length )
         console.log('this many users on socket ' + users.length )
 
@@ -283,7 +288,9 @@ io.on('connection', (socket) => {
     });
 
 
-
+    socket.on('newTime', (client) =>{
+        io.emit('newTime', client);
+    });
 
     //RECEIVED CHAT MESSAGE
     socket.on('chat message', (msg) => {

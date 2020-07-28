@@ -6,6 +6,7 @@
 
 
 
+
     //STARTUP YOUTUBE API
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
@@ -98,6 +99,7 @@
 
                         //Once playing status detected, which means buffer pause video.
                         if (videoPlayer.state() === 1){
+                            console.log('FUCKIN HERE');
                             videoPlayer.pause();
                             //Clear interval that checks if player is buffered
                             clearInterval(checkBuffer);
@@ -123,6 +125,16 @@
 
     });
 
+
+
+    //--------------------- NEW TIMe ---------------------//
+
+        socket.on('newTime', (client) => {
+            console.log('received new time socked');
+            videoPlayer.seek(client.time);
+            
+
+    });
 
 
 
@@ -190,13 +202,14 @@
                         //set interval to check when buffered
                         let checkBuffer = setInterval(isReady, 500);
                         function isReady(){
+                           
                             
                             //Once playing status detected, which means buffered 
                             if (videoPlayer.state() === 1){
                                 clearInterval(checkBuffer);
-
+                                
                                     //pause video
-                                    videoplayer.pause()
+                                    videoPlayer.pause()
                                     //set buffering to false
                                     buffering = false;
                                     
