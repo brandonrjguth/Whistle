@@ -1,4 +1,6 @@
-    //---------------------  NEW URL ---------------------//
+
+
+//---------------------  NEW URL ---------------------//
 
 
 
@@ -26,8 +28,9 @@
                 //create a new div for the new iframe to be inserted into.
                 $("#embeddedArea").append("<video id=\"YTPlayer\" style=\"display:block\"></video>");
 
+                
                 globalPlayerType = 'youtube';
-
+                socket.emit('globalPlayerType', globalPlayerType);
 
                 //----------------------------------- DO THIS WHEN THE IFRAME IS READY ---------------------------------------------//
               
@@ -160,6 +163,7 @@
 
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
+                socket.emit('globalPlayerType', globalPlayerType);
 
        
             
@@ -173,39 +177,10 @@
                 //CHANGE URL
                 $("#video").attr("src", newURL.url);
                 globalPlayerType = "directLink";
+                socket.emit('globalPlayerType', globalPlayerType);
                 
 
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                 //STARTUP SEEKBAR LISTENER

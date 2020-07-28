@@ -140,6 +140,12 @@ io.on('connection', (socket) => {
     });
 
 
+    socket.on('globalPlayerType', (globalPlayerType) =>{
+        console.log('got to global player');
+        console.log(globalPlayerType);
+        io.emit('globalPlayerType', globalPlayerType);
+    });
+
 
     //RECEIVED A NEW URL
     socket.on('newURL', (newURL) =>{

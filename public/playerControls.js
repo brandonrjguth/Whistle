@@ -1,3 +1,4 @@
+
 let player = $("#video").get(0)
 let seekbarHeld = false;
 let YTPlayer;
@@ -10,36 +11,80 @@ let timeReached;
 
 
 
+socket.on('globalPlayerType', (globalPlayerType) =>{
 
+    
+    console.log(globalPlayerType);
+    if (globalPlayerType === 'youtube'){
+
+        videoPlayer = {
+            play: function(){return YTPlayer.playVideo()},
+            pause: function(){return YTPlayer.pauseVideo()},
+            time: function(){return YTPlayer.getCurrentTime()},
+            state: function(){
+                return YTPlayer.getPlayerState();
+            },
+            bufferedToStart: function(){
+                if (YTPlayer.getPlayerState() === 5){
+                    return true
+                } else {
+                    return false;
+                }
+            },
+            seek: function(time){return YTPlayer.seekTo(time)}
+
+        }
+    }
+
+    if (globalPlayerType === 'directLink'){
+        videoPlayer = {
+            play: function(){return player.play()},
+            pause: function(){return player.pause()},
+            time: function(){return player.currentTime},
+            state: function(){
+                if (player.paused === true){
+                    return 2;
+                } else {
+                    return 1;
+                }
+            },
+            bufferedToStart: function(){
+                if(player.readyState === 4){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            seek: function(time){return player.currentTime = time}
+        }
+    }
+})
+
+
+    
+    
+    
+    
+    
     //--------------------- PLAY AND PAUSE ---------------------//
     //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
 
 
     $("#playPause").click(function(){
-        if (globalPlayerType === 'youtube'){
+
             buffering = true;
-            let client = {id:socket.id, time:YTPlayer.getCurrentTime()};
+            let client = {id:socket.id, time:videoPlayer.time()};
 
-            if (YTPlayer.getPlayerState() === 1){
+            console.log(videoPlayer.state());
+
+            if (videoPlayer.state() === 1){
                 socket.emit("Pause");
-            } else if (YTPlayer.getPlayerState() === 2){
+            } else if (videoPlayer.state() === 2){
                 socket.emit('checkBuffer', client);
             }
-        }
-
-        else if (globalPlayerType === 'directLink'){
-            
-            let client = {id:socket.id, time:player.currentTime};
-
-            if (player.paused === true){
-                socket.emit('checkBuffer', client);
-            } else {
-                socket.emit('Pause');
-            }
-        }
-      
     });
   
+
 
 
 
@@ -112,38 +157,29 @@ let timeReached;
     $("#urlSubmit").click(function(){
         
         let submittedURL = $(".urlInputText").val();
+
         //send newURL 
         socket.emit('newURL', {url:submittedURL});
+
         //remove text field from video input
         $(".urlInputText").val('');
         
         let newClient = {id:socket.id, time:0};
 
-        if (globalPlayerType === 'youtube'){
-             //set interval to detect when video is ready and loaded
             let isLoaded = setInterval(checkLoaded, 500)
             function checkLoaded(){
-                if (YTPlayer.getPlayerState() === 5){
+                console.log('here2');
+                console.log(videoPlayer.bufferedToStart());
+                if (videoPlayer.bufferedToStart() === true){
                     clearInterval(isLoaded);
 
                     //when it's loaded, send the checkBuffer signal with start time of 0
                     socket.emit('checkBuffer', newClient);
                 }
             }
-        } else if (globalPlayerType === 'directLink'){
-            socket.emit('checkBuffer', newClient);
-        }
-       
-        
+   
+  
     });
-
-
-
-
- 
-
-
-
 
 
 
