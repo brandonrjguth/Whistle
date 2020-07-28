@@ -28,7 +28,7 @@
     };
 
 
-    //--------------TIME REACHED FOR SYNCED NEW USER-----------------//
+    //-------------- EVERYONE HAS CAUGHT UP TO OUR TIME TO PLAY FOR NEW USER -----------------//
 
     socket.on('timeReached', () =>{
         //make timeReached true (THIS ONLY GETS SENT TO USER WHO'M IS WAITING ON THE TIMER)
@@ -37,7 +37,7 @@
 
 
 
-    //--------------------------- NEW USER SYNC ---------------------------//
+    //--------------------------- GET INFO FOR A NEW USER IF YOU'RE THE HOST ---------------------------//
  
 
     socket.on("newUserSync", (newUserID) => {
@@ -54,8 +54,8 @@
                 let progressed = setInterval(checkProgressed, 500)
                 function checkProgressed(){
                     console.log('our time :' + videoPlayer.time());
-                    console.log('time to get to: ' + (videoData.time + 10))
-                    if (videoPlayer.time() >= (videoData.time + 10)){
+                    console.log('time to get to: ' + (videoData.time +15))
+                    if (videoPlayer.time() >= (videoData.time +15)){
 
                         //let server know we've progressed and clear interval.
                         clearInterval(progressed);
@@ -127,8 +127,7 @@
 
 
 
-    //--------------------- NEW TIMe ---------------------//
-
+    //--------------------- NEW TIME FOR ALL---------------------//
     socket.on('newTime', (client) => {
         console.log('received new time socked');
         console.log(client.time);
@@ -136,16 +135,19 @@
         oldTime = client.time;
     });
 
+    //--------------------- FIND TIME TO GIVE TO NEW USER ---------------------//
     socket.on('syncTimeNewUser', (clientID) => {
         let newClient = {id:clientID, time:videoPlayer.time()};
         socket.emit('syncTimeNewUserFinal', newClient);
     });
 
-
+    //--------------------- RECIEVE TIME AS NEW USER TO ADJUST FINAL SYNC ---------------------//
     socket.on('syncTimeNewUserFinal', (time) => {
         console.log('making videos sync final = ' +  time);
         videoPlayer.seek(time + .112);
     });
+
+
     //--------------------- PAUSE ---------------------//
 
     socket.on('Pause', () => {
@@ -154,8 +156,6 @@
         buffering = false;
 
     });
-
-
 
 
      //-------------------- PLAY -----------------------//
@@ -186,7 +186,8 @@
 
 
 
-     //-------------------- PLAY BRAND NEW USER FIRST TIME -----------------------//
+     //-------------------- PLAY BRAND NEW USER FIRST TIME-----------------------//
+
     socket.on('playNewUser', (videoData) => {
 
        
@@ -227,7 +228,7 @@
                     //if others are playing
                     } else {
                         //seek ahead
-                        videoPlayer.seek(videoData.time + 10);
+                        videoPlayer.seek(videoData.time +15);
                         clearInterval(windowReady);
 
                         //start interval to check for buffer

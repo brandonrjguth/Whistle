@@ -22,7 +22,7 @@
 
 
         //IF YOUTUBE -------------------------------------------------------------------------------------------------------------------------------------------------------
-
+                $('#video').attr('src', '');
                 $('#video').css('display', 'none');
                 //remove the youtube iframe
                 $("#YTPlayer").remove();
@@ -119,7 +119,6 @@
                 
                 //HIDE YOUTUBE PLAYER AND SHOW MP4 PLAYER, CHANGE URL, ADD DIV TO BE CHANGED BACK TO YOUTUBE IFRAME IF CALLED AGAIN
                 $("#YTPlayer").remove();
-                $("#embeddedArea").append("<video src=\"\" id=\"video\"></video>");
                 $("#video").after("<video id=\"YTPlayer\" style=\"display:none\"></video>");
                 $("#video").css("display", "block");
                 $("#video").attr("src", newURL.url);

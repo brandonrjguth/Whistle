@@ -11,7 +11,7 @@ let regexedURL;
 let timeReached;
 let noSkips = true;
 let skips = 0;
-
+let videoState;
 
 
 let seekBarTracker = () => {          
@@ -48,7 +48,7 @@ let seekBarTracker = () => {
 
 
 
-
+//Create functions for default object videoPlayer
 socket.on('globalPlayerType', (globalPlayerType) =>{
 
     
@@ -117,11 +117,13 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
             buffering = true;
             let client = {id:socket.id, time:videoPlayer.time()};
 
-            console.log(videoPlayer.state());
-
+            //if playing
             if (videoPlayer.state() === 1){
+                //pause
                 socket.emit("Pause");
+            //if paused
             } else if (videoPlayer.state() === 2){
+                //check buffer
                 socket.emit('checkBuffer', client);
             }
     });
@@ -134,31 +136,40 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
    
     $("#skipAhead").click(function(){
-         console.log(videoPlayer.time())
+        
+        //when clicked make variable noSkips false.
         noSkips = false;
+        //add one to our skip counter
         skips++;
 
-        //set interval for 1 second
-
+        //set interval for 1 second after first skip click
         if (skips === 1){
             let skipsFinished = setInterval(checkSkipsFinished, 1000)
             function checkSkipsFinished(){
+
+                //if noSkips is true (hasn't been made false in the last second by a click)
                 if (noSkips === true){
                     
-
+                    //create new client
                     let newClient = {id:socket.id, time:videoPlayer.time() + (skips*10), state:videoPlayer.state()};
+                    //reset skips to 0
                     skips = 0;
-
+                    //send new time containing our time + skips*10
                     socket.emit('newTime', newClient);
                 
+                    //if we were playing
                     if (newClient.state === 1){
+                        //check buffer
                         socket.emit('checkBuffer', newClient);
+                    //if we were paused
                     } else if (newClient.state === 2){
+                        //make buffering false
                         buffering = false;
                     }
 
                     clearInterval(skipsFinished);
                 }
+                //make noskips true again
                 noSkips = true;
             }
 
@@ -169,12 +180,15 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
 
     //----------- SKIP BACK -----------//
+
+
+    //Same stuff and skipAhead
+    //-----------------------
+
     $("#skipBack").click(function(){
         console.log(videoPlayer.time())
        noSkips = false;
        skips++;
-
-       //set interval for 1 second
 
        if (skips === 1){
            let skipsFinished = setInterval(checkSkipsFinished, 1000)
@@ -207,22 +221,37 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
     $(".seekBar").mouseup(function(){
 
-        console.log('mouse up');
-        let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoPlayer.state()};
+        //make newClient with socket.id, the clicked or dragged to seekbar time, and the video players state upon clicking the seekbar
+        let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoState};
         
+        //send new time with info
         socket.emit('newTime', newClient);
     
+        //if our state when clicked was playing
         if (newClient.state === 1){
+
+            //after a second, buffer and sync time again (Might be able to remove timeout)
             setTimeout(function(){socket.emit('checkBuffer', newClient)}, 1000);
+
+        //if our state when clicked was paused
         } else if (newClient.state === 2){
+
+            //make buffering false
             buffering = false;
         }
+
+        //make seekbarHeld false
         seekbarHeld = false;
            
     })
         
 
     $(".seekBar").mousedown(function(){
+
+        //set videoState variable to current video state
+        videoState = videoPlayer.state();
+        
+        //set seekbar held and buffering to true to prevent seekbar from changing position, or youtubes buffering process triggering events
         buffering = true;
         seekbarHeld = true;
     });
@@ -259,10 +288,15 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
         $("#minute").val('');
         $("#hour").val('');
 
+        //make new client with socket.id, new time, and the player state
         let newClient = {id:socket.id, time:newTime, state:videoPlayer.state()};
+
+        //send new time signal
         socket.emit('newTime', newClient);
         
+        //if we were playing
         if (newClient.state === 1){
+            //send check buffer
             socket.emit('checkBuffer', newClient);
         }
         
@@ -284,16 +318,19 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
         //remove text field from video input
         $(".urlInputText").val('');
         
+        //make new client with socket.id and time equal to 0
         let newClient = {id:socket.id, time:0};
 
+            //start interval that waits for video buffered and reayd to start
             let isLoaded = setInterval(checkLoaded, 500)
             function checkLoaded(){
-                console.log('here2');
-                console.log(videoPlayer.bufferedToStart());
+                
+                //if video player is buffered and ready to start
                 if (videoPlayer.bufferedToStart() === true){
+                    //clear interval
                     clearInterval(isLoaded);
 
-                    //when it's loaded, send the checkBuffer signal with start time of 0
+                    //send check buffer
                     socket.emit('checkBuffer', newClient);
                 }
             }

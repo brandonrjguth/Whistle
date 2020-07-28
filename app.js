@@ -139,10 +139,10 @@ io.on('connection', (socket) => {
         
     });
 
-
+    //RECIEVED CHANGE TO PLAYER TYPE
     socket.on('globalPlayerType', (globalPlayerType) =>{
-        console.log('got to global player');
-        console.log(globalPlayerType);
+        
+        //SEND CHANGE TO PLAYER TYPE
         io.emit('globalPlayerType', globalPlayerType);
     });
 
@@ -229,7 +229,7 @@ io.on('connection', (socket) => {
 
 
 
-    //----------------------- CHECK ALL USERS BUFFER ---------------------//
+    //----------------------- CHECK ALL USERS BUFFER AND PLAY ---------------------//
 
 
 
@@ -287,15 +287,17 @@ io.on('connection', (socket) => {
         io.emit('Pause');
     });
 
-
+    //SEND NEW TIME TO ALL
     socket.on('newTime', (client) =>{
         io.emit('newTime', client);
     });
 
+    //SEND SIGNAL TO GET INFO FOR OUR NEW USER
     socket.on('syncTimeNewUser', (clientID) => {
         io.to(oldestUser).emit('syncTimeNewUser', clientID);
     })
 
+    //SEND FOUND INFO TO OUR NEW USER TO SYNC TO
     socket.on('syncTimeNewUserFinal', (client) => {
         console.log('last sync time sent');
         io.to(client.id).emit('syncTimeNewUserFinal', client.time);
