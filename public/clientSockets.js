@@ -75,6 +75,7 @@
     socket.on("checkBuffer", (newClient) => {
         $('.over').css('display', 'flex');
         $('#embeddedArea').css('display','none');
+        videoPlayer.volume(0);
 
         //set buffering to true
         buffering = true;
@@ -134,6 +135,10 @@
     socket.on('newTime', (client) => {
         $('.over').css('display', 'flex');
         $('#embeddedArea').css('display','none');
+
+        lastVolume = videoPlayer.getVolume();
+        videoPlayer.volume(0)
+
         console.log('received new time socked');
         console.log(client.time);
         videoPlayer.seek(client.time); 
@@ -231,6 +236,7 @@
                     buffering = false; 
                     $('.over').css('display', 'none');
                     $('#embeddedArea').css('display','block');
+                    videoPlayer.volume(lastVolume);
                     clearInterval(checkBuffer);
                 }
             };
@@ -275,6 +281,7 @@
                                     videoPlayer.pause()
                                     //set buffering to false
                                     buffering = false;
+                                    videoPlayer.volume(lastVolume);
                                     $('.over').css('display', 'none');
                                     $('#embeddedArea').css('display','block');
                                     
@@ -326,6 +333,7 @@
                                                 
                                                 $('.over').css('display', 'none');
                                                 $('#embeddedArea').css('display','block');
+                                                videoPlayer.volume(lastVolume);
                                                 clearInterval(checkBuffer);
                                             }
                                         };

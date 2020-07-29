@@ -66,6 +66,7 @@
 
 
                 function onPlayerReady() {
+                    videoPlayer.volume(0)
                     seekBarTracker();
                 }
 
@@ -139,6 +140,7 @@
                 //STARTUP SEEKBAR LISTENER
 
                     player.onloadedmetadata = function(){
+                        videoPlayer.volume(0)
                         //start the seekBar function when the metadata from the video is fully loaded
                         seekBarTracker();
                     };

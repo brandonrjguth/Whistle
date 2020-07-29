@@ -12,7 +12,7 @@ let timeReached;
 let noSkips = true;
 let skips = 0;
 let videoState;
-let lastVolume;
+let lastVolume = 100;
 
 
 let seekBarTracker = () => {          
@@ -322,6 +322,10 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
     $("#urlSubmit").click(function(){
         
         let submittedURL = $(".urlInputText").val();
+
+        if (globalPlayerType === 'youtube'){
+            lastVolume = videoPlayer.getVolume();
+        }
 
         //send newURL 
         socket.emit('newURL', {url:submittedURL});
