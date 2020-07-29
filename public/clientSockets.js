@@ -233,7 +233,8 @@
                     //Seek to the oldest time once the video is playing and buffered. This keeps everyone 
                     //perfectly synced without losing time.
                     videoPlayer.seek(time);
-                    buffering = false; 
+                    buffering = false;
+                    seekbarHeld = false; 
                     $('.over').css('display', 'none');
                     $('#embeddedArea').css('display','block');
                     videoPlayer.volume(lastVolume);
@@ -281,6 +282,7 @@
                                     videoPlayer.pause()
                                     //set buffering to false
                                     buffering = false;
+                                    seekbarHeld = false;
                                     videoPlayer.volume(lastVolume);
                                     $('.over').css('display', 'none');
                                     $('#embeddedArea').css('display','block');
@@ -330,7 +332,7 @@
 
                                                 //TODO: Consider writing logic here to find oldest time and go to it.
                                                 buffering = false;
-                                                
+                                                seekbarHeld = false;
                                                 $('.over').css('display', 'none');
                                                 $('#embeddedArea').css('display','block');
                                                 videoPlayer.volume(lastVolume);

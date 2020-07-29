@@ -13,13 +13,12 @@ let noSkips = true;
 let skips = 0;
 let videoState;
 let lastVolume = 100;
+let playerLoaded;
+let seekBarTrackerLoaded = false;
 
 
-let seekBarTracker = () => {          
-             
-    let videotime
-    //video length is the duration of the video in player.
-    videoLength = videoPlayer.duration();
+let seekBarTracker = () => { 
+    let videotime         
     //set html seek bars max value to the value of the video length
     $(".seekBar").attr("max", videoLength);
     function updateTime(){

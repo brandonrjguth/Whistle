@@ -10,6 +10,8 @@
 
     //IF NEW URL RECIEVED, OR NEW USER RECEIVES URL FROM OTHER CLIENTS
     socket.on('newURL', (newURL) => {
+        
+        playerLoaded = false;
         $('.over').css('display', 'flex');
         $('#embeddedArea').css('display','none');
 
@@ -20,7 +22,6 @@
 
         if (newURL.type == 'youtube'){
 
-                
 
 
         //IF YOUTUBE -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,8 +67,8 @@
 
 
                 function onPlayerReady() {
+                    playerLoaded = true;
                     videoPlayer.volume(0)
-                    seekBarTracker();
                 }
 
 
@@ -140,11 +141,35 @@
                 //STARTUP SEEKBAR LISTENER
 
                     player.onloadedmetadata = function(){
+                        playerLoaded = true;
                         videoPlayer.volume(0)
                         //start the seekBar function when the metadata from the video is fully loaded
-                        seekBarTracker();
                     };
-        }                  
+        }      
+
+        
+        //start interval to wait for players metadata and load
+        let areLoaded = setInterval(checkLoaded, 300)
+        function checkLoaded(){
+
+            
+            //video length is the duration of the video in player.
+            videoLength = videoPlayer.duration();
+
+
+            if (playerLoaded === true && seekBarTrackerLoaded === false){
+                seekBarTrackerLoaded = true;
+                seekBarTracker();
+                clearInterval(areLoaded);
+            }
+        }
+
+
+      
+
+
+
+
 });
 
 
