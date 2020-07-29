@@ -140,8 +140,38 @@
         oldTime = client.time;
 
         if (client.state === 2){
-            $('.over').css('display', 'none');
-            $('#embeddedArea').css('display','block');
+            videoPlayer.play()
+
+            //interval to check if buffering
+            let isBuffering = setInterval(checkBuffering, 1000)
+            function checkBuffering(){
+
+                //if buffering
+                if (videoPlayer.state === 3){
+                    clearInterval(isBuffering);
+
+                    //check to see when playing
+                    let isPlaying = setInterval(checkPlaying, 300)
+                    function checkPlaying(){
+                        if (videoPlayer.state === 1){
+                            clearInterval(isPlaying);
+                            videoPlayer.pause()
+                            $('.over').css('display', 'none');
+                            $('#embeddedArea').css('display','block');
+                        }
+
+                    }
+                }
+                else if (videoPlayer.state === 1){
+                    videoPlayer.pause()
+                    clearInterval(isBuffering);
+                    $('.over').css('display', 'none');
+                    $('#embeddedArea').css('display','block');
+                }
+            }
+            
+
+           
         }
     });
 
