@@ -74,7 +74,8 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
             duration:function(){return YTPlayer.getDuration()},
             type:globalPlayerType,
             volume:function(volume){return YTPlayer.setVolume(volume)},
-            getVolume:function(){return YTPlayer.getVolume()}
+            getVolume:function(){return YTPlayer.getVolume()},
+            buffered:function(){return YTPlayer.getPlayerState() === 1},
 
         }
     }
@@ -98,6 +99,8 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
                     return false;
                 }
             },
+
+            buffered:function(){return player.readyState === 4},
             seek: function(time){return player.currentTime = time},
             duration:function(){return player.duration},
             type:globalPlayerType,
@@ -225,7 +228,8 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
     //--------------------- SEEK BAR -------------------------//
 
     $(".seekBar").mouseup(function(){
-
+        if (buffering !== true) {
+            buffering = true;
         //make newClient with socket.id, the clicked or dragged to seekbar time, and the video players state upon clicking the seekbar
         let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoState};
         
@@ -247,6 +251,7 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
 
         //make seekbarHeld false
         seekbarHeld = false;
+        }
            
     })
         
@@ -257,7 +262,7 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
         videoState = videoPlayer.state();
         
         //set seekbar held and buffering to true to prevent seekbar from changing position, or youtubes buffering process triggering events
-        buffering = true;
+        //buffering = true;
         seekbarHeld = true;
     });
 

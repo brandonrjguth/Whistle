@@ -85,21 +85,21 @@
 
                 //When function is available which means youtubeplayer is ready, play
                 if (videoPlayer.play()){
-                    videoPlayer.play()
+                    //videoPlayer.play()
                     
                     //clear interval waiting for player to be ready.
                     clearInterval(checkStarted);
 
 
                     //Create interval to check that video if playing, which means it's buffered.
-                    let checkBuffer = setInterval(isReady, 500);
+                    let checkBuffer = setInterval(isReady, 1000);
 
                     function isReady(){
                         console.log("checkin buffer baby");
 
                         //Once playing status detected, which means buffer pause video.
-                        if (videoPlayer.state() === 1){
-                            console.log('FUCKIN HERE');
+                        if (videoPlayer.buffered() === true && videoPlayer.state() === 1){
+                           
                             videoPlayer.pause();
                             //Clear interval that checks if player is buffered
                             clearInterval(checkBuffer);
