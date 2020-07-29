@@ -138,35 +138,47 @@
         console.log(client.time);
         videoPlayer.seek(client.time); 
         oldTime = client.time;
+        console.log('client state = '+client.state)
 
+        
         if (client.state === 2){
+
+            console.log('client state = '+client.state)
             videoPlayer.play()
 
             //interval to check if buffering
             let isBuffering = setInterval(checkBuffering, 1000)
             function checkBuffering(){
-
+            
                 //if buffering
-                if (videoPlayer.state === 3){
+
+                 if (videoPlayer.state() === 1){
+                console.log('time to pause')
+                    $('.over').css('display', 'none');
+                    $('#embeddedArea').css('display','block');
+                
+
+                    videoPlayer.pause()
+                    clearInterval(isBuffering);
+                }
+                else if (videoPlayer.state() === 3){
+                    console.log('bufferin')
                     clearInterval(isBuffering);
 
                     //check to see when playing
-                    let isPlaying = setInterval(checkPlaying, 300)
+                    let isPlaying = setInterval(checkPlaying, 600)
+                    console.log('starting playing interval');
                     function checkPlaying(){
-                        if (videoPlayer.state === 1){
+                        console.log('playing interval');
+                        if (videoPlayer.state() === 2){
                             clearInterval(isPlaying);
-                            videoPlayer.pause()
+                            console.log('got playing')
+                            //videoPlayer.pause()
                             $('.over').css('display', 'none');
                             $('#embeddedArea').css('display','block');
                         }
 
                     }
-                }
-                else if (videoPlayer.state === 1){
-                    videoPlayer.pause()
-                    clearInterval(isBuffering);
-                    $('.over').css('display', 'none');
-                    $('#embeddedArea').css('display','block');
                 }
             }
             
