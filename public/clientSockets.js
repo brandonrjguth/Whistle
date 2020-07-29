@@ -73,6 +73,9 @@
     
    
     socket.on("checkBuffer", (newClient) => {
+        $('.over').css('display', 'flex');
+        $('#embeddedArea').css('display','none');
+
         //set buffering to true
         buffering = true;
         console.log('got here')
@@ -129,10 +132,17 @@
 
     //--------------------- NEW TIME FOR ALL---------------------//
     socket.on('newTime', (client) => {
+        $('.over').css('display', 'flex');
+        $('#embeddedArea').css('display','none');
         console.log('received new time socked');
         console.log(client.time);
         videoPlayer.seek(client.time); 
         oldTime = client.time;
+
+        if (client.state === 2){
+            $('.over').css('display', 'none');
+            $('#embeddedArea').css('display','block');
+        }
     });
 
     //--------------------- FIND TIME TO GIVE TO NEW USER ---------------------//
@@ -176,7 +186,9 @@
                     //Seek to the oldest time once the video is playing and buffered. This keeps everyone 
                     //perfectly synced without losing time.
                     videoPlayer.seek(time);
-                    buffering = false;
+                    buffering = false; 
+                    $('.over').css('display', 'none');
+                    $('#embeddedArea').css('display','block');
                     clearInterval(checkBuffer);
                 }
             };
@@ -221,6 +233,8 @@
                                     videoPlayer.pause()
                                     //set buffering to false
                                     buffering = false;
+                                    $('.over').css('display', 'none');
+                                    $('#embeddedArea').css('display','block');
                                     
                             }
                         };
@@ -267,6 +281,9 @@
 
                                                 //TODO: Consider writing logic here to find oldest time and go to it.
                                                 buffering = false;
+                                                
+                                                $('.over').css('display', 'none');
+                                                $('#embeddedArea').css('display','block');
                                                 clearInterval(checkBuffer);
                                             }
                                         };

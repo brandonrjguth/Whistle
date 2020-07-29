@@ -10,6 +10,8 @@
 
     //IF NEW URL RECIEVED, OR NEW USER RECEIVES URL FROM OTHER CLIENTS
     socket.on('newURL', (newURL) => {
+        $('.over').css('display', 'flex');
+        $('#embeddedArea').css('display','none');
 
         console.log("Received URL")
         console.log(newURL);

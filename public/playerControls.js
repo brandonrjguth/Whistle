@@ -208,6 +208,7 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
                    skips = 0;
 
                    socket.emit('newTime', newClient);
+                   
                
                    if (newClient.state === 1){
                        socket.emit('checkBuffer', newClient);
@@ -231,7 +232,7 @@ socket.on('globalPlayerType', (globalPlayerType) =>{
         if (buffering !== true) {
             buffering = true;
         //make newClient with socket.id, the clicked or dragged to seekbar time, and the video players state upon clicking the seekbar
-        let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoState};
+        let newClient = {id:socket.id, time:$(".seekBar").val(), state:videoPlayer.state()};
         
         //send new time with info
         socket.emit('newTime', newClient);
