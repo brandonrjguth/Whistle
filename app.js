@@ -55,9 +55,7 @@ let counter2 = [];
 io.on('connection', (socket) => {
     //push users to user array.
     users.push({id:socket.id});
-    //find the timestamp and sync to first user to join
-    let oldestUser = users[0].id;
-    io.to(oldestUser).emit("newUserSync");
+
     //ON DISCONNECT
     socket.on('disconnect', () => {
         //REMOVE NEW USER FROM ARRAY
@@ -67,6 +65,14 @@ io.on('connection', (socket) => {
             } 
         };
     });
+
+
+    //When new user joins chat and has interacted with DOM, or sync button is pressed;
+    socket.on('sync', () => {
+        //find the timestamp and sync to first user to join
+        let oldestUser = users[0].id;
+        io.to(oldestUser).emit("newUserSync");
+    })
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
         socket.on('newUserSync', (newURL) =>{
@@ -81,14 +87,14 @@ io.on('connection', (socket) => {
                 io.sockets.connected[newestUser].emit("Pause");
             } else {
                 io.emit("Pause");
-                io.emit("checkAllUsersBuffer");
+                io.emit("checkAllUsersBuffer", newURL.time);
             }
         }
     });
 
     //FOUND TIME ALL USERS, SYNC ALL USERS
     socket.on('newTime', (newTime) =>{
-        if (newTime < 0 || newtime === undefined){
+        if (newTime < 0 || newTime === undefined){
             newTime = 0;
         }
         io.emit("newTime", newTime);

@@ -29,7 +29,9 @@
             isNewUser = false;
         }
 
+        clearInterval(timeUpdater);
         $(".seekBar").val(0);
+        
         //IF YOUTUBE
         if (newURL.type == "youtube"){
         

@@ -11,7 +11,9 @@
  margin:0;padding:0;
 }
 
-
+.hidden{
+    display:none !important;
+}
 
 .over {
     background: rgba(0, 0, 0, 0);
@@ -51,9 +53,9 @@ button{
     font-size: 1rem;
     font-weight: 700;
     border-style: none;
-    background: content-box;
     padding: 0 1rem 0 1rem;
     color: #fff;
+    background:content-box;
 }
 
 input{
@@ -169,6 +171,19 @@ video, iframe{
     width:100%;
 }
 
+.sync{
+    background-color:grey;
+    flex:1;
+    display:flex; 
+    justify-content: center;
+    align-items: center;
+}
+
+.syncButton{
+    background-color: black;
+    color:white;
+    border-radius: 1rem;
+}
 
 /*--------------- Player Controls ----------------*/
 .playerControls{

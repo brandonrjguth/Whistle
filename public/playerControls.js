@@ -270,6 +270,10 @@ $("#skipBack").click(function(){
         $('.buttonRow').css("display", "flex");
     });
 
+
+
+
+    // ----------- Chat Form ---------//
     $('.usernameForm').submit(function(e) {
         e.preventDefault(); // prevents page reloading
         
@@ -283,6 +287,8 @@ $("#skipBack").click(function(){
             myUsername = $('.usernameText').val();
             $('.newUserWrapper').css("display", "none");
             $('.chatContainer').css("display", "flex");
+            $('.playerContainer').removeClass('hidden');
+            socket.emit('sync');
         }
       });
 
@@ -296,5 +302,7 @@ $("#skipBack").click(function(){
       socket.on('chat message', (msg) =>{
           $('.msgs').append('<li class=\'username\'>' + msg.username + '</li><li class=\'msg\'>' + msg.msg + '</li>');
       })
+
+
 
     
