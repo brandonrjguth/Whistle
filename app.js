@@ -168,4 +168,4 @@ io.on('connection', (socket) => {
 });
 
 //LISTEN PORT
-http.listen(3001, "0.0.0.0");
+http.listen(3001, "127.0.0.1");

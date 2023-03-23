@@ -9,6 +9,7 @@
     let urlClicked = false;
     let timeUpdater;
     let isNewUser = true;
+    let currentVolume = 1;
 
     //STARTUP YOUTUBE API
     var tag = document.createElement('script');
@@ -25,6 +26,12 @@
     //IF NEW URL RECIEVED, OR NEW USER RECEIVES URL FROM OTHER CLIENTS
     socket.on('newURL', (newURL) => {
         
+        //hide player, display buffer animation
+        if ($('#video').attr("src") !== ''){
+            $('.bufferContainer').removeClass('hidden');
+            $('.playerContainer').addClass('hidden');
+        }
+
         if (newURL.fromButton == true){
             isNewUser = false;
         }
@@ -34,7 +41,7 @@
 
         //IF YOUTUBE
         if (newURL.type == "youtube"){
-        
+
                 bufferInProgress = false;
                 //change regexed youtubeURL variable to the received urlID from the servers regexer.
                 regexedYoutubeURL = newURL.urlID;        
@@ -188,23 +195,23 @@
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
 
-                if (isNewUser == true){
+                /*if (isNewUser == true){
                     isNewUser = false;
                 socket.emit("checkAllUsersBuffer");
-            }
+                 }*/
             } else {
+
                 //CHANGE URL
                 $("#video").attr("src", newURL.urlID);
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
+                globalPlayerType = "directLink";
+
                 if (newURL.playerState == true){
                     video.pause();
                 } else {
-                    if (isNewUser == true){
-                        isNewUser = false;
-                    socket.emit("checkAllUsersBuffer");
+                    socket.emit('checkAllUsersBuffer', player.time);
                 }
-                }
-                globalPlayerType = "directLink";
+                
             }
                 //STARTUP SEEKBAR LISTENER
                 let seekBarListener = () => {
@@ -231,9 +238,8 @@
                 }, 1000)
         //IF DIRECT LINK
         } else {      
-            let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), playerState:player.paused, type:"directLink"};
-            socket.emit("newUserSync", newURL);
-            
+                let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), playerState:player.paused, type:"directLink"};
+                socket.emit("newUserSync", newURL);
     }
     });
      //--------------------------- NEW TIME ---------------------------//
@@ -258,11 +264,15 @@
    
     socket.on("checkAllUsersBuffer", (clickedTime) =>{
 
+        //hide player, display buffer animation
+        $('.bufferContainer').removeClass('hidden');
+        $('.playerContainer').addClass('hidden');
        
         //set bufferInProgress to prevent play and pause events from capturing during hour buffer process.
         bufferInProgress = true;
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
+
                 //start interval to check for when playing.
                 setTimeout(function(){
                     YTPlayer.playVideo();
@@ -284,6 +294,7 @@
                 }, 4000)    
             }
             if (globalPlayerType === "directLink"){
+
             let currentTime = player.currentTime;
             function getBufferedPercentageFromCurrentPosition(player) {
                 let bufferedPercentage = 0;
@@ -299,10 +310,12 @@
             //IF DIRECT LINK
             //Look for player state
                 player.play();
-                let GPBuffer = setInterval(GPCheck, 200);
+                let GPBuffer = setInterval(GPCheck, 500);
                 function GPCheck() {
                     let bufferedPercentage = getBufferedPercentageFromCurrentPosition(player);
+                    console.log('buffered percent = '+bufferedPercentage);
                     if (bufferedPercentage >= 25) {
+                        console.log("buffered");
                         socket.emit('isBuffered', clickedTime);
                         clearInterval(GPBuffer);
                     }
@@ -327,8 +340,13 @@
      //-------------------- PLAY -----------------------//
 
     socket.on('Play', (time) => { 
+
+        $('.bufferContainer').addClass('hidden');
+        $('.playerContainer').removeClass('hidden');
+
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
+
             if (time !== undefined ){
             YTPlayer.seekTo(time);
         }
@@ -345,6 +363,7 @@
             
         //IF DIRECT LINK
         } else {
+            //reset volume to volume before buffer
             if (time !== undefined && time !== null ){
                 player.currentTime = time;
             }

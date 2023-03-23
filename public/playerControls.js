@@ -183,13 +183,35 @@ $("#skipAhead").click(function(){
 
         let currentTime = player.currentTime;
         newTime = currentTime + 10;
-        socket.emit("newTime", newTime);
 
         if(player.paused === true){
-            socket.emit("Pause");
+            socket.emit("newTime", newTime);
+        } 
+        
+        else if (player.paused === false){
+            //ADD TO AN EMPTY SKIP ARRAY
+            skip.push('');
+                //WHEN FIRST SKIP IS DETECTED, START INTERVAL TO DETECT MORE CLICKS
+                if (skip.length === 1) {
+                    let skips = setInterval(checkSkip, 1000);
+                    function checkSkip(){
+                            newTime = currentTime + 10*skip.length
+        
+                            //Don't send buffer if youll skip to the end of the video
+                            if ((10*skip.length)  < (video.duration - player.currentTime)){
+                                console.log('hmm here')
+                                socket.emit("checkAllUsersBuffer", newTime);
+                            } else {
 
-        } else if (player.paused === false){
-            socket.emit("checkAllUsersBuffer", newTime);
+                                console.log('fuck here')
+                                socket.emit("Pause");
+                                socket.emit("newTime", video.duration);
+                            }
+
+                            skip = [];
+                            clearInterval(skips);
+                    }
+                }
         }  
     }
 });
@@ -206,10 +228,10 @@ $("#skipBack").click(function(){
                 if (skip.length === 1) {
                     let skips = setInterval(checkSkip, 1000);
                     function checkSkip(){
+                            skip = [];
+                            clearInterval(skips);   
                             socket.emit("newTime", newTime);
                             socket.emit("checkAllUsersBuffer", newTime);
-                            skip = [];
-                            clearInterval(skips);          
                     }
                 }
         } else {
@@ -220,11 +242,24 @@ $("#skipBack").click(function(){
     } else {
         let currentTime = player.currentTime;
         newTime = currentTime - 10;
-        socket.emit("newTime", newTime);
+
         if(player.paused === true){
-            socket.emit("Pause");
-        } else if (player.paused === false){
-            socket.emit("checkAllUsersBuffer", newTime);
+            socket.emit("newTime", newTime);
+        } 
+        
+        else if (player.paused === false){
+            //ADD TO AN EMPTY SKIP ARRAY
+            skip.push('');
+                //WHEN FIRST SKIP IS DETECTED, START INTERVAL TO DETECT MORE CLICKS
+                if (skip.length === 1) {
+                    let skips = setInterval(checkSkip, 1000);
+                    function checkSkip(){
+                            newTime = currentTime - 10*skip.length
+                            socket.emit("checkAllUsersBuffer", newTime);
+                            skip = [];
+                            clearInterval(skips);
+                    }
+                }
         }  
     }
 });
