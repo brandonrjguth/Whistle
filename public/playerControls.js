@@ -168,8 +168,15 @@ $("#skipAhead").click(function(){
                 if (skip.length === 1) {
                     let skips = setInterval(checkSkip, 1000);
                     function checkSkip(){
-                            socket.emit("newTime", newTime);
-                            socket.emit("checkAllUsersBuffer", newTime);
+                            newTime = currentTime + 10*skip.length
+
+                            //Don't send buffer if youll skip to the end of the video
+                            if ((10*skip.length)  < (YTPlayer.getDuration() - YTPlayer.getCurrentTime())){
+                                socket.emit("checkAllUsersBuffer", newTime);
+                            } else {
+                                socket.emit("Pause");
+                                socket.emit("newTime", YTPlayer.getDuration());
+                            }
                             skip = [];
                             clearInterval(skips);
                     }
@@ -199,11 +206,8 @@ $("#skipAhead").click(function(){
         
                             //Don't send buffer if youll skip to the end of the video
                             if ((10*skip.length)  < (video.duration - player.currentTime)){
-                                console.log('hmm here')
                                 socket.emit("checkAllUsersBuffer", newTime);
                             } else {
-
-                                console.log('fuck here')
                                 socket.emit("Pause");
                                 socket.emit("newTime", video.duration);
                             }
@@ -228,10 +232,11 @@ $("#skipBack").click(function(){
                 if (skip.length === 1) {
                     let skips = setInterval(checkSkip, 1000);
                     function checkSkip(){
-                            skip = [];
-                            clearInterval(skips);   
-                            socket.emit("newTime", newTime);
+
+                            newTime = currentTime - 10*skip.length
                             socket.emit("checkAllUsersBuffer", newTime);
+                            skip = [];
+                            clearInterval(skips);    
                     }
                 }
         } else {
