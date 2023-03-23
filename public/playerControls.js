@@ -165,7 +165,7 @@ $("#skipAhead").click(function(){
             //ADD TO AN EMPTY SKIP ARRAY
             skip.push('');
                 //WHEN FIRST SKIP IS DETECTED, START INTERVAL TO DETECT MORE CLICKS
-                if (skip.length == 1) {
+                if (skip.length === 1) {
                     let skips = setInterval(checkSkip, 1000);
                     function checkSkip(){
                             socket.emit("newTime", newTime);
@@ -203,11 +203,11 @@ $("#skipBack").click(function(){
 
         if(YTPlayer.getPlayerState() === 1){
             skip.push('');
-                if (skip.length == 1) {
+                if (skip.length === 1) {
                     let skips = setInterval(checkSkip, 1000);
                     function checkSkip(){
                             socket.emit("newTime", newTime);
-                            socket.emit("checkAllUsersBuffer");
+                            socket.emit("checkAllUsersBuffer", newTime);
                             skip = [];
                             clearInterval(skips);          
                     }

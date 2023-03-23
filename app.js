@@ -127,6 +127,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendCheckAllUsersBuffer', () => {
+
+        console.log("got here");
         counter2.push(1);    
         if (counter2.length >= users.length){
             counter2 = [];
@@ -139,6 +141,8 @@ io.on('connection', (socket) => {
 
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
     socket.on('isBuffered', (clickedTime) =>{
+
+        console.log("received is buffered");
         counter.push(1);    
         if (counter.length >= users.length){
             counter = [];
