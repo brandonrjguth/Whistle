@@ -29,8 +29,6 @@
         if (newURL.urlID === ''){
             return
         };
-
-
         $('.bufferContainer').removeClass('hidden');
         $('.playerContainer').addClass('hidden');
 
@@ -131,6 +129,8 @@
                                     if (YTPlayer.getPlayerState() == 1){
                                         //send signal to pause to all clients again to be sure they are all paused.
                                         socket.emit("Pause");
+                                        $('.bufferContainer').addClass('hidden');
+                                        $('.playerContainer').removeClass('hidden');
     
                                         //Set buffering to false so that play/pause can be detected
                                         bufferInProgress = false;
@@ -201,7 +201,7 @@
                 if (isNewUser == true){
                     isNewUser = false;
                  }
-                socket.emit('checkAllUsersBuffer');
+                socket.emit('checkAllUsersBuffer', 0);
 
             } else {
 
@@ -212,8 +212,14 @@
 
                 if (newURL.playerState == true){
                     video.pause();
+                    $('.bufferContainer').addClass('hidden');
+                    $('.playerContainer').removeClass('hidden');
                 } else {
-                    socket.emit('checkAllUsersBuffer');
+                    if (newURL.time === undefined){
+                        socket.emit('checkAllUsersBuffer', 0)
+                    } else {
+                        socket.emit('checkAllUsersBuffer', newURL.time);
+                    }
                 }
                 
             }
