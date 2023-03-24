@@ -9,6 +9,7 @@
     let urlClicked = false;
     let timeUpdater;
     let isNewUser = true;
+    let currentVolume = 1;
 
     //STARTUP YOUTUBE API
     var tag = document.createElement('script');
@@ -81,6 +82,7 @@
                         events: {
                             'onReady': onPlayerReady,
                             'onStateChange': onPlayerStateChange
+                            
                             },
                         videoId: regexedYoutubeURL
                         });
@@ -89,8 +91,11 @@
 
                      //--------- DO THIS WHEN THE PLAYER IS READY ------------------------------------//
                         function onPlayerReady() {
+<<<<<<< HEAD
                             YTPlayer.setVolume(0);
                             $('#volBar').val(prevVol);
+=======
+>>>>>>> parent of 5a4ea88 (remember previous volume state)
                             bufferInProgress = true;
                             if (isNewUser == false){
                                 YTPlayer.seekTo(0);
@@ -194,7 +199,12 @@
                 $("#video").after("<video id=\"YTPlayer\" style=\"display:none\"></video>");
                 $("#video").css("display", "block");
                 $("#video").attr("src", newURL.urlID);
+<<<<<<< HEAD
                 //player.volume = 0;
+=======
+                player = $("#video").get(0);
+
+>>>>>>> parent of 5a4ea88 (remember previous volume state)
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
 
@@ -368,15 +378,16 @@
      //-------------------- PLAY -----------------------//
 
     socket.on('Play', (time) => { 
+
         if ($('.newUserWrapper').hasClass("hidden") === false){
             console.log("still not logged in teehee")
         } else{
             $('.bufferContainer').addClass('hidden');
             $('.playerContainer').removeClass('hidden');
-            
+    
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
-                YTPlayer.setVolume(prevVol);
+    
                 if (time !== undefined ){
                 YTPlayer.seekTo(time);
             }
@@ -393,9 +404,7 @@
                 
             //IF DIRECT LINK
             } else {
-                
                 //reset volume to volume before buffer
-                player.volume = prevVol/100;
                 if (time !== undefined && time !== null ){
                     player.currentTime = time;
                 }

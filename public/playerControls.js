@@ -18,7 +18,7 @@ function updateTimeSeekBar(){
     }
 }
 
-let prevVol = 1;
+let prevVol;
 let mute;
     
     //--------------------- PLAY AND PAUSE ---------------------//
@@ -81,18 +81,13 @@ let mute;
         $("#second").val('');
         $("#minute").val('');
         $("#hour").val('');
-
+                
+        //Send signal to socket "newTime", syncing all users to the timestamp.
+        //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
+        socket.emit("newTime", newTime);
         
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
-            //make sure time isnt over video duration
-            if (newTime >= YTPlayer.getDuration()){
-                socket.emit('Pause');
-                socket.emit('newTime', YTPlayer.getDuration());
-                return
-            }
-            //log volume to change back to after buffer  
-            prevVol = YTPlayer.getVolume();
             //IF PAUSED
             if(YTPlayer.getPlayerState() === 1){
                   //check buffer and play
@@ -103,14 +98,10 @@ let mute;
             }  
         //IF DIRECT LINK
         } else {
-            if (newTime >= player.duration){
-                newTime = player.duration;
-            }
-            prevVol = player.volume*100;
             if(player.paused === true){
                 socket.emit("Pause");
             } else if (player.paused === false){
-                socket.emit("checkAllUsersBuffer", newTime);
+                socket.emit("checkAllUsersBuffer", player.currentTime);
             }  
         }
     });
@@ -119,7 +110,6 @@ let mute;
        let seekFunction = (clickedTime) => {
         socket.emit("newTime", clickedTime);
             if (globalPlayerType === "youtube"){
-                prevVol = YTPlayer.getVolume();
                 if(YTPlayer.getPlayerState() === 1){
                     socket.emit("newTime", clickedTime);
                     socket.emit("checkAllUsersBuffer", clickedTime);
@@ -128,7 +118,6 @@ let mute;
                     socket.emit("Pause");       
                 }  
             } else{
-                prevVol = player.volume*100;
                 if (player.paused === true){
                     socket.emit("newTime", clickedTime);
                     socket.emit("Pause");
@@ -172,7 +161,6 @@ $("#skipAhead").click(function(){
 
     //IF YOUTUBE
     if (globalPlayerType === "youtube"){
-        prevVol = YTPlayer.getVolume();
         let currentTime = YTPlayer.getCurrentTime();
         newTime = currentTime + 10;
         //IF THE PLAYER IS PLAYING
@@ -202,7 +190,7 @@ $("#skipAhead").click(function(){
 
     //IF DIRECTLINK
     } else {
-        prevVol = player.volume*100;
+
         let currentTime = player.currentTime;
         newTime = currentTime + 10;
 
@@ -240,7 +228,6 @@ $("#skipBack").click(function(){
     //IF YOUTUBE
     if (globalPlayerType === "youtube"){
         let currentTime = YTPlayer.getCurrentTime();
-        prevVol = YTPlayer.getVolume();
         newTime = currentTime - 10;
 
         if(YTPlayer.getPlayerState() === 1){
@@ -261,7 +248,6 @@ $("#skipBack").click(function(){
 
     //IF DIRECT LINK
     } else {
-        prevVol = player.volume*100;
         let currentTime = player.currentTime;
         newTime = currentTime - 10;
 
@@ -292,11 +278,6 @@ $("#skipBack").click(function(){
     //send signal to "newURL" socket with the newURL which will sync all users with the new url.
     $("#urlSubmit").click(function(){
         let newURL = ({urlID:$(".urlInputText").val(), fromButton:true});
-        if (globalPlayerType === 'youtube'){
-            prevVol = YTPlayer.getVolume();
-        } else {
-            prevVol = player.volume * 100;
-        }
         socket.emit('newURL', newURL);  
     });
 
@@ -368,12 +349,12 @@ $("#skipBack").click(function(){
             }
         } else {
             if (mute === true){
-                player.volume = prevVol/100;
+                player.volume = prevVol;
                 mute = false;
                 $('#volBar').val(player.volume*100);
             } else {
                 mute = true;
-                prevVol = player.volume*100;
+                prevVol = player.volume;
                 player.volume = 0;
                 $('#volBar').val(0);
             }
