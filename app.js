@@ -126,10 +126,7 @@ io.on('connection', (socket) => {
         io.emit('checkAllUsersBuffer', clickedTime);
     });
 
-    socket.on('sendCheckAllUsersBuffer', () => {
-
-        console.log("got here");
-        counter2.push(1);    
+    socket.on('sendCheckAllUsersBuffer', () => {    
         if (counter2.length >= users.length){
             counter2 = [];
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER

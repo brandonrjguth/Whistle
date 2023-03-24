@@ -325,7 +325,7 @@ $("#skipBack").click(function(){
             }    
         } else {
             myUsername = $('.usernameText').val();
-            $('.newUserWrapper').css("display", "none");
+            $('.newUserWrapper').addClass("hidden");
             $('.chatContainer').css("display", "flex");
             $('.playerContainer').removeClass('hidden');
             socket.emit('sync');

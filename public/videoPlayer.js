@@ -25,18 +25,23 @@
 
     //IF NEW URL RECIEVED, OR NEW USER RECEIVES URL FROM OTHER CLIENTS
     socket.on('newURL', (newURL) => {
-        
-        //hide player, display buffer animation
-        if ($('#video').attr("src") !== ''){
-            $('.bufferContainer').removeClass('hidden');
-            $('.playerContainer').addClass('hidden');
-        }
+
+        if (newURL.urlID === ''){
+            return
+        };
+
+
+        $('.bufferContainer').removeClass('hidden');
+        $('.playerContainer').addClass('hidden');
 
         if (newURL.fromButton == true){
             isNewUser = false;
         }
 
-        clearInterval(timeUpdater);
+
+
+
+
         $(".seekBar").val(0);
 
         //IF YOUTUBE
@@ -108,9 +113,10 @@
                         //--------------------START UP SEEK BAR ----------------------------------------------//
 
                         //find length of video from YTPlayer and set the seekbars max to that time.
+
+                        clearInterval(timeUpdater);
                         videoLength = YTPlayer.getDuration();
                         $(".seekBar").attr("max", videoLength);
-
                         timeUpdater = setInterval(updateTimeSeekBar, 500);
                         //-------------------------------------------------------------------------------------------------------------------//
                         
@@ -181,9 +187,15 @@
         //IF NEW TYPE IS NOT A YOUTUBE LINK
         } else {
 
+            $('#video').onerror = function(){
+                console.log('error');
+                $('.bufferContainer').addClass('hidden');
+                $('.playerContainer').removeClass('hidden');
+            }
+            
             //IF CURRENT PLAYER IS YOUTUBE
             if (globalPlayerType === "youtube"){
-                
+                console.log("global player type is youtube");
                 //HIDE YOUTUBE PLAYER AND SHOW MP4 PLAYER, CHANGE URL, ADD DIV TO BE CHANGED BACK TO YOUTUBE IFRAME IF CALLED AGAIN
                 $("#YTPlayer").remove();
                 $("#embeddedArea").append("<video src=\"\" id=\"video\"></video>");
@@ -195,10 +207,11 @@
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
 
-                /*if (isNewUser == true){
+                if (isNewUser == true){
                     isNewUser = false;
-                socket.emit("checkAllUsersBuffer");
-                 }*/
+                 }
+                socket.emit('checkAllUsersBuffer');
+
             } else {
 
                 //CHANGE URL
@@ -209,20 +222,25 @@
                 if (newURL.playerState == true){
                     video.pause();
                 } else {
-                    socket.emit('checkAllUsersBuffer', player.time);
+                    socket.emit('checkAllUsersBuffer');
                 }
                 
             }
-                //STARTUP SEEKBAR LISTENER
-                let seekBarListener = () => {
-                    videoLength = player.duration;
-                    $(".seekBar").attr("max", videoLength);
-                    timeUpdater = setInterval(updateTimeSeekBar, 500);
-                }
 
-                player.onloadedmetadata = function(){
-                    seekBarListener();
-                };            
+            console.log("global player type is not youtube??");
+
+            //STARTUP SEEKBAR LISTENER
+            let seekBarListener = () => {
+                clearInterval(timeUpdater);
+                YTPlayer = undefined;
+                videoLength = player.duration;
+                $(".seekBar").attr("max", videoLength);
+                timeUpdater = setInterval(updateTimeSeekBar, 500);
+            }
+
+            player.onloadedmetadata = function(){
+               seekBarListener();
+            };            
         }
     });
     
@@ -264,6 +282,13 @@
    
     socket.on("checkAllUsersBuffer", (clickedTime) =>{
 
+
+        //If the user hasnt logged in with a username yet, send isBuffered so everyone else can keep playing.
+        if ($('.newUserWrapper').hasClass("hidden") === false){
+            console.log("I havent logged in tee-hee");
+            socket.emit('isBuffered', clickedTime);
+        } else {
+        
         //hide player, display buffer animation
         $('.bufferContainer').removeClass('hidden');
         $('.playerContainer').addClass('hidden');
@@ -322,6 +347,7 @@
                 }
             }, 2000)
             }
+        }
     });
 
     //--------------------- PAUSE ---------------------//
@@ -341,34 +367,40 @@
 
     socket.on('Play', (time) => { 
 
-        $('.bufferContainer').addClass('hidden');
-        $('.playerContainer').removeClass('hidden');
-
-        //IF YOUTUBE
-        if (globalPlayerType === "youtube"){
-
-            if (time !== undefined ){
-            YTPlayer.seekTo(time);
-        }
-            YTPlayer.playVideo();
-            lastState = 3;
-            //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
-            let bufferDone = setInterval(isbufferDone, 500);
-            function isbufferDone(){
-                if (YTPlayer.getPlayerState() === 1){
-                    clearInterval(bufferDone);
-                    bufferInProgress = false;
+        if ($('.newUserWrapper').hasClass("hidden") === false){
+            console.log("still not logged in teehee")
+        } else{
+            $('.bufferContainer').addClass('hidden');
+            $('.playerContainer').removeClass('hidden');
+    
+            //IF YOUTUBE
+            if (globalPlayerType === "youtube"){
+    
+                if (time !== undefined ){
+                YTPlayer.seekTo(time);
+            }
+                YTPlayer.playVideo();
+                lastState = 3;
+                //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
+                let bufferDone = setInterval(isbufferDone, 500);
+                function isbufferDone(){
+                    if (YTPlayer.getPlayerState() === 1){
+                        clearInterval(bufferDone);
+                        bufferInProgress = false;
+                    }
                 }
+                
+            //IF DIRECT LINK
+            } else {
+                //reset volume to volume before buffer
+                if (time !== undefined && time !== null ){
+                    player.currentTime = time;
+                }
+                player.play();
+
             }
-            
-        //IF DIRECT LINK
-        } else {
-            //reset volume to volume before buffer
-            if (time !== undefined && time !== null ){
-                player.currentTime = time;
-            }
-            player.play();
         }
+
     });
 
 
