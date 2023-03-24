@@ -28,6 +28,7 @@
         if (newURL.urlID === ''){
             return
         };
+
         $('.bufferContainer').removeClass('hidden');
         $('.playerContainer').addClass('hidden');
 
@@ -88,6 +89,7 @@
 
                      //--------- DO THIS WHEN THE PLAYER IS READY ------------------------------------//
                         function onPlayerReady() {
+                            YTPlayer.setVolume(0);
                             $('#volBar').val(prevVol);
                             bufferInProgress = true;
                             if (isNewUser == false){
@@ -192,9 +194,7 @@
                 $("#video").after("<video id=\"YTPlayer\" style=\"display:none\"></video>");
                 $("#video").css("display", "block");
                 $("#video").attr("src", newURL.urlID);
-                $('#volBar').val(prevVol);
-                player = $("#video").get(0);
-
+                //player.volume = 0;
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
 
@@ -204,7 +204,7 @@
                 socket.emit('checkAllUsersBuffer', 0);
 
             } else {
-
+                //player.volume = 0;
                 //CHANGE URL
                 $("#video").attr("src", newURL.urlID);
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
@@ -292,6 +292,7 @@
         bufferInProgress = true;
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
+                YTPlayer.setVolume(0);
 
                 //start interval to check for when playing.
                 setTimeout(function(){
@@ -314,8 +315,14 @@
                 }, 4000)    
             }
             if (globalPlayerType === "directLink"){
-
-            let currentTime = player.currentTime;
+            //player.volume = 0;
+            player.play();
+            if (player.currentTime > 0){
+                let currentTime = player.currentTime;
+            } else {
+                let currentTime = 0;
+            }
+            
             function getBufferedPercentageFromCurrentPosition(player) {
                 let bufferedPercentage = 0;
                 for (let i = 0; i < player.buffered.length; i++) {
