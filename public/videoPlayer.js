@@ -39,6 +39,7 @@
 
         //IF YOUTUBE
         if (newURL.type == "youtube"){
+            
 
                 bufferInProgress = false;
                 //change regexed youtubeURL variable to the received urlID from the servers regexer.
@@ -88,6 +89,7 @@
 
                      //--------- DO THIS WHEN THE PLAYER IS READY ------------------------------------//
                         function onPlayerReady() {
+                            YTPlayer.setVolume(0);
                             $('#volBar').val(prevVol);
                             bufferInProgress = true;
                             if (isNewUser == false){
@@ -194,6 +196,7 @@
                 $("#video").attr("src", newURL.urlID);
                 $('#volBar').val(prevVol);
                 player = $("#video").get(0);
+                player.volume = 0;
 
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
@@ -204,7 +207,7 @@
                 socket.emit('checkAllUsersBuffer', 0);
 
             } else {
-
+                player.volume = 0;
                 //CHANGE URL
                 $("#video").attr("src", newURL.urlID);
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
@@ -292,7 +295,7 @@
         bufferInProgress = true;
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
-
+                YTPlayer.setVolume(0);
                 //start interval to check for when playing.
                 setTimeout(function(){
                     YTPlayer.playVideo();
@@ -314,7 +317,7 @@
                 }, 4000)    
             }
             if (globalPlayerType === "directLink"){
-
+            player.volume = 0;
             let currentTime = player.currentTime;
             function getBufferedPercentageFromCurrentPosition(player) {
                 let bufferedPercentage = 0;
