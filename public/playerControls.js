@@ -17,6 +17,9 @@ function updateTimeSeekBar(){
        $(".seekBar").val(videotime);       
     }
 }
+
+let prevVol;
+let mute;
     
     //--------------------- PLAY AND PAUSE ---------------------//
     //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
@@ -276,7 +279,6 @@ $("#skipBack").click(function(){
     $("#urlSubmit").click(function(){
         let newURL = ({urlID:$(".urlInputText").val(), fromButton:true});
         socket.emit('newURL', newURL);  
-        //socket.emit('newTime', 0);
     });
 
     //IF LOAD URL BUTTON CLICKED, HIDE THE BUTTON ROW AND SHOW THE URLLOAD ROW IN ITS PLACE
@@ -310,6 +312,62 @@ $("#skipBack").click(function(){
         $('.buttonRow').css("display", "flex");
     });
 
+
+
+    // -------- Volume Control --------//
+    $('#volBar').val(100);
+
+    $('#volUp').click(function(){
+        if (globalPlayerType === "youtube"){
+            YTPlayer.setVolume(YTPlayer.getVolume() + 10);
+            $('#volBar').val(YTPlayer.getVolume());
+        } else {
+            player.volume += 0.10;
+            $('#volBar').val(player.volume*100);
+        }
+    })
+    $('#volDown').click(function(){
+        if (globalPlayerType === "youtube"){
+            YTPlayer.setVolume(YTPlayer.getVolume() - 10);
+            $('#volBar').val(YTPlayer.getVolume());
+        } else {
+            player.volume -= 0.10;
+            $('#volBar').val(player.volume*100);
+        }
+    })
+    $('#volMute').click(function(){
+        if (globalPlayerType === "youtube"){
+            if (mute === true){
+                YTPlayer.setVolume(prevVol);
+                mute = false;
+                $('#volBar').val(prevVol);
+            } else {
+                mute = true;
+                prevVol = YTPlayer.getVolume();
+                YTPlayer.setVolume(0);
+                $('#volBar').val(0);
+            }
+        } else {
+            if (mute === true){
+                player.volume = prevVol;
+                mute = false;
+                $('#volBar').val(player.volume*100);
+            } else {
+                mute = true;
+                prevVol = player.volume;
+                player.volume = 0;
+                $('#volBar').val(0);
+            }
+        }
+    })
+
+    $('#volBar').click(function(){
+        if (globalPlayerType === 'youtube'){
+            YTPlayer.setVolume($('#volBar').val());
+        } else {
+            player.volume = $('#volBar').val()/100;
+        }
+    })
 
 
 
