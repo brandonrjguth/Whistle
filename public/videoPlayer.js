@@ -92,8 +92,11 @@
                      //--------- DO THIS WHEN THE PLAYER IS READY ------------------------------------//
                         function onPlayerReady() {
 <<<<<<< HEAD
+<<<<<<< HEAD
                             YTPlayer.setVolume(0);
                             $('#volBar').val(prevVol);
+=======
+>>>>>>> parent of 5a4ea88 (remember previous volume state)
 =======
 >>>>>>> parent of 5a4ea88 (remember previous volume state)
                             bufferInProgress = true;
@@ -200,8 +203,11 @@
                 $("#video").css("display", "block");
                 $("#video").attr("src", newURL.urlID);
 <<<<<<< HEAD
+<<<<<<< HEAD
                 //player.volume = 0;
 =======
+=======
+>>>>>>> parent of 5a4ea88 (remember previous volume state)
                 player = $("#video").get(0);
 
 >>>>>>> parent of 5a4ea88 (remember previous volume state)
