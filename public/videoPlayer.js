@@ -9,7 +9,6 @@
     let urlClicked = false;
     let timeUpdater;
     let isNewUser = true;
-    let currentVolume = 1;
 
     //STARTUP YOUTUBE API
     var tag = document.createElement('script');
@@ -29,7 +28,6 @@
         if (newURL.urlID === ''){
             return
         };
-
         $('.bufferContainer').removeClass('hidden');
         $('.playerContainer').addClass('hidden');
 
@@ -82,7 +80,6 @@
                         events: {
                             'onReady': onPlayerReady,
                             'onStateChange': onPlayerStateChange
-                            
                             },
                         videoId: regexedYoutubeURL
                         });
@@ -91,14 +88,7 @@
 
                      //--------- DO THIS WHEN THE PLAYER IS READY ------------------------------------//
                         function onPlayerReady() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                            YTPlayer.setVolume(0);
                             $('#volBar').val(prevVol);
-=======
->>>>>>> parent of 5a4ea88 (remember previous volume state)
-=======
->>>>>>> parent of 5a4ea88 (remember previous volume state)
                             bufferInProgress = true;
                             if (isNewUser == false){
                                 YTPlayer.seekTo(0);
@@ -202,15 +192,9 @@
                 $("#video").after("<video id=\"YTPlayer\" style=\"display:none\"></video>");
                 $("#video").css("display", "block");
                 $("#video").attr("src", newURL.urlID);
-<<<<<<< HEAD
-<<<<<<< HEAD
-                //player.volume = 0;
-=======
-=======
->>>>>>> parent of 5a4ea88 (remember previous volume state)
+                $('#volBar').val(prevVol);
                 player = $("#video").get(0);
 
->>>>>>> parent of 5a4ea88 (remember previous volume state)
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
 
@@ -220,7 +204,7 @@
                 socket.emit('checkAllUsersBuffer', 0);
 
             } else {
-                //player.volume = 0;
+
                 //CHANGE URL
                 $("#video").attr("src", newURL.urlID);
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
@@ -308,7 +292,6 @@
         bufferInProgress = true;
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
-                YTPlayer.setVolume(0);
 
                 //start interval to check for when playing.
                 setTimeout(function(){
@@ -331,14 +314,8 @@
                 }, 4000)    
             }
             if (globalPlayerType === "directLink"){
-            //player.volume = 0;
-            player.play();
-            if (player.currentTime > 0){
-                let currentTime = player.currentTime;
-            } else {
-                let currentTime = 0;
-            }
-            
+
+            let currentTime = player.currentTime;
             function getBufferedPercentageFromCurrentPosition(player) {
                 let bufferedPercentage = 0;
                 for (let i = 0; i < player.buffered.length; i++) {
@@ -384,16 +361,15 @@
      //-------------------- PLAY -----------------------//
 
     socket.on('Play', (time) => { 
-
         if ($('.newUserWrapper').hasClass("hidden") === false){
             console.log("still not logged in teehee")
         } else{
             $('.bufferContainer').addClass('hidden');
             $('.playerContainer').removeClass('hidden');
-    
+            
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
-    
+                YTPlayer.setVolume(prevVol);
                 if (time !== undefined ){
                 YTPlayer.seekTo(time);
             }
@@ -410,7 +386,9 @@
                 
             //IF DIRECT LINK
             } else {
+                
                 //reset volume to volume before buffer
+                player.volume = prevVol/100;
                 if (time !== undefined && time !== null ){
                     player.currentTime = time;
                 }
