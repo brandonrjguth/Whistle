@@ -38,10 +38,6 @@
             isNewUser = false;
         }
 
-
-
-
-
         $(".seekBar").val(0);
 
         //IF YOUTUBE
@@ -187,15 +183,10 @@
         //IF NEW TYPE IS NOT A YOUTUBE LINK
         } else {
 
-            $('#video').onerror = function(){
-                console.log('error');
-                $('.bufferContainer').addClass('hidden');
-                $('.playerContainer').removeClass('hidden');
-            }
             
             //IF CURRENT PLAYER IS YOUTUBE
             if (globalPlayerType === "youtube"){
-                console.log("global player type is youtube");
+
                 //HIDE YOUTUBE PLAYER AND SHOW MP4 PLAYER, CHANGE URL, ADD DIV TO BE CHANGED BACK TO YOUTUBE IFRAME IF CALLED AGAIN
                 $("#YTPlayer").remove();
                 $("#embeddedArea").append("<video src=\"\" id=\"video\"></video>");
@@ -226,8 +217,6 @@
                 }
                 
             }
-
-            console.log("global player type is not youtube??");
 
             //STARTUP SEEKBAR LISTENER
             let seekBarListener = () => {

@@ -276,7 +276,7 @@ $("#skipBack").click(function(){
     $("#urlSubmit").click(function(){
         let newURL = ({urlID:$(".urlInputText").val(), fromButton:true});
         socket.emit('newURL', newURL);  
-        socket.emit('newTime', 0);
+        //socket.emit('newTime', 0);
     });
 
     //IF LOAD URL BUTTON CLICKED, HIDE THE BUTTON ROW AND SHOW THE URLLOAD ROW IN ITS PLACE

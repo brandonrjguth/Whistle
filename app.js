@@ -8,6 +8,8 @@
     const app = express();
     const http = require('http').createServer(app);
     const io = require('socket.io')(http);
+    const httpCheck = require('http');
+    const httpsCheck = require('https');
 
 //SET EXPRESS AND MONGO CONNECTION PORT AND URL.
      //Set port express will listen on.
@@ -104,19 +106,59 @@ io.on('connection', (socket) => {
     socket.on('newURL', (newURL) =>{
                 //DO A REGEX CHECK ON URL
                 if (newURL.urlID != undefined || newURL.urlID != '') {
-                    var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
-                    var match = newURL.urlID.match(regExp);
+                    let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+                    let match = newURL.urlID.match(regExp);
                     //IF YOUTUBE URL, SEND THE NEW URL WITH TYPE YOUTUBE
                     if (match && match[2].length == 11) {
                         newURL.type = "youtube";
                         newURL.urlID = match[2];
                         newURL.url = match[0];
-                        io.emit('newURL', newURL);
+
+                        //regCheck for http, or https
+                        let regExp = /(?:((?:https|http):\/\/)|(?:\/))/;
+
+                        //check if link is valid before sending
+                        if (match){
+                            if(newURL.url.startsWith('https')){
+                                httpsCheck.get(newURL.url, (res) => {
+                                    if (res.statusCode === 200){
+                                        io.emit('newURL', newURL);
+                                    }
+                                })
+                            } else {
+                                httpCheck.get(newURL.url, (res) => {
+                                    if (res.statusCode === 200){
+                                        io.emit('newURL', newURL);
+                                    }
+                                })
+                            }
+                        }
                     }
+
                     //ELSE, SEND THE NEW URL WITH TYPE DIRECTLINK
                     else {
+                        //regCheck for starts with https, or http, ends with valid video type;
+                        let regExp = /(?:((?:https|http):\/\/)|(?:\/)).+(?:.webm|mp4|ogg)/;
+                        let match = newURL.urlID.match(regExp);
                         newURL.type = "directLink";
-                        io.emit('newURL', newURL);
+                        
+                        //user the https, and http node modules respectively to see if the
+                        //link is valid and active, if so, send to user
+                        if (match){
+                            if(newURL.urlID.startsWith('https')){
+                                httpsCheck.get(newURL.urlID, (res) => {
+                                    if (res.statusCode === 200){
+                                        io.emit('newURL', newURL);
+                                    }
+                                })
+                            } else {
+                                httpCheck.get(newURL.urlID, (res) => {
+                                    if (res.statusCode === 200){
+                                        io.emit('newURL', newURL);
+                                    }
+                                })
+                            }
+                        }
                     }
                 }
     });
@@ -127,10 +169,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendCheckAllUsersBuffer', () => {    
+        console.log('counter2 push');
+        counter2.push('');
+        console.log('counter2 length = '+counter2.length)
+        console.log('users length = '+ users.length);
         if (counter2.length >= users.length){
             counter2 = [];
                 //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
                 setTimeout(function(){
+                    console.log('sending checkbuffer')
                     io.emit("checkAllUsersBuffer");    
             }, 400);        
         }
