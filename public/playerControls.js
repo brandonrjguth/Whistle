@@ -20,6 +20,7 @@ function updateTimeSeekBar(){
 
 let prevVol = 1;
 let mute;
+let roomID;
     
     //--------------------- PLAY AND PAUSE ---------------------//
     //Check player status, and then Pauses all Users, or checks the buffer of all users and resumes playing. 
@@ -30,21 +31,21 @@ let mute;
             //If playing
             if (YTPlayer.getPlayerState() === 1 ){
                 //Send Pause
-                socket.emit('Pause');
+                socket.emit('Pause', roomID);
             }
             else  {
                 //SEND EVERYONE MY TIME AND MAKE EVERYONE BUFFER TO PLAY
-                socket.emit("newTime", YTPlayer.getCurrentTime());
-                socket.emit('checkAllUsersBuffer', YTPlayer.getCurrentTime());
+                socket.emit("newTime", {time:YTPlayer.getCurrentTime(), roomID:roomID});
+                socket.emit('checkAllUsersBuffer', {time:YTPlayer.getCurrentTime(), roomID:roomID});
             }
         }
 
         //IF DIRECTLINK
         if (globalPlayerType === "directLink"){
             if (player.paused === true){
-                socket.emit('checkAllUsersBuffer', player.currentTime);
+                socket.emit('checkAllUsersBuffer', {time:player.currentTime, roomID:roomID});
             } else{
-                socket.emit('Pause');
+                socket.emit('Pause', roomID);
             }
         }   
     });
@@ -87,8 +88,8 @@ let mute;
         if (globalPlayerType === "youtube"){
             //make sure time isnt over video duration
             if (newTime >= YTPlayer.getDuration()){
-                socket.emit('Pause');
-                socket.emit('newTime', YTPlayer.getDuration());
+                socket.emit('Pause', roomID);
+                socket.emit('newTime', {time:YTPlayer.getDuration(), roomID:roomID});
                 return
             }
             //log volume to change back to after buffer  
@@ -96,10 +97,10 @@ let mute;
             //IF PAUSED
             if(YTPlayer.getPlayerState() === 1){
                   //check buffer and play
-                  socket.emit("checkAllUsersBuffer", newTime)
+                  socket.emit("checkAllUsersBuffer", {time:newTime, roomID:roomID})
             } else {
               //pause
-              socket.emit("Pause");
+              socket.emit("Pause", roomID);
             }  
         //IF DIRECT LINK
         } else {
@@ -108,33 +109,33 @@ let mute;
             }
             prevVol = player.volume*100;
             if(player.paused === true){
-                socket.emit("Pause");
+                socket.emit("Pause", roomID);
             } else if (player.paused === false){
-                socket.emit("checkAllUsersBuffer", newTime);
+                socket.emit("checkAllUsersBuffer", {time:newTime, roomID:roomID});
             }  
         }
     });
 
     //--------------------- SEEK BAR -------------------------//
        let seekFunction = (clickedTime) => {
-        socket.emit("newTime", clickedTime);
+        socket.emit("newTime", {time:clickedTime, roomID:roomID});
             if (globalPlayerType === "youtube"){
                 prevVol = YTPlayer.getVolume();
                 if(YTPlayer.getPlayerState() === 1){
-                    socket.emit("newTime", clickedTime);
-                    socket.emit("checkAllUsersBuffer", clickedTime);
+                    socket.emit("newTime", {time:clickedTime, roomID:roomID});
+                    socket.emit("checkAllUsersBuffer", {time:clickedTime, roomID:roomID});
                 } else {
-                    socket.emit("newTime", clickedTime);
-                    socket.emit("Pause");       
+                    socket.emit("newTime", {time:clickedTime, roomID:roomID});
+                    socket.emit("Pause", roomID);       
                 }  
             } else{
                 prevVol = player.volume*100;
                 if (player.paused === true){
-                    socket.emit("newTime", clickedTime);
-                    socket.emit("Pause");
+                    socket.emit("newTime", {time:clickedTime, roomID:roomID});
+                    socket.emit("Pause", roomID);
                 } else {
-                    socket.emit("newTime", clickedTime);
-                    socket.emit("checkAllUsersBuffer", clickedTime);
+                    socket.emit("newTime", {time:clickedTime, roomID:roomID});
+                    socket.emit("checkAllUsersBuffer", {time:clickedTime, roomID:roomID});
                 }  
             }  
     }
@@ -187,17 +188,17 @@ $("#skipAhead").click(function(){
 
                             //Don't send buffer if youll skip to the end of the video
                             if ((10*skip.length)  < (YTPlayer.getDuration() - YTPlayer.getCurrentTime())){
-                                socket.emit("checkAllUsersBuffer", newTime);
+                                socket.emit("checkAllUsersBuffer", {time:newTime, roomID:roomID});
                             } else {
-                                socket.emit("Pause");
-                                socket.emit("newTime", YTPlayer.getDuration());
+                                socket.emit("Pause", roomID);
+                                socket.emit("newTime", {time:YTPlayer.getDuration(), roomID:roomID});
                             }
                             skip = [];
                             clearInterval(skips);
                     }
                 }
         } else {
-            socket.emit("newTime", newTime);
+            socket.emit("newTime", {time:newTime, roomID:roomID});
         }  
 
     //IF DIRECTLINK
@@ -207,7 +208,7 @@ $("#skipAhead").click(function(){
         newTime = currentTime + 10;
 
         if(player.paused === true){
-            socket.emit("newTime", newTime);
+            socket.emit("newTime", {time:newTime, roomID:roomID});
         } 
         
         else if (player.paused === false){
@@ -221,10 +222,10 @@ $("#skipAhead").click(function(){
         
                             //Don't send buffer if youll skip to the end of the video
                             if ((10*skip.length)  < (video.duration - player.currentTime)){
-                                socket.emit("checkAllUsersBuffer", newTime);
+                                socket.emit("checkAllUsersBuffer", {time:newTime, roomID:roomID});
                             } else {
-                                socket.emit("Pause");
-                                socket.emit("newTime", video.duration);
+                                socket.emit("Pause", roomID);
+                                socket.emit("newTime", {time:video.duration, roomID:roomID});
                             }
 
                             skip = [];
@@ -250,13 +251,13 @@ $("#skipBack").click(function(){
                     function checkSkip(){
 
                             newTime = currentTime - 10*skip.length
-                            socket.emit("checkAllUsersBuffer", newTime);
+                            socket.emit("checkAllUsersBuffer", {time:newTime, roomID:roomID});
                             skip = [];
                             clearInterval(skips);    
                     }
                 }
         } else {
-            socket.emit("newTime", newTime);
+            socket.emit("newTime", {time:newTime, roomID:roomID});
         }  
 
     //IF DIRECT LINK
@@ -266,7 +267,7 @@ $("#skipBack").click(function(){
         newTime = currentTime - 10;
 
         if(player.paused === true){
-            socket.emit("newTime", newTime);
+            socket.emit("newTime", {time:newTime, roomID:roomID});
         } 
         
         else if (player.paused === false){
@@ -277,7 +278,7 @@ $("#skipBack").click(function(){
                     let skips = setInterval(checkSkip, 1000);
                     function checkSkip(){
                             newTime = currentTime - 10*skip.length
-                            socket.emit("checkAllUsersBuffer", newTime);
+                            socket.emit("checkAllUsersBuffer", {time:newTime, roomID:roomID});
                             skip = [];
                             clearInterval(skips);
                     }
@@ -291,7 +292,7 @@ $("#skipBack").click(function(){
     //When the submit url button is clicked, check the input text of the new url field and make it equal to a new variable newURL.
     //send signal to "newURL" socket with the newURL which will sync all users with the new url.
     $("#urlSubmit").click(function(){
-        let newURL = ({urlID:$(".urlInputText").val(), fromButton:true});
+        let newURL = ({urlID:$(".urlInputText").val(), fromButton:true, roomID:roomID, time:0});
         if (globalPlayerType === 'youtube'){
             prevVol = YTPlayer.getVolume();
         } else {
@@ -402,16 +403,17 @@ $("#skipBack").click(function(){
             }    
         } else {
             myUsername = $('.usernameText').val();
+            roomID = $('.roomText').val();
             $('.newUserWrapper').addClass("hidden");
             $('.chatContainer').css("display", "flex");
             $('.playerContainer').removeClass('hidden');
-            socket.emit('sync');
+            socket.emit('sync', roomID);
         }
       });
 
       $('.chatBarForm').submit(function(e) {
         e.preventDefault(); // prevents page reloading
-        socket.emit('chat message', {msg:$('.chatInputText').val(), username:myUsername});
+        socket.emit('chat message', {msg:$('.chatInputText').val(), username:myUsername, roomID:roomID});
         $('.chatInputText').val('');
         return false;
       });

@@ -484,7 +484,7 @@ li {
     align-items: center;
 }
 
-.usernameText {
+.usernameText, .roomText {
     outline: 0;
     margin-bottom: 1rem;
     height:2rem;
@@ -880,7 +880,7 @@ input::placeholder{
     align-items: center;
 }
 
-.usernameText {
+.usernameText, .roomText {
    height:3rem;
    width:100%;
    font-size:1rem;

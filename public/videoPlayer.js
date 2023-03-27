@@ -101,7 +101,7 @@
                                     clearInterval(videoStarted);
                                     console.log("Pausing Player and sending CheckAllUsersBuffer")
                                     YTPlayer.pauseVideo();
-                                    socket.emit('sendCheckAllUsersBuffer', YTPlayer.getCurrentTime());
+                                    socket.emit('checkAllUsersBuffer', {time:0, roomID:newURL.roomID});
                                 }
                                 }
                             }
@@ -129,7 +129,7 @@
                                     //If the player is playing, its buffered so pause it and clear the interval.
                                     if (YTPlayer.getPlayerState() == 1){
                                         //send signal to pause to all clients again to be sure they are all paused.
-                                        socket.emit("Pause");
+                                        socket.emit("Pause", roomID);
                                         $('.bufferContainer').addClass('hidden');
                                         $('.playerContainer').removeClass('hidden');
     
@@ -143,11 +143,11 @@
                                 //DO IN ONE SECOND
                                 setTimeout(function(){
                                     //Pause
-                                    socket.emit('Pause');
+                                    socket.emit('Pause', roomID);
                                     //Send everyone back to the time recieved with the URL
-                                    socket.emit("newTime", newURL.time);
+                                    socket.emit("newTime", {time:newURL.time, roomID:roomID});
                                     //Check Everyones Buffer
-                                    socket.emit("checkAllUsersBuffer", newURL.time);         
+                                    socket.emit("checkAllUsersBuffer", {time:newURL.time, roomID:roomID});         
                                 }, 1000)   
                             }
                         }
@@ -165,12 +165,12 @@
                 
                     if (currentState == 1 && lastState == 2 && bufferInProgress == false) {
                         console.log("unpaused");
-                        socket.emit('Pause');
-                        socket.emit('checkAllUsersBuffer', YTPlayer.getCurrentTime());
+                        socket.emit('Pause', roomID);
+                        socket.emit('checkAllUsersBuffer', {time:YTPlayer.getCurrentTime(), roomID:roomID});
                     }
                 
                     if (currentState == 2 && bufferInProgress == false) {
-                        socket.emit('Pause');
+                        socket.emit('Pause', roomID);
                     }
                 
                     // When a seeking event is detected (currentState == 3), store whether the video was playing before seeking
@@ -204,7 +204,7 @@
                 if (isNewUser == true){
                     isNewUser = false;
                  }
-                socket.emit('checkAllUsersBuffer', 0);
+                socket.emit('checkAllUsersBuffer', {time:0, roomID:roomID});
 
             } else {
                 player.volume = 0;
@@ -219,9 +219,9 @@
                     $('.playerContainer').removeClass('hidden');
                 } else {
                     if (newURL.time === undefined){
-                        socket.emit('checkAllUsersBuffer', 0)
+                        socket.emit('checkAllUsersBuffer', {time:0, roomID:roomID})
                     } else {
-                        socket.emit('checkAllUsersBuffer', newURL.time);
+                        socket.emit('checkAllUsersBuffer', {time:newURL.time, roomID:roomID});
                     }
                 }
                 
@@ -242,20 +242,28 @@
         }
     });
     
+
+
+
+    socket.on('hello', () => {
+        console.log('hello');
+    })
+
     //--------------------------- FIND TIME ---------------------------//
 
     //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
-    socket.on("newUserSync", () => {
+    socket.on("newUserSync", (roomID) => {
+
         //IF YOUTUBE
         if (globalPlayerType === "youtube"){
                 let newURL = {time:YTPlayer.getCurrentTime(), urlID:regexedYoutubeURL, playerState:YTPlayer.getPlayerState(), type:"youtube", fromButton:false};
                 setTimeout(function(){
-                    socket.emit("newUserSync", newURL);
+                    socket.emit("newUserSync", {newURL:newURL, roomID:roomID});
                 }, 1000)
         //IF DIRECT LINK
         } else {      
                 let newURL = {time:player.currentTime, urlID: $('#video').attr("src"), playerState:player.paused, type:"directLink"};
-                socket.emit("newUserSync", newURL);
+                socket.emit("newUserSync", {newURL:newURL, roomID:roomID});
     }
     });
      //--------------------------- NEW TIME ---------------------------//
@@ -278,13 +286,12 @@
     //Once the player has reached readystate 4 (Buffered enough to play), send signal 
     //to "isBuffered" socket.
    
-    socket.on("checkAllUsersBuffer", (clickedTime) =>{
-
+    socket.on("checkAllUsersBuffer", (time) =>{
 
         //If the user hasnt logged in with a username yet, send isBuffered so everyone else can keep playing.
         if ($('.newUserWrapper').hasClass("hidden") === false){
             console.log("I havent logged in tee-hee");
-            socket.emit('isBuffered', clickedTime);
+            socket.emit('isBuffered', {time:time, roomID:roomID});
         } else {
         
         //hide player, display buffer animation
@@ -310,7 +317,7 @@
                             //Tell everyone you're buffered
                             console.log("check complete, paused and sent is buffered");
                             clearInterval(YTBuffer);
-                            socket.emit("isBuffered", clickedTime);
+                            socket.emit("isBuffered", {time:time, roomID:roomID});
                             bufferInProgress = false;
                             }  
                     }
@@ -339,7 +346,7 @@
                     console.log('buffered percent = '+bufferedPercentage);
                     if (bufferedPercentage >= 25) {
                         console.log("buffered");
-                        socket.emit('isBuffered', clickedTime);
+                        socket.emit('isBuffered', {time:time, roomID:roomID});
                         clearInterval(GPBuffer);
                     }
                 }

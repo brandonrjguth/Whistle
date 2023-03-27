@@ -49,57 +49,68 @@ app.get('/', function(req, res) {
 });
 
 /*------------------------------------------IO CONTROLS------------------------------------------------------*/
-let users = [];
-let counter = [];
-let counter2 = [];
+let bufferedCounters = new Map();
 
 //ON CONNECT
 io.on('connection', (socket) => {
-    //push users to user array.
-    users.push({id:socket.id});
 
     //ON DISCONNECT
     socket.on('disconnect', () => {
-        //REMOVE NEW USER FROM ARRAY
-        for (i=0; i < users.length; i++) {
-            if (users[i].id == socket.id) {
-                users.splice(i, 1);
-            } 
-        };
     });
 
 
     //When new user joins chat and has interacted with DOM, or sync button is pressed;
-    socket.on('sync', () => {
-        //find the timestamp and sync to first user to join
-        let oldestUser = users[0].id;
-        io.to(oldestUser).emit("newUserSync");
+    socket.on('sync', (roomID) => {
+
+        if (!bufferedCounters.get(roomID)){
+            bufferedCounters.set(roomID, 0);
+        }
+
+        socket.join(roomID);
+        const roomSockets = io.sockets.adapter.rooms.get(roomID);
+        let socketsArray = [...roomSockets];
+    
+        // If the room is empty or doesn't exist, create/join the room
+        if (socketsArray.length > 1) {
+            
+            //find the timestamp and sync to first user to join
+            let oldestUser = socketsArray[0].toString();
+            console.log('room = '+roomID);
+            io.to(socketsArray[0]).emit("newUserSync", roomID);
+        } else {
+            // Otherwise, join the existing room
+            socket.join(roomID);
+        }
     })
 
     //FOUND TIME FOR NEW USER, PLAY OR PAUSE ACCORDINGLY
-        socket.on('newUserSync', (newURL) =>{
-        let newestUser = users[users.length - 1].id;
-        newURL.isNewUser = true;
-        io.sockets.connected[newestUser].emit("newURL", newURL);
+        socket.on('newUserSync', (oldUser) =>{
 
-        if(newURL.type === "youtube"){
+        const roomSockets = io.sockets.adapter.rooms.get(oldUser.roomID);
+        let socketsArray = [...roomSockets];
+        let newestUser = socketsArray[socketsArray.length - 1];
+        oldUser.newURL.isNewUser = true;
+
+        io.to(newestUser).emit("newURL", oldUser.newURL);
+
+        if(oldUser.newURL.type === "youtube"){
         } else{
-            io.emit("newTime", newURL.time);
-            if (newURL.playerState === true){
-                io.sockets.connected[newestUser].emit("Pause");
+            io.emit("newTime", oldUser.newURL.time);
+            if (oldUser.newURL.playerState === true){
+                io.to(newestUser).emit("Pause");
             } else {
                 io.emit("Pause");
-                io.emit("checkAllUsersBuffer", newURL.time);
+                io.to(oldUser.roomID).emit("checkAllUsersBuffer", oldUser.newURL.time);
             }
         }
     });
 
     //FOUND TIME ALL USERS, SYNC ALL USERS
-    socket.on('newTime', (newTime) =>{
-        if (newTime < 0 || newTime === undefined){
-            newTime = 0;
+    socket.on('newTime', (fromUser) =>{
+        if (fromUser.time < 0 || fromUser.time === undefined){
+            fromUser.time = 0;
         }
-        io.emit("newTime", newTime);
+        io.to(fromUser.roomID).emit("newTime", fromUser.time);
     });
 
     //RECEIVED A NEW URL
@@ -122,13 +133,13 @@ io.on('connection', (socket) => {
                             if(newURL.url.startsWith('https')){
                                 httpsCheck.get(newURL.url, (res) => {
                                     if (res.statusCode === 200){
-                                        io.emit('newURL', newURL);
+                                        io.to(newURL.roomID).emit('newURL', newURL);
                                     }
                                 })
                             } else {
                                 httpCheck.get(newURL.url, (res) => {
                                     if (res.statusCode === 200){
-                                        io.emit('newURL', newURL);
+                                        io.to(newURL.roomID).emit('newURL', newURL);
                                     }
                                 })
                             }
@@ -148,13 +159,13 @@ io.on('connection', (socket) => {
                             if(newURL.urlID.startsWith('https')){
                                 httpsCheck.get(newURL.urlID, (res) => {
                                     if (res.statusCode === 200){
-                                        io.emit('newURL', newURL);
+                                        io.to(newURL.roomID).emit('newURL', newURL);
                                     }
                                 })
                             } else {
                                 httpCheck.get(newURL.urlID, (res) => {
                                     if (res.statusCode === 200){
-                                        io.emit('newURL', newURL);
+                                        io.to(newURL.roomID).emit('newURL', newURL);
                                     }
                                 })
                             }
@@ -164,50 +175,33 @@ io.on('connection', (socket) => {
     });
 
     //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED
-    socket.on('checkAllUsersBuffer', (clickedTime) => {
-        io.emit('checkAllUsersBuffer', clickedTime);
+    socket.on('checkAllUsersBuffer', (fromUser) => {
+        io.to(fromUser.roomID).emit('checkAllUsersBuffer', fromUser.time);
     });
 
-    socket.on('sendCheckAllUsersBuffer', () => {    
-        console.log('counter2 push');
-        counter2.push('');
-        console.log('counter2 length = '+counter2.length)
-        console.log('users length = '+ users.length);
-        if (counter2.length >= users.length){
-            counter2 = [];
-                //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
-                setTimeout(function(){
-                    console.log('sending checkbuffer')
-                    io.emit("checkAllUsersBuffer");    
-            }, 400);        
-        }
-    });
 
     //RECEIVE BUFFERED FROM ALL CLIENTS AND PLAY IF TRUE.
-    socket.on('isBuffered', (clickedTime) =>{
+    socket.on('isBuffered', (fromUser) =>{
+        bufferedCounters.set(fromUser.roomID, bufferedCounters.get(fromUser.roomID) + 1);
 
-        console.log("received is buffered");
-        counter.push(1);    
-        if (counter.length >= users.length){
-            counter = [];
-                //WAIT TIME TO HELP SLIGHT EXTRA BUFFER
-                setTimeout(function(){
-                    io.emit("Play", clickedTime);    
+        const clients = io.sockets.adapter.rooms.get(fromUser.roomID); // Get the clients in the room
+        const numClients = clients ? clients.size : 0; // Get the number of clients in the room
+
+        if (bufferedCounters.get(fromUser.roomID)>= numClients) {
+            // All clients are buffered, send "play" event to the room and clear the counter
+            setTimeout(function(){
+                io.to(fromUser.roomID).emit("Play", fromUser.time);    
             }, 400);
-                
+            bufferedCounters.set(fromUser.roomID, 0);
         }
     });
 
-    socket.on('YTPlay', (time) => {
-        io.emit('Play', time);
-    })
-    
-    socket.on('Pause', () =>{
-        io.emit('Pause');
+    socket.on('Pause', (roomID) =>{
+        io.to(roomID).emit('Pause');
     });
     
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg);
+    socket.on('chat message', (fromUser) => {
+        io.to(fromUser.roomID).emit('chat message', fromUser);
       });
 });
 
