@@ -455,7 +455,7 @@
                                 player.currentTime = fromServer.time;
                             }
                             player.play();
-                        }, 1000 - delay);
+                        }, delay);
                     }
                     
                 });
