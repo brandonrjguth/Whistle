@@ -431,6 +431,21 @@ li {
         display: flex;
     }
 
+    .roomName{
+        height: 2rem;
+        font-size:20px;
+        padding:1rem 0rem;
+        width:100%;
+        background: #1d1d1d;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #roomName{
+        margin-left:5px;
+    }
+
     .chatInputText{
     height:2rem;
     width:80%;
@@ -782,8 +797,6 @@ input::placeholder{
     .chatBar{
         height:7rem;
     }
-
- 
 
     /*---------------------  Chat Messages--------------------*/
 

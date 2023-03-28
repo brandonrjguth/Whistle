@@ -5,12 +5,17 @@
     const bodyParser = require('body-parser');
     const ejs = require("ejs");
     const express = require("express");
+    
     const app = express();
-    const http = require('http').createServer(app);
-    const io = require('socket.io')(http);
+    const http = require('http');
+    const server = http.createServer(app);
+    const io = require('socket.io')(server, {
+      transports: ['websocket'],
+    });
     const httpCheck = require('http');
     const httpsCheck = require('https');
-
+    const cors = require('cors');
+    app.use(cors());
 //SET EXPRESS AND MONGO CONNECTION PORT AND URL.
      //Set port express will listen on.
     const port = 3000;
@@ -20,27 +25,6 @@
     app.use(bodyParser.urlencoded({ extended: true }));
     app.set('view engine', 'ejs');
     app.use(express.static(__dirname + '/public'));
-
-
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
- 
-// Connection URL
-const url = 'mongodb://localhost:27017';
- 
-// Database Name
-const dbName = 'test';
- 
-// Use connect method to connect to the server
-MongoClient.connect(url, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected successfully to server");
- 
-  const db = client.db(dbName);
- 
-  client.close();
-});
-
 
 /*---------------------------------------------ROUTES-------------------------------------------------------*/
 
@@ -206,4 +190,4 @@ io.on('connection', (socket) => {
 });
 
 //LISTEN PORT
-http.listen(3001, "127.0.0.1");
+server.listen(process.env.PORT || 3000);

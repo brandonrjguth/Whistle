@@ -1,6 +1,6 @@
+
 //Function for keeping seekbar synced with videotime must be initialized here for use in the later 
 //attached "videoPlayer.js"
-
 
 function updateTimeSeekBar(){
     let videotime;
@@ -332,7 +332,21 @@ $("#skipBack").click(function(){
         $('.buttonRow').css("display", "flex");
     });
 
-
+    $('#fullScreen').click(() =>{
+        if (globalPlayerType === 'youtube'){
+            let embed = document.querySelector("#embeddedArea")
+            embed.requestFullscreen()
+            requestFullscreen.bind(embed);
+        } else {
+            if (player.requestFullscreen) {
+                player.requestFullscreen();
+              } else if (player.webkitRequestFullscreen) { /* Safari */
+                player.webkitRequestFullscreen();
+              } else if (player.msRequestFullscreen) { /* IE11 */
+                player.msRequestFullscreen();
+              }
+        }
+    });
 
     // -------- Volume Control --------//
     $('#volBar').val(100);
@@ -389,6 +403,15 @@ $("#skipBack").click(function(){
         }
     })
 
+    $("#volBar").on( "touchend",  function() {
+        if (globalPlayerType === 'youtube'){
+            YTPlayer.setVolume($('#volBar').val());
+        } else {
+            player.volume = $('#volBar').val()/100;
+        }
+    });
+  
+
 
 
     // ----------- Chat Form ---------//
@@ -407,6 +430,7 @@ $("#skipBack").click(function(){
             $('.newUserWrapper').addClass("hidden");
             $('.chatContainer').css("display", "flex");
             $('.playerContainer').removeClass('hidden');
+            $('#roomName').text(roomID);
             socket.emit('sync', roomID);
         }
       });

@@ -101,6 +101,7 @@
                                     clearInterval(videoStarted);
                                     console.log("Pausing Player and sending CheckAllUsersBuffer")
                                     YTPlayer.pauseVideo();
+                                    socket.emit('newTime', {time:0, roomID:newURL.roomID})
                                     socket.emit('checkAllUsersBuffer', {time:0, roomID:newURL.roomID});
                                 }
                                 }
@@ -317,6 +318,7 @@
                             //Tell everyone you're buffered
                             console.log("check complete, paused and sent is buffered");
                             clearInterval(YTBuffer);
+                            socket.emit("newTime", {time:time, roomID:roomID});
                             socket.emit("isBuffered", {time:time, roomID:roomID});
                             bufferInProgress = false;
                             }  
@@ -381,7 +383,7 @@
             if (globalPlayerType === "youtube"){
                 YTPlayer.setVolume(prevVol);
                 if (time !== undefined ){
-                YTPlayer.seekTo(time);
+                //YTPlayer.seekTo(time);
             }
                 YTPlayer.playVideo();
                 lastState = 3;
@@ -400,7 +402,7 @@
                 //reset volume to volume before buffer
                 player.volume = prevVol/100;
                 if (time !== undefined && time !== null ){
-                    player.currentTime = time;
+                    //player.currentTime = time;
                 }
                 player.play();
 
