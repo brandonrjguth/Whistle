@@ -436,6 +436,7 @@
                     if (globalPlayerType === "youtube"){
                         // Set a timeout to trigger the play event at the next sync time
                         setTimeout(() => {
+                            YTPlayer.setVolume(prevVol);
                             YTPlayer.seekTo(fromServer.time);
                             YTPlayer.playVideo();
                             lastState = 3;
