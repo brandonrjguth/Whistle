@@ -428,9 +428,9 @@
                 .then(data => {
                     let now = new Date(data.datetime);
                     // Use the now object to synchronize the client's clock
-                    let nextSyncSecond = Math.ceil(now.getSeconds() / 3) * 3;
+                    let nextSyncSecond = Math.ceil(now.getSeconds() / 5) * 5;
                     if (nextSyncSecond - now.getSeconds() <= 2) {
-                        nextSyncSecond += 3;
+                        nextSyncSecond += 5;
                     }
                     nextSyncSecond %= 60;
             
