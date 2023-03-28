@@ -10,13 +10,12 @@
     const server = http.createServer(app);
 
     //For Heroku
-    /*const io = require('socket.io')(server, {
-      transports: ['websocket'],
-    });*/
+    //const io = require('socket.io')(server, {
+      //transports: ['websocket'],
+    //});
 
     //For Local
     const io = require('socket.io')(server);
-
 
     const cors = require('cors');
     app.use(cors());
@@ -43,11 +42,11 @@ let bufferedCounters = new Map();
 let newURLCounters = new Map();
 
 //ON CONNECT
-io.on('connection', (socket) => {
-    console.log('new connection');
+io.on('connection', (socket) => {     
+
     //ON DISCONNECT
     socket.on('disconnect', () => {
-        console.log('lost connection');
+
     });
 
     //When new user joins chat and has interacted with DOM, or sync button is pressed;
@@ -230,12 +229,21 @@ io.on('connection', (socket) => {
         const numClients = clients ? clients.size : 0; // Get the number of clients in the room
 
         if (bufferedCounters.get(fromUser.roomID)>= numClients) {
-            // All clients are buffered, send "play" event to the room and clear the counter
-            setTimeout(function(){
-                io.to(fromUser.roomID).emit("Play", fromUser.time);    
+            // All clients are buffered, send "testDelay" event to the room and clear the counter
+            //There we will get a timestamp from client to determine round trip time
+            setTimeout(function(){;
+                io.to(fromUser.roomID).emit("testDelay", {time:fromUser.time, roomID:fromUser.roomID});    
             }, 400);
             bufferedCounters.set(fromUser.roomID, 0);
         }
+    });
+
+    //receive timestamp from user, send it back to its socket and play
+    //we use it there to create a delay to adjust for latency from the round trip
+    socket.on('ping', (fromUser) => {
+        console.log('got to ping');
+        console.log(fromUser.roomID);
+        io.to(socket.id).emit('Play', (fromUser));
     });
 
     socket.on('Pause', (roomID) =>{
