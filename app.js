@@ -5,19 +5,25 @@
     const bodyParser = require('body-parser');
     const ejs = require("ejs");
     const express = require("express");
-    
     const app = express();
     const http = require('http');
     const server = http.createServer(app);
-    const io = require('socket.io')(server, {
+
+    //For Heroku
+    /*const io = require('socket.io')(server, {
       transports: ['websocket'],
-    });
-    const httpCheck = require('http');
-    const httpsCheck = require('https');
+    });*/
+
+    //For Local
+    const io = require('socket.io')(server);
+
+
     const cors = require('cors');
     app.use(cors());
-//SET EXPRESS AND MONGO CONNECTION PORT AND URL.
-     //Set port express will listen on.
+    const httpCheck = require('http');
+    const httpsCheck = require('https');
+
+    //Set port express will listen on.
     const port = 3000;
 
 //OTHER
@@ -34,17 +40,22 @@ app.get('/', function(req, res) {
 
 /*------------------------------------------IO CONTROLS------------------------------------------------------*/
 let bufferedCounters = new Map();
+let newURLCounters = new Map();
 
 //ON CONNECT
 io.on('connection', (socket) => {
-
+    console.log('new connection');
     //ON DISCONNECT
     socket.on('disconnect', () => {
+        console.log('lost connection');
     });
-
 
     //When new user joins chat and has interacted with DOM, or sync button is pressed;
     socket.on('sync', (roomID) => {
+
+        if (!newURLCounters.get(roomID)){
+            newURLCounters.set(roomID, 0);
+        }
 
         if (!bufferedCounters.get(roomID)){
             bufferedCounters.set(roomID, 0);
@@ -99,6 +110,7 @@ io.on('connection', (socket) => {
 
     //RECEIVED A NEW URL
     socket.on('newURL', (newURL) =>{
+
                 //DO A REGEX CHECK ON URL
                 if (newURL.urlID != undefined || newURL.urlID != '') {
                     let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
@@ -114,24 +126,39 @@ io.on('connection', (socket) => {
 
                         //check if link is valid before sending
                         if (match){
-                            if(newURL.url.startsWith('https')){
-                                httpsCheck.get(newURL.url, (res) => {
-                                    if (res.statusCode === 200){
-                                        io.to(newURL.roomID).emit('newURL', newURL);
+                            try {
+                                if (newURL.url.startsWith('https')) {
+                                  const request = httpsCheck.get(newURL.url, (response) => {
+                                    if (response.statusCode === 200) {
+                                      console.log('sending new https url');
+                                      io.to(newURL.roomID).emit('newURL', newURL);
                                     }
-                                })
-                            } else {
-                                httpCheck.get(newURL.url, (res) => {
-                                    if (res.statusCode === 200){
-                                        io.to(newURL.roomID).emit('newURL', newURL);
+                                  });
+                              
+                                  request.on('error', (error) => {
+                                    console.error(`Error making HTTPS request: ${error.message}`);
+                                  });
+                                } else {
+                                  const request = httpCheck.get(newURL.url, (response) => {
+                                    if (response.statusCode === 200) {
+                                      console.log('sending new http url');
+                                      io.to(newURL.roomID).emit('newURL', newURL);
                                     }
-                                })
-                            }
+                                  });
+                              
+                                  request.on('error', (error) => {
+                                    console.error(`Error making HTTP request: ${error.message}`);
+                                  });
+                                }
+                              } catch (error) {
+                                console.error(`Error checking URL: ${error.message}`);
+                              }
                         }
                     }
 
                     //ELSE, SEND THE NEW URL WITH TYPE DIRECTLINK
                     else {
+
                         //regCheck for starts with https, or http, ends with valid video type;
                         let regExp = /(?:((?:https|http):\/\/)|(?:\/)).+(?:.webm|mp4|ogg)/;
                         let match = newURL.urlID.match(regExp);
@@ -140,22 +167,53 @@ io.on('connection', (socket) => {
                         //user the https, and http node modules respectively to see if the
                         //link is valid and active, if so, send to user
                         if (match){
-                            if(newURL.urlID.startsWith('https')){
-                                httpsCheck.get(newURL.urlID, (res) => {
-                                    if (res.statusCode === 200){
-                                        io.to(newURL.roomID).emit('newURL', newURL);
+                            try {
+                                if (newURL.urlID.startsWith('https')) {
+                                  const request = httpsCheck.get(newURL.urlID, (response) => {
+                                    if (response.statusCode === 200) {
+                                      console.log('sending new https url');
+                                      io.to(newURL.roomID).emit('newURL', newURL);
                                     }
-                                })
-                            } else {
-                                httpCheck.get(newURL.urlID, (res) => {
-                                    if (res.statusCode === 200){
-                                        io.to(newURL.roomID).emit('newURL', newURL);
+                                  });
+                              
+                                  request.on('error', (error) => {
+                                    console.error(`Error making HTTPS request: ${error.message}`);
+                                  });
+                                } else {
+                                  const request = httpCheck.get(newURL.urlID, (response) => {
+                                    if (response.statusCode === 200) {
+                                      console.log('sending new http url');
+                                      io.to(newURL.roomID).emit('newURL', newURL);
                                     }
-                                })
-                            }
+                                  });
+                              
+                                  request.on('error', (error) => {
+                                    console.error(`Error making HTTP request: ${error.message}`);
+                                  });
+                                }
+                              } catch (error) {
+                                console.error(`Error checking URL: ${error.message}`);
+                              }
                         }
                     }
                 }
+    });
+
+    //Check if all users have newURL and players are ready
+    socket.on('newURLReady', (fromUser) => {
+        console.log("newURLReady received")
+        newURLCounters.set(fromUser.roomID, newURLCounters.get(fromUser.roomID) + 1);
+        console.log('newURL Counter = '+ newURLCounters.get(fromUser.roomID))
+        const clients = io.sockets.adapter.rooms.get(fromUser.roomID); // Get the clients in the room
+        const numClients = clients ? clients.size : 0; // Get the number of clients in the room
+
+        if (newURLCounters.get(fromUser.roomID)>= numClients) {
+            // All clients are buffered, send "play" event to the room and clear the counter
+            setTimeout(function(){
+                io.to(fromUser.roomID).emit("checkAllUsersBuffer", fromUser.time);    
+            }, 400);
+            newURLCounters.set(fromUser.roomID, 0);
+        }
     });
 
     //CHECK BUFFER STATUS ON SERVER WHICH GETS SENT BACK AS IS BUFFERED

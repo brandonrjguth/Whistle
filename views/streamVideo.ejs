@@ -6,9 +6,17 @@
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
         crossorigin="anonymous"></script>
         <script src="/socket.io/socket.io.js"></script>
-        <script>const socket = io('https://syncwatch.herokuapp.com', {
+
+        <!---For heroku switch to:
+            
+            socket = io('https://syncwatch.herokuapp.com', {
             transports: ['websocket'],
           });
+          
+          For local:
+          var socket = io();
+          --->
+        <script>var socket = io();
           </script>
         <script src="https://kit.fontawesome.com/144ecfb073.js" crossorigin="anonymous"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">

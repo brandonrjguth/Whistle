@@ -99,10 +99,9 @@
                             function isVideoStarted(){
                                 if (YTPlayer.getPlayerState() === 1){
                                     clearInterval(videoStarted);
-                                    console.log("Pausing Player and sending CheckAllUsersBuffer")
+                                    console.log("Pausing Player and sending newURLReady")
                                     YTPlayer.pauseVideo();
-                                    socket.emit('newTime', {time:0, roomID:newURL.roomID})
-                                    socket.emit('checkAllUsersBuffer', {time:0, roomID:newURL.roomID});
+                                    socket.emit("newURLReady", {time:0, roomID:newURL.roomID});
                                 }
                                 }
                             }
@@ -213,19 +212,6 @@
                 $("#video").attr("src", newURL.urlID);
                 //CHANGE GLOBAL PLAYER TYPE TO DIRECTLINK
                 globalPlayerType = "directLink";
-
-                if (newURL.playerState == true){
-                    video.pause();
-                    $('.bufferContainer').addClass('hidden');
-                    $('.playerContainer').removeClass('hidden');
-                } else {
-                    if (newURL.time === undefined){
-                        socket.emit('checkAllUsersBuffer', {time:0, roomID:roomID})
-                    } else {
-                        socket.emit('checkAllUsersBuffer', {time:newURL.time, roomID:roomID});
-                    }
-                }
-                
             }
 
             //STARTUP SEEKBAR LISTENER
@@ -239,17 +225,17 @@
 
             player.onloadedmetadata = function(){
                seekBarListener();
+               if (newURL.playerState == true){
+                video.pause();
+                $('.bufferContainer').addClass('hidden');
+                $('.playerContainer').removeClass('hidden');
+                } else {
+                    socket.emit("newURLReady", {time:0, roomID:newURL.roomID});
+                }
             };            
         }
     });
     
-
-
-
-    socket.on('hello', () => {
-        console.log('hello');
-    })
-
     //--------------------------- FIND TIME ---------------------------//
 
     //Find the video time, src, and playing status and then submit it back to the "newUserSync" socket. 
@@ -288,7 +274,7 @@
     //to "isBuffered" socket.
    
     socket.on("checkAllUsersBuffer", (time) =>{
-
+        console.log("here should be only once")
         //If the user hasnt logged in with a username yet, send isBuffered so everyone else can keep playing.
         if ($('.newUserWrapper').hasClass("hidden") === false){
             console.log("I havent logged in tee-hee");
@@ -383,7 +369,7 @@
             if (globalPlayerType === "youtube"){
                 YTPlayer.setVolume(prevVol);
                 if (time !== undefined ){
-                //YTPlayer.seekTo(time);
+                YTPlayer.seekTo(time);
             }
                 YTPlayer.playVideo();
                 lastState = 3;
