@@ -436,7 +436,7 @@
                     if (globalPlayerType === "youtube"){
                         // Set a timeout to trigger the play event at the next sync time
                         setTimeout(() => {
-                            YTPlayer.seekTo(time);
+                            YTPlayer.seekTo(fromServer.time);
                             YTPlayer.playVideo();
                             lastState = 3;
                             //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
@@ -451,8 +451,8 @@
                     } else {
                         setTimeout(() => {
                             player.volume = prevVol/100;
-                            if (time !== undefined && time !== null ){
-                                player.currentTime = time;
+                            if (fromServer.time !== undefined && fromServer.time !== null ){
+                                player.currentTime = fromServer.time;
                             }
                             player.play();
                         }, 1000 - delay);
