@@ -41,7 +41,7 @@
         if (newURL.type == "youtube"){
             
 
-                bufferInProgress = false;
+                bufferInProgress = true;
                 //change regexed youtubeURL variable to the received urlID from the servers regexer.
                 regexedYoutubeURL = newURL.urlID;        
                 //IF YOUTUBE PLAYER IS ALREADY UP
@@ -320,7 +320,7 @@
                             clearInterval(YTBuffer);
                             socket.emit("newTime", {time:time, roomID:roomID});
                             socket.emit("isBuffered", {time:time, roomID:roomID});
-                            bufferInProgress = false;
+                            //bufferInProgress = false;
                             }  
                     }
                 }, 4000)    
