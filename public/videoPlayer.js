@@ -16,8 +16,6 @@
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    let waitDelay
-
     //--------------------------------- VIDEO PLAYER FUNCTIONS ---------------------------------//
 
     //---------------------  NEW URL ---------------------//
@@ -360,7 +358,6 @@
 
      //-------------------- PLAY -----------------------//
 
-
     //After everyone is buffered, take a timestamp, send it to server
     //we receive this again on play, then we compare how long the round-trip took
     //and we play the video in 1 second minus the delay.
@@ -380,6 +377,8 @@
         } else{
             $('.bufferContainer').addClass('hidden');
             $('.playerContainer').removeClass('hidden');
+
+            /*
             let ourTime = Date.now();
             let rtt = ourTime - fromServer.timestamp;
             let delay = rtt/2;
@@ -404,39 +403,7 @@
                 }
             }
             }, 1000 - delay);
-
-            /*
-            Check API time, syncup at next 5s interval within 100ms
-            Works alright as a sync solution
-
-            fetch('https://worldtimeapi.org/api/timezone/Etc/UTC')
-                .then(response => response.json())
-                .then(data => {
-                    let now = new Date(data.datetime);
-                    // Use the now object to synchronize the client's clock
-                    const nextSyncSecond = Math.ceil(now.getSeconds() / 5) * 5;
-    
-                    // Calculate the delay until the next sync second in milliseconds
-                    const delay = (nextSyncSecond - now.getSeconds()) * 1000 - now.getMilliseconds();
-
-    
-                    // Set a timeout to trigger the play event at the next sync time
-                    setTimeout(() => {
-                        YTPlayer.seekTo(time);
-                        YTPlayer.playVideo();
-                        lastState = 3;
-                        //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
-                        let bufferDone = setInterval(isbufferDone, 500);
-                        function isbufferDone(){
-                            if (YTPlayer.getPlayerState() === 1){
-                                clearInterval(bufferDone);
-                                bufferInProgress = false;
-                            }
-                        }
-                    }, delay);
-                    
-                });*/
-
+            
             //IF DIRECT LINK
             } else {
                 //reset volume to volume before buffer
@@ -448,9 +415,53 @@
                 player.play();
             }, 1000 - delay);
 
-            }
-        }
+            }*/
+        
+            
 
+            /*
+            Check API time, syncup at next 5s interval within 100ms
+            Works alright as a sync solution*/
+
+            fetch('https://worldtimeapi.org/api/timezone/Etc/UTC')
+                .then(response => response.json())
+                .then(data => {
+                    let now = new Date(data.datetime);
+                    // Use the now object to synchronize the client's clock
+                    const nextSyncSecond = Math.ceil(now.getSeconds() / 5) * 5;
+    
+                    // Calculate the delay until the next sync second in milliseconds
+                    const delay = (nextSyncSecond - now.getSeconds()) * 1000 - now.getMilliseconds();
+
+                    if (globalPlayerType === "youtube"){
+                        // Set a timeout to trigger the play event at the next sync time
+                        setTimeout(() => {
+                            YTPlayer.seekTo(time);
+                            YTPlayer.playVideo();
+                            lastState = 3;
+                            //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
+                            let bufferDone = setInterval(isbufferDone, 500);
+                            function isbufferDone(){
+                                if (YTPlayer.getPlayerState() === 1){
+                                    clearInterval(bufferDone);
+                                    bufferInProgress = false;
+                                }
+                            }
+                        }, delay);
+                    } else {
+                        setTimeout(() => {
+                            player.volume = prevVol/100;
+                            if (time !== undefined && time !== null ){
+                                player.currentTime = time;
+                            }
+                            player.play();
+                        }, 1000 - delay);
+                    }
+                    
+                });
+
+
+        }
     });
 
 
