@@ -429,9 +429,13 @@
                     let now = new Date(data.datetime);
                     // Use the now object to synchronize the client's clock
                     const nextSyncSecond = Math.ceil(now.getSeconds() / 5) * 5;
-    
+            
                     // Calculate the delay until the next sync second in milliseconds
                     const delay = (nextSyncSecond - now.getSeconds()) * 1000 - now.getMilliseconds();
+
+                    console.log('time retreived is = ' +now)
+                    console.log('next 5 second interval is = ' +nextSyncSecond);
+                    console.log('which is '+delay+ 'ms away');
 
                     if (globalPlayerType === "youtube"){
                         // Set a timeout to trigger the play event at the next sync time
