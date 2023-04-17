@@ -229,21 +229,14 @@ io.on('connection', (socket) => {
         const numClients = clients ? clients.size : 0; // Get the number of clients in the room
 
         if (bufferedCounters.get(fromUser.roomID)>= numClients) {
-            // All clients are buffered, send "testDelay" event to the room and clear the counter
-            //There we will get a timestamp from client to determine round trip time
+            
+          let currentTimeInMilliseconds = Date.now();
+          let targetPlayTime = currentTimeInMilliseconds + 5000;
             setTimeout(function(){;
-                io.to(fromUser.roomID).emit("testDelay", {time:fromUser.time, roomID:fromUser.roomID});    
+                io.to(fromUser.roomID).emit("Play", {time:fromUser.time, roomID:fromUser.roomID, targetPlayTime:targetPlayTime});    
             }, 400);
             bufferedCounters.set(fromUser.roomID, 0);
         }
-    });
-
-    //receive timestamp from user, send it back to its socket and play
-    //we use it there to create a delay to adjust for latency from the round trip
-    socket.on('ping', (fromUser) => {
-        console.log('got to ping');
-        console.log(fromUser.roomID);
-        io.to(socket.id).emit('Play', (fromUser));
     });
 
     socket.on('Pause', (roomID) =>{

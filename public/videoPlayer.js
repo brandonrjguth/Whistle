@@ -363,13 +363,6 @@
     //and we play the video in 1 second minus the delay.
     //this keeps all users synced. 
 
-    //alternatively, use the api method below, and route straight to 'play' after
-    //isBuffered on the server
-    socket.on('testDelay', (fromServer) =>{
-        const timestamp = Date.now();
-        socket.emit('ping', {time:fromServer.time, roomID:fromServer.roomID, 
-        timestamp:timestamp});
-    });
 
     socket.on('Play', (fromServer) => { 
         if ($('.newUserWrapper').hasClass("hidden") === false){
@@ -378,10 +371,8 @@
             $('.bufferContainer').addClass('hidden');
             $('.playerContainer').removeClass('hidden');
 
-            /*
             let ourTime = Date.now();
-            let rtt = ourTime - fromServer.timestamp;
-            let delay = rtt/2;
+            let delay = fromServer.targetPlayTime - ourTime;
 
             //IF YOUTUBE
             if (globalPlayerType === "youtube"){
@@ -402,7 +393,7 @@
                     bufferInProgress = false;
                 }
             }
-            }, 1000 - delay);
+            }, delay);
             
             //IF DIRECT LINK
             } else {
@@ -413,64 +404,9 @@
                     player.currentTime = time;
                 }
                 player.play();
-            }, 1000 - delay);
+            }, delay);
 
-            }*/
-        
-            
-
-            /*
-            Check API time, syncup at next 5s interval within 100ms
-            Works alright as a sync solution*/
-
-            fetch('https://worldtimeapi.org/api/timezone/Etc/UTC')
-                .then(response => response.json())
-                .then(data => {
-                    let now = new Date(data.datetime);
-                    // Use the now object to synchronize the client's clock
-                    let nextSyncSecond = Math.ceil(now.getSeconds() / 5) * 5;
-                    if (nextSyncSecond - now.getSeconds() <= 2) {
-                        nextSyncSecond += 5;
-                    }
-                    nextSyncSecond %= 60;
-            
-                    // Calculate the delay until the next sync second in milliseconds
-                    let delay = (nextSyncSecond - now.getSeconds()) * 1000 - now.getMilliseconds();
-                    if (delay < 0) {
-                        delay += 60 * 1000;
-                    }
-            
-                    console.log('time retrieved is = ' + now);
-                    console.log('next 5 second interval is = ' + nextSyncSecond);
-                    console.log('which is ' + delay + 'ms away');
-                    if (globalPlayerType === "youtube"){
-                        // Set a timeout to trigger the play event at the next sync time
-                        setTimeout(() => {
-                            YTPlayer.setVolume(prevVol);
-                            YTPlayer.seekTo(fromServer.time);
-                            YTPlayer.playVideo();
-                            lastState = 3;
-                            //START INTERVAL TO DETECT PLAYING BEFORE CHANGING BUFFERINPROGRESS TO FALSE
-                            let bufferDone = setInterval(isbufferDone, 500);
-                            function isbufferDone(){
-                                if (YTPlayer.getPlayerState() === 1){
-                                    clearInterval(bufferDone);
-                                    bufferInProgress = false;
-                                }
-                            }
-                        }, delay);
-                    } else {
-                        setTimeout(() => {
-                            player.volume = prevVol/100;
-                            if (fromServer.time !== undefined && fromServer.time !== null ){
-                                player.currentTime = fromServer.time;
-                            }
-                            player.play();
-                        }, delay);
-                    }
-                    
-                });
-
+            }
 
         }
     });
